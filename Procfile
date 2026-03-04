@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar build/libs/eshop-0.0.1-SNAPSHOT.jar
+web: java -Dserver.port=$PORT -jar build/libs/group-project-0.0.1-SNAPSHOT.jar
