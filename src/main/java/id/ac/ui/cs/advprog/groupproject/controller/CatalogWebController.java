@@ -37,16 +37,26 @@ public class CatalogWebController {
     @GetMapping
     public String catalog(Model model) {
         model.addAttribute("catalogs", catalogService.getAllCatalogs());
-        return "catalog";
+        return "catalog/catalog";
     }
-    
+
+    @GetMapping("/{userId}")
+    public String userCatalog(@PathVariable UUID userId, Model model) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        model.addAttribute("catalogs", catalogService.getCatalogsByUserId(userId));
+        model.addAttribute("username", user.getUsername());
+        return "catalog/userCatalog";
+    }
+
     @GetMapping("/my")
     public String myCatalog(Model model, Principal principal) {
         User currentUser = getCurrentUser(principal);
         
         model.addAttribute("catalogs", catalogService.findAllCatalogs(currentUser));
         model.addAttribute("username", currentUser.getUsername());
-        return "myCatalog";
+        return "catalog/myCatalog";
     }
     
     @GetMapping("/edit/{id}")
@@ -55,7 +65,7 @@ public class CatalogWebController {
         
         Catalog catalog = catalogService.getCatalogById(id, currentUser);
         model.addAttribute("catalog", catalog);
-        return "editCatalog";
+        return "catalog/editCatalog";
     }
     
     @PostMapping("/edit")
@@ -75,7 +85,7 @@ public class CatalogWebController {
         }
         
         model.addAttribute("catalog", new Catalog());
-        return "addCatalog";
+        return "catalog/addCatalog";
     }
     
     @PostMapping("/add")

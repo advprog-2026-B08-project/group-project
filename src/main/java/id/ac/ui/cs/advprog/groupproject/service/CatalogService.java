@@ -29,6 +29,10 @@ public class CatalogService {
         return catalogRepository.findAll();
     }
 
+    public List<Catalog> getCatalogsByUserId(UUID userId) {
+        return catalogRepository.findByJastiperId(userId);
+    }
+
     public Catalog getCatalogById(UUID catalogId, User currentUser) {
         Catalog catalog = catalogRepository.findById(catalogId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
