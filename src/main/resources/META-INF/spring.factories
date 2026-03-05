@@ -1,1 +1,0 @@
-org.springframework.context.ApplicationContextInitializer=id.ac.ui.cs.advprog.groupproject.config.DotenvConfig
