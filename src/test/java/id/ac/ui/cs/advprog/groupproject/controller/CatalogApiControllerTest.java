@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CatalogApiControllerTest {
+class CatalogApiControllerTest {
 
     @Mock
     private CatalogService catalogService;

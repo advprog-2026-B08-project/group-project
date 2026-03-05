@@ -36,7 +36,7 @@ import java.util.UUID;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class CatalogWebControllerTest {
+class CatalogWebControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

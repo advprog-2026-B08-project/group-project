@@ -13,7 +13,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CatalogTest {
+class CatalogTest {
 
     private Validator validator;
     private User testUser;

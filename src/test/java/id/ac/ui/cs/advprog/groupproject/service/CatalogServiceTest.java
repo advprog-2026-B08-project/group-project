@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
-public class CatalogServiceTest {
+class CatalogServiceTest {
 
     @Mock
     private CatalogRepository catalogRepository;
