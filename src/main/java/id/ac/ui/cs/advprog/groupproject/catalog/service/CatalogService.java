@@ -1,10 +1,10 @@
-package id.ac.ui.cs.advprog.groupproject.service;
+package id.ac.ui.cs.advprog.groupproject.catalog.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import id.ac.ui.cs.advprog.groupproject.repository.CatalogRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 import java.util.UUID;
-import id.ac.ui.cs.advprog.groupproject.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import org.springframework.http.HttpStatus;
 

@@ -1,9 +1,9 @@
-package id.ac.ui.cs.advprog.groupproject.controller;
+package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
-import id.ac.ui.cs.advprog.groupproject.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
-import id.ac.ui.cs.advprog.groupproject.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
