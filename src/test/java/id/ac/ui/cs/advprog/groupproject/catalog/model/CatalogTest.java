@@ -1,4 +1,6 @@
-package id.ac.ui.cs.advprog.groupproject.model;
+package id.ac.ui.cs.advprog.groupproject.catalog.model;
+
+import id.ac.ui.cs.advprog.groupproject.model.User;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -13,7 +15,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CatalogTest {
+class CatalogTest {
 
     private Validator validator;
     private User testUser;

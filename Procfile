@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar build/libs/group-project-0.0.1-SNAPSHOT.jar
+web: java -Dserver.port=$PORT -Dspring.profiles.active=${SPRING_PROFILE} -jar build/libs/group-project-0.0.1-SNAPSHOT.jar

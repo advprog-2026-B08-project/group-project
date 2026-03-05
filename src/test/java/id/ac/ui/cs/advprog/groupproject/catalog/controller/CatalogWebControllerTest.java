@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.controller;
+package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -13,10 +13,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-import id.ac.ui.cs.advprog.groupproject.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
-import id.ac.ui.cs.advprog.groupproject.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ import java.util.UUID;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class CatalogWebControllerTest {
+class CatalogWebControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
