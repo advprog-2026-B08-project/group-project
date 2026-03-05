@@ -5,7 +5,6 @@ import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.service.CatalogService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +18,13 @@ import java.util.UUID;
 @RequestMapping("/api/catalogs")
 public class CatalogApiController {
     
-    @Autowired
-    private CatalogService catalogService;
-    
-    @Autowired
-    private UserRepository userRepository;
+    private final CatalogService catalogService;
+    private final UserRepository userRepository;
+
+    public CatalogApiController(CatalogService catalogService, UserRepository userRepository) {
+        this.catalogService = catalogService;
+        this.userRepository = userRepository;
+    }
     
     private User getCurrentUser(Principal principal) {
         return userRepository.findByUsername(principal.getName())

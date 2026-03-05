@@ -6,15 +6,20 @@ import id.ac.ui.cs.advprog.groupproject.repository.CatalogRepository;
 import java.util.UUID;
 import id.ac.ui.cs.advprog.groupproject.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
 @Service
 public class CatalogService {
-    @Autowired
-    private CatalogRepository catalogRepository;
+    private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found";
+    private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
+
+    private final CatalogRepository catalogRepository;
+
+    public CatalogService(CatalogRepository catalogRepository) {
+        this.catalogRepository = catalogRepository;
+    }
 
     public Catalog createCatalog(Catalog catalog, User currentUser) {
         catalog.setJastiper(currentUser);
@@ -35,10 +40,10 @@ public class CatalogService {
 
     public Catalog getCatalogById(UUID catalogId, User currentUser) {
         Catalog catalog = catalogRepository.findById(catalogId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
         
         if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Auth Failed!");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
         }
         
         return catalog;
@@ -46,10 +51,10 @@ public class CatalogService {
 
     public Catalog updateCatalog(UUID catalogId, Catalog newData, User currentUser) {
         Catalog catalog = catalogRepository.findById(catalogId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
         
         if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Auth Failed!");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
         }
         
         catalog.setName(newData.getName());
@@ -64,10 +69,10 @@ public class CatalogService {
 
     public void deleteCatalog(UUID catalogId, User currentUser) {
         Catalog catalog = catalogRepository.findById(catalogId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
 
         if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Auth Failed!");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
         }
 
         catalogRepository.deleteById(catalogId);

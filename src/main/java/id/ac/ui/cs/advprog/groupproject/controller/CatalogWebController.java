@@ -5,7 +5,6 @@ import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.service.CatalogService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,12 +21,15 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/catalog")
 public class CatalogWebController {
+    private static final String CATALOGS_ATTRIBUTE = "catalogs";
     
-    @Autowired
-    private CatalogService catalogService;
-    
-    @Autowired
-    private UserRepository userRepository;
+    private final CatalogService catalogService;
+    private final UserRepository userRepository;
+
+    public CatalogWebController(CatalogService catalogService, UserRepository userRepository) {
+        this.catalogService = catalogService;
+        this.userRepository = userRepository;
+    }
     
     private User getCurrentUser(Principal principal) {
         return userRepository.findByUsername(principal.getName())
@@ -36,7 +38,7 @@ public class CatalogWebController {
     
     @GetMapping
     public String catalog(Model model) {
-        model.addAttribute("catalogs", catalogService.getAllCatalogs());
+        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.getAllCatalogs());
         return "catalog/catalog";
     }
 
@@ -45,7 +47,7 @@ public class CatalogWebController {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
-        model.addAttribute("catalogs", catalogService.getCatalogsByUserId(userId));
+        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.getCatalogsByUserId(userId));
         model.addAttribute("username", user.getUsername());
         return "catalog/userCatalog";
     }
@@ -54,7 +56,7 @@ public class CatalogWebController {
     public String myCatalog(Model model, Principal principal) {
         User currentUser = getCurrentUser(principal);
         
-        model.addAttribute("catalogs", catalogService.findAllCatalogs(currentUser));
+        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.findAllCatalogs(currentUser));
         model.addAttribute("username", currentUser.getUsername());
         return "catalog/myCatalog";
     }
