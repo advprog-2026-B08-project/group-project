@@ -14,14 +14,19 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 auth -> auth
                         .requestMatchers("/login", "/register")
-                        .permitAll().anyRequest().authenticated()
+                        .permitAll()
+                        .requestMatchers("/api/**") // TODO: Sementara permitAll untuk testing, nanti ganti authenticated setelah integrasi Auth
+                        .permitAll()
+                        .anyRequest().authenticated()
         ).formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/homepage", true)
                 .permitAll()
         ).logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
-                );
+        ).csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**")
+        );
 
         return http.build();
     }
