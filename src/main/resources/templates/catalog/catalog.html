@@ -15,6 +15,7 @@
     <table border="1" class="table table-striped table-responsive-md">
         <thead>
         <tr>
+            <th scope="col">Image</th>
             <th scope="col">Product Name</th>
             <th scope="col">Description</th>
             <th scope="col">Price</th>
@@ -26,11 +27,18 @@
         </thead>
         <tbody>
         <tr th:if="${catalogs.isEmpty()}">
-            <td colspan="7" class="text-center text-muted">
+            <td colspan="8" class="text-center text-muted">
                 <em>No products available yet</em>
             </td>
         </tr>
         <tr th:each="catalog : ${catalogs}">
+            <td>
+                <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}" 
+                     th:src="${catalog.imageUrl}" 
+                     alt="Product Image" 
+                     style="width: 80px; height: 80px; object-fit: cover;">
+                <span th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}" class="text-muted">No image</span>
+            </td>
             <td th:text="${catalog.name}"></td>
             <td th:text="${catalog.description}"></td>
             <td th:text="${'Rp ' + #numbers.formatDecimal(catalog.price, 0, 'COMMA', 2, 'POINT')}"></td>
@@ -38,7 +46,9 @@
             <td th:text="${catalog.originLocation}"></td>
             <td th:text="${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMM yyyy') : '-'}"></td>
             <td>
-                <a th:href="@{/catalog/user/{id}(id=${catalog.jastiper.id})}" th:text="${catalog.jastiper.username}"></a>
+                <a th:href="@{/catalog/{userId}(userId=${catalog.jastiper.id})}" 
+                   class="text-primary font-weight-bold"
+                   th:text="${catalog.jastiper.username}"></a>
             </td>
         </tr>
         </tbody>

@@ -54,6 +54,7 @@ public class CatalogService {
         
         catalog.setName(newData.getName());
         catalog.setDescription(newData.getDescription());
+        catalog.setImageUrl(newData.getImageUrl());
         catalog.setPrice(newData.getPrice());
         catalog.setStock(newData.getStock());
         catalog.setOriginLocation(newData.getOriginLocation());

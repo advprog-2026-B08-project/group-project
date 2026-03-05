@@ -22,6 +22,9 @@ public class Catalog {
     private String name;
     
     private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
     
     @NotNull(message = "Price is required")
     @Min(value = 0, message = "Price cannot be negative")
