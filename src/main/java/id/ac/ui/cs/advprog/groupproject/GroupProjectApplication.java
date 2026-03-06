@@ -7,14 +7,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
-@EntityScan(basePackages = {
-    "id.ac.ui.cs.advprog.groupproject.model",
-    "id.ac.ui.cs.advprog.groupproject.catalog.model"
-})
-@EnableJpaRepositories(basePackages = {
-    "id.ac.ui.cs.advprog.groupproject.repository",
-    "id.ac.ui.cs.advprog.groupproject.catalog.repository"
-})
+@EntityScan("id.ac.ui.cs.advprog.groupproject.*")
+@EnableJpaRepositories("id.ac.ui.cs.advprog.groupproject.*")
 public class GroupProjectApplication {
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
