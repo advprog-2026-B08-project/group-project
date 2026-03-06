@@ -38,8 +38,8 @@ public class AuthController {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRole(Role.Titiper);
-        user.setStatus(Status.Aktif);
+        user.setRole("Titper");
+        user.setStatus("Aktif");
         user.setEmail(email);
 
         userRepository.save(user);
