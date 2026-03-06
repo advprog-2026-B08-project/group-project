@@ -24,7 +24,6 @@ public class DotenvConfig implements ApplicationContextInitializer<ConfigurableA
             if (profileFromEnv != null && !profileFromEnv.isEmpty()) {
                 if (environment.getActiveProfiles().length == 0) {
                     environment.setActiveProfiles(profileFromEnv);
-                    System.out.println("✓ Active profile from .env: " + profileFromEnv);
                 }
             }
 
@@ -37,7 +36,7 @@ public class DotenvConfig implements ApplicationContextInitializer<ConfigurableA
                     .addLast(new MapPropertySource("dotenvProperties", dotenvProperties));
 
         } catch (Exception e) {
-            System.out.println("Warning: Could not load .env file - using default configuration");
+            System.out.println("Warning: Could not load .env file");
         }
     }
 }

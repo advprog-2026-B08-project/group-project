@@ -6,6 +6,9 @@ build/
 !**/src/test/**/build/
 .env
 
+### Local Configuration ###
+data/
+
 ### STS ###
 .apt_generated
 .classpath

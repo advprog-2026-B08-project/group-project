@@ -13,7 +13,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/login", "/register")
+                        .requestMatchers("/login", "/register", "/h2-console/**")
                         .permitAll()
                         .requestMatchers("/api/**") // TODO: Sementara permitAll untuk testing, nanti ganti authenticated setelah integrasi Auth
                         .permitAll()
@@ -25,7 +25,9 @@ public class SecurityConfig {
         ).logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
         ).csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**")
+                .ignoringRequestMatchers("/api/**", "/h2-console/**")
+        ).headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
         );
 
         return http.build();

@@ -42,6 +42,8 @@ public class AuthController {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
+        //TODO: Nanti tolong diganti ke opsi user, jangan default jastiper
+        user.setRole("Jastiper");
 
         userRepository.save(user);
         eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));
