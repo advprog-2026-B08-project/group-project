@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Catalog</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container">
+    <h3>Add New Catalog</h3>
+
+    <form th:action="@{/catalog/add}" th:object="${catalog}" method="post">
+        <div class="form-group">
+            <label for="nameInput">Product Name</label>
+            <input th:field="*{name}" type="text" class="form-control mb-4 col-4" id="nameInput" required placeholder="Enter product name">
+        </div>
+        <div class="form-group">
+            <label for="descriptionInput">Description</label>
+            <textarea th:field="*{description}" class="form-control mb-4 col-4" id="descriptionInput" rows="3" placeholder="Enter product description"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="imageUrlInput">Image URL</label>
+            <input th:field="*{imageUrl}" type="url" class="form-control mb-4 col-4" id="imageUrlInput" placeholder="Enter image URL (e.g., https://example.com/image.jpg)">
+        </div>
+        <div class="form-group">
+            <label for="priceInput">Price</label>
+            <input th:field="*{price}" type="number" step="0.01" class="form-control mb-4 col-4" min="0" id="priceInput" required placeholder="Enter price">
+        </div>
+        <div class="form-group">
+            <label for="stockInput">Stock</label>
+            <input th:field="*{stock}" type="number" class="form-control mb-4 col-4" min="0" id="stockInput" required placeholder="Enter stock">
+        </div>
+        <div class="form-group">
+            <label for="locationInput">Origin Location</label>
+            <input th:field="*{originLocation}" type="text" class="form-control mb-4 col-4" id="locationInput" placeholder="Enter origin location">
+        </div>
+        <div class="form-group">
+            <label for="dateInput">Travel Date</label>
+            <input th:field="*{travelDate}" type="date" class="form-control mb-4 col-4" id="dateInput">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a th:href="@{/catalog/my}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
