@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.controller;
 
-
+import id.ac.ui.cs.advprog.groupproject.model.Role;
+import id.ac.ui.cs.advprog.groupproject.model.Status;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
 
@@ -23,7 +24,8 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@RequestParam String username,
                            @RequestParam String password,
-                           @RequestParam String confirmPassword) {
+                           @RequestParam String confirmPassword,
+                           @RequestParam String email) {
 
         if (userRepository.findByUsername(username).isPresent()) {
             return "redirect:/register?userExists";
@@ -36,6 +38,9 @@ public class AuthController {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
+        user.setRole(Role.Titiper);
+        user.setStatus(Status.Aktif);
+        user.setEmail(email);
 
         userRepository.save(user);
 

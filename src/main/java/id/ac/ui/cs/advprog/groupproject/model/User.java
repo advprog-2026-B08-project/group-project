@@ -14,9 +14,18 @@ public class User {
     @UuidGenerator
     private UUID id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String username;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private String email;
+
+    @Enumerated
+    private Role role;
+
+    @Enumerated
+    private Status status;
 }
