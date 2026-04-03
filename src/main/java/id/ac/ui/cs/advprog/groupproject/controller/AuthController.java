@@ -3,22 +3,18 @@ package id.ac.ui.cs.advprog.groupproject.controller;
 import id.ac.ui.cs.advprog.groupproject.model.Role;
 import id.ac.ui.cs.advprog.groupproject.model.Status;
 import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.service.CustomUserDetailService;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final CustomUserDetailService service;
 
-    public AuthController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(CustomUserDetailService service) {
+        this.service = service;
     }
 
     @PostMapping("/register")
@@ -27,23 +23,10 @@ public class AuthController {
                            @RequestParam String confirmPassword,
                            @RequestParam String email) {
 
-        if (userRepository.findByUsername(username).isPresent()) {
-            return "redirect:/register?userExists";
-        }
+        if (service.emailExists(email)) return "redirect:/register?userExists";
+        if (service.confirmPassword(password, confirmPassword)) return "redirect:/register?error";
 
-        if (!password.equals(confirmPassword)) {
-            return "redirect:/register?error";
-        }
-
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setRole("Titper");
-        user.setStatus("Aktif");
-        user.setEmail(email);
-
-        userRepository.save(user);
-
+        service.createUser(email, password, username);
         return "redirect:/login?registered";
     }
 }

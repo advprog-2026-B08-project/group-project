@@ -17,19 +17,20 @@ public class User {
     @UuidGenerator
     private UUID id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String status;
 
     //TODO: buat user bisa ambil banyak role
+    // drew : but why?
     @Column(nullable = false)
     private String role;
 
