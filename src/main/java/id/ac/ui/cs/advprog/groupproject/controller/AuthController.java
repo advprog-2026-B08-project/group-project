@@ -24,7 +24,7 @@ public class AuthController {
                            @RequestParam String email) {
 
         if (service.emailExists(email)) return "redirect:/register?userExists";
-        if (service.confirmPassword(password, confirmPassword)) return "redirect:/register?error";
+        if (!service.confirmPassword(password, confirmPassword)) return "redirect:/register?error";
 
         service.createUser(email, password, username);
         return "redirect:/login?registered";
