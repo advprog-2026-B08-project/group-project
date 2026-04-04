@@ -12,33 +12,33 @@
                 <h1>Register</h1>
                 <form th:action="@{/register}" method="post">
                     <div class="form-group row">
-                        <label class="col-sm-4 col-form-label" for="usernameInput">Username</label>
+                        <label class="col-sm-4 col-form-label" for="emailInput"> Enter email : </label>
                         <div class="col-sm-8">
-                            <input id="usernameInput" name="username" placeholder="Enter your username" required class="form-control">
+                            <input id="emailInput" name="email" type="email" placeholder="example@gmail.com" required class="form-control">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="passwordInput"> Enter Password   : </label>
                         <div class="col-sm-8">
-                            <input id="passwordInput" name="password" type="password" placeholder="Enter your password" required class="form-control">
+                            <input id="passwordInput" name="password" type="password" placeholder="Use a strong password" required class="form-control">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="confirmPasswordInput"> Confirm Password : </label>
                         <div class="col-sm-8">
-                            <input id="confirmPasswordInput" name="confirmPassword" type="password" placeholder="Enter your password" required class="form-control">
+                            <input id="confirmPasswordInput" name="confirmPassword" type="password" placeholder="Confirm password" required class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-4 col-form-label" for="usernameInput">Username</label>
+                        <div class="col-sm-8">
+                            <input id="usernameInput" name="username" placeholder="exampleUsername_123" class="form-control">
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 col-form-label" for="fullName"> Enter full name : </label>
                         <div class="col-sm-8">
-                            <input id="fullName" name="enterFullName" type="text" placeholder="Enter your full name" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-sm-4 col-form-label" for="emailInput"> Enter email : </label>
-                        <div class="col-sm-8">
-                            <input id="emailInput" name="email" type="email" placeholder="Enter your email" required class="form-control">
+                            <input id="fullName" name="enterFullName" type="text" placeholder="John Doe" class="form-control">
                         </div>
                     </div>
                     <button type="submit" id="registerButton" class="btn btn-primary">Register</button>
