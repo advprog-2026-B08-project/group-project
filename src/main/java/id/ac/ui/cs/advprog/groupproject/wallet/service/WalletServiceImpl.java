@@ -85,4 +85,42 @@ public class WalletServiceImpl implements WalletService {
                 transaction.getDescription(),
                 transaction.getCreatedAt());
     }
+
+    @Override
+    @Transactional
+    public TransactionResponse deductBalance(UUID userId, BigDecimal amount, String description) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Deduct amount must be greater than zero");
+        }
+
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+
+        if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Insufficient balance for user: " + userId);
+        }
+
+        wallet.setBalance(wallet.getBalance().subtract(amount));
+        walletRepository.save(wallet);
+
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.DEBIT);
+        transaction.setAmount(amount);
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        if (description == null || description.isBlank()) {
+            transaction.setDescription("Deduct sebesar " + amount);
+        } else {
+            transaction.setDescription(description);
+        }
+        walletTransactionRepository.save(transaction);
+
+        return new TransactionResponse(
+                transaction.getId(),
+                transaction.getType().name(),
+                transaction.getAmount(),
+                transaction.getStatus().name(),
+                transaction.getDescription(),
+                transaction.getCreatedAt());
+    }
 }

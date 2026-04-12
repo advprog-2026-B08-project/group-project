@@ -5,6 +5,7 @@ import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.model.Wallet;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface WalletService {
@@ -13,4 +14,6 @@ public interface WalletService {
     WalletResponse getBalance(UUID userId);
 
     TransactionResponse topUp(UUID userId, TopUpRequest request);
+
+    TransactionResponse deductBalance(UUID userId, BigDecimal amount, String description);
 }

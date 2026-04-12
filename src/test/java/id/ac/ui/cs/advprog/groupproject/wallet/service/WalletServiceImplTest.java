@@ -147,4 +147,65 @@ class WalletServiceImplTest {
 
         assertThrows(IllegalArgumentException.class, () -> walletService.topUp(userId, request));
     }
+
+    // ===================== deductBalance tests =====================
+
+    @Test
+    void deductBalance_Success() {
+        wallet.setBalance(new BigDecimal("200000"));
+        BigDecimal amount = new BigDecimal("75000");
+
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+                .thenAnswer(invocation -> {
+                    WalletTransaction tx = invocation.getArgument(0);
+                    tx.setId(UUID.randomUUID());
+                    return tx;
+                });
+
+        TransactionResponse response = walletService.deductBalance(userId, amount, "Checkout order");
+
+        assertNotNull(response);
+        assertEquals("DEBIT", response.getType());
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals(amount, response.getAmount());
+        assertEquals("Checkout order", response.getDescription());
+        assertEquals(new BigDecimal("125000"), wallet.getBalance());
+    }
+
+    @Test
+    void deductBalance_NullAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, null, "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_ZeroAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, BigDecimal.ZERO, "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_NegativeAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, new BigDecimal("-1000"), "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_WalletNotFound_ThrowsException() {
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, new BigDecimal("1000"), "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_InsufficientBalance_ThrowsException() {
+        wallet.setBalance(new BigDecimal("5000"));
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, new BigDecimal("10000"), "Checkout order"));
+    }
 }
