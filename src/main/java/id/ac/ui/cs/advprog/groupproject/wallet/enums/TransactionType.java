@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.enums;
+package id.ac.ui.cs.advprog.groupproject.wallet.enums;
 
 public enum TransactionType{
     TOP_UP, // User menambah saldo

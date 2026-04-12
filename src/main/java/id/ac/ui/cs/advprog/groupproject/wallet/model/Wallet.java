@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.model;
+package id.ac.ui.cs.advprog.groupproject.wallet.model;
 
 import jakarta.persistence.*;
 import lombok.*;

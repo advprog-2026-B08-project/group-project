@@ -1,9 +1,9 @@
-package id.ac.ui.cs.advprog.groupproject.controller;
+package id.ac.ui.cs.advprog.groupproject.wallet.controller;
 
-import id.ac.ui.cs.advprog.groupproject.dto.TopUpRequest;
-import id.ac.ui.cs.advprog.groupproject.dto.TransactionResponse;
-import id.ac.ui.cs.advprog.groupproject.dto.WalletResponse;
-import id.ac.ui.cs.advprog.groupproject.service.WalletService;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

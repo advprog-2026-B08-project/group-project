@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.dto;
+package id.ac.ui.cs.advprog.groupproject.wallet.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

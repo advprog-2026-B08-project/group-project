@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.enums;
+package id.ac.ui.cs.advprog.groupproject.wallet.enums;
 
 public enum TransactionStatus {
     PENDING,   // Transaksi baru dibuat, belum diverifikasi
