@@ -1,0 +1,14 @@
+<nav th:fragment="navbar" class="navbar">
+    <div class="nav-left">
+        <a th:href="@{/homepage}">Homepage</a>
+    </div>
+    <div class="nav-right">
+        <a th:href="@{/catalog}">Catalog</a>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}" />
+            <button type="submit" id="logoutButton" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
+</nav>

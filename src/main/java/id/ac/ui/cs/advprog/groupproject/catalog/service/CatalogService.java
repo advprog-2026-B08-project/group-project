@@ -5,7 +5,7 @@ import org.springframework.web.server.ResponseStatusException;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 import java.util.UUID;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;

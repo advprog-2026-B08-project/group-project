@@ -1,9 +1,9 @@
-package id.ac.ui.cs.advprog.groupproject.service;
+package id.ac.ui.cs.advprog.groupproject.auth.service;
 
-import id.ac.ui.cs.advprog.groupproject.model.Role;
-import id.ac.ui.cs.advprog.groupproject.model.Status;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.*;
@@ -49,7 +49,7 @@ public class CustomUserDetailService implements UserDetailsService {
         User user = new User();
         user.setUsername(usernameInput);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRole(Role.Titiper.toString());
+        user.setRole(Role.ROLE_TITIPER.toString());
         user.setStatus(Status.Aktif.toString());
         user.setEmail(email);
         userRepository.save(user);

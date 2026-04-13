@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 
 import static org.mockito.Mockito.*;

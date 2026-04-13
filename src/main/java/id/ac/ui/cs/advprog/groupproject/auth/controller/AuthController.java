@@ -1,9 +1,6 @@
-package id.ac.ui.cs.advprog.groupproject.controller;
+package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
-import id.ac.ui.cs.advprog.groupproject.model.Role;
-import id.ac.ui.cs.advprog.groupproject.model.Status;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.service.CustomUserDetailService;
+import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

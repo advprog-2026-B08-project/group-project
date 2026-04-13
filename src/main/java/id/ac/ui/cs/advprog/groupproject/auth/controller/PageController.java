@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.controller;
+package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,7 +8,7 @@ public class PageController {
     
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "auth/login";
     }
 
     @GetMapping("/homepage")
@@ -18,6 +18,6 @@ public class PageController {
 
     @GetMapping("/register")
     public String register() {
-        return "register";
+        return "auth/register";
     }
 }
