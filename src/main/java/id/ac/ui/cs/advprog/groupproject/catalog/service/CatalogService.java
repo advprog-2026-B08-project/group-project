@@ -1,4 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
+import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,13 +19,15 @@ public class CatalogService {
     private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
 
     private final CatalogRepository catalogRepository;
+    private final CatalogFactory catalogFactory;
 
-    public CatalogService(CatalogRepository catalogRepository) {
+    public CatalogService(CatalogRepository catalogRepository, CatalogFactory catalogFactory) {
         this.catalogRepository = catalogRepository;
+        this.catalogFactory = catalogFactory;
     }
 
-    public Catalog createCatalog(Catalog catalog, User currentUser) {
-        catalog.setJastiper(currentUser);
+    public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
+        Catalog catalog = catalogFactory.create(command, currentUser);
         return catalogRepository.save(catalog);
     }
 
@@ -49,7 +54,7 @@ public class CatalogService {
         return catalog;
     }
 
-    public Catalog updateCatalog(UUID catalogId, Catalog newData, User currentUser) {
+    public Catalog updateCatalog(UUID catalogId, UpdateCatalogCommand command, User currentUser) {
         Catalog catalog = catalogRepository.findById(catalogId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
         
@@ -57,13 +62,7 @@ public class CatalogService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
         }
         
-        catalog.setName(newData.getName());
-        catalog.setDescription(newData.getDescription());
-        catalog.setImageUrl(newData.getImageUrl());
-        catalog.setPrice(newData.getPrice());
-        catalog.setStock(newData.getStock());
-        catalog.setOriginLocation(newData.getOriginLocation());
-        catalog.setTravelDate(newData.getTravelDate());
+        catalogFactory.applyUpdate(catalog, command);
         return catalogRepository.save(catalog);
     }
 

@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
+import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
@@ -28,15 +30,18 @@ public class CatalogWebController {
     
     private final CatalogService catalogService;
     private final CatalogImageService catalogImageService;
+    private final CatalogMapper catalogMapper;
     private final UserRepository userRepository;
 
     public CatalogWebController(
             CatalogService catalogService,
             CatalogImageService catalogImageService,
+            CatalogMapper catalogMapper,
             UserRepository userRepository
     ) {
         this.catalogService = catalogService;
         this.catalogImageService = catalogImageService;
+        this.catalogMapper = catalogMapper;
         this.userRepository = userRepository;
     }
     
@@ -47,7 +52,7 @@ public class CatalogWebController {
     
     @GetMapping
     public String catalog(Model model) {
-        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.getAllCatalogs());
+        model.addAttribute(CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
         return "catalog/catalog";
     }
 
@@ -56,7 +61,7 @@ public class CatalogWebController {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         
-        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.getCatalogsByUserId(userId));
+        model.addAttribute(CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId)));
         model.addAttribute("username", user.getUsername());
         return "catalog/userCatalog";
     }
@@ -65,7 +70,7 @@ public class CatalogWebController {
     public String myCatalog(Model model, Principal principal) {
         User currentUser = getCurrentUser(principal);
         
-        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.findAllCatalogs(currentUser));
+        model.addAttribute(CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.findAllCatalogs(currentUser)));
         model.addAttribute("username", currentUser.getUsername());
         return "catalog/myCatalog";
     }
@@ -75,23 +80,23 @@ public class CatalogWebController {
         User currentUser = getCurrentUser(principal);
         
         Catalog catalog = catalogService.getCatalogById(id, currentUser);
-        model.addAttribute("catalog", catalog);
+        model.addAttribute("catalog", catalogMapper.toDto(catalog));
         return "catalog/editCatalog";
     }
     
     @PostMapping("/edit")
     public String updateCatalog(
-            @Valid @ModelAttribute Catalog catalog,
+            @Valid @ModelAttribute("catalog") CatalogDto catalogDto,
             @RequestParam(name = "file", required = false) MultipartFile file,
             Principal principal
     ) {
         User currentUser = getCurrentUser(principal);
 
         if (file != null && !file.isEmpty()) {
-            catalog.setImageUrl(catalogImageService.uploadCatalogImage(file));
+            catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
         }
 
-        catalogService.updateCatalog(catalog.getId(), catalog, currentUser);
+        catalogService.updateCatalog(catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto), currentUser);
         return "redirect:/catalog/my";
     }
     
@@ -103,13 +108,13 @@ public class CatalogWebController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
         }
         
-        model.addAttribute("catalog", new Catalog());
+        model.addAttribute("catalog", new CatalogDto());
         return "catalog/addCatalog";
     }
     
     @PostMapping("/add")
     public String createCatalog(
-            @Valid @ModelAttribute Catalog catalog,
+            @Valid @ModelAttribute("catalog") CatalogDto catalogDto,
             @RequestParam(name = "file", required = false) MultipartFile file,
             Principal principal
     ) {
@@ -120,10 +125,10 @@ public class CatalogWebController {
         }
 
         if (file != null && !file.isEmpty()) {
-            catalog.setImageUrl(catalogImageService.uploadCatalogImage(file));
+            catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
         }
         
-        catalogService.createCatalog(catalog, currentUser);
+        catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);
         return "redirect:/catalog/my";
     }
 }

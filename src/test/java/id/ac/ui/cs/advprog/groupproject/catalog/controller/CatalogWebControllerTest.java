@@ -1,5 +1,9 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
+import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
+import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,11 +53,15 @@ class CatalogWebControllerTest {
     private CatalogImageService catalogImageService;
 
     @MockitoBean
+    private CatalogMapper catalogMapper;
+
+    @MockitoBean
     private UserRepository userRepository;
 
     private User testUser;
     private User customerUser;
     private Catalog testCatalog;
+    private CatalogDto testCatalogDto;
     private UUID catalogId;
     private UUID userId;
 
@@ -81,6 +89,16 @@ class CatalogWebControllerTest {
         testCatalog.setOriginLocation("Jakarta");
         testCatalog.setTravelDate(LocalDate.now().plusDays(7));
         testCatalog.setJastiper(testUser);
+
+        testCatalogDto = new CatalogDto();
+        testCatalogDto.setId(catalogId);
+        testCatalogDto.setName("Test Product");
+        testCatalogDto.setDescription("Test Description");
+        testCatalogDto.setImageUrl("http://example.com/image.jpg");
+        testCatalogDto.setPrice(100.0);
+        testCatalogDto.setStock(10);
+        testCatalogDto.setOriginLocation("Jakarta");
+        testCatalogDto.setTravelDate(LocalDate.now().plusDays(7));
     }
 
     @Test
@@ -89,6 +107,7 @@ class CatalogWebControllerTest {
         catalogs.add(testCatalog);
 
         when(catalogService.getAllCatalogs()).thenReturn(catalogs);
+        when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
 
         mockMvc.perform(get("/catalog")
                 .with(user("testuser")))
@@ -97,6 +116,7 @@ class CatalogWebControllerTest {
                 .andExpect(model().attributeExists("catalogs"));
 
         verify(catalogService, times(1)).getAllCatalogs();
+        verify(catalogMapper, times(1)).toDtoList(catalogs);
     }
 
     @Test
@@ -106,6 +126,7 @@ class CatalogWebControllerTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
         when(catalogService.getCatalogsByUserId(userId)).thenReturn(catalogs);
+        when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
 
         mockMvc.perform(get("/catalog/" + userId)
                 .with(user("testuser")))
@@ -116,6 +137,7 @@ class CatalogWebControllerTest {
 
         verify(userRepository, times(1)).findById(userId);
         verify(catalogService, times(1)).getCatalogsByUserId(userId);
+        verify(catalogMapper, times(1)).toDtoList(catalogs);
     }
 
     @Test
@@ -137,6 +159,7 @@ class CatalogWebControllerTest {
 
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(catalogService.findAllCatalogs(any(User.class))).thenReturn(catalogs);
+        when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
 
         mockMvc.perform(get("/catalog/my")
                 .with(user("testuser")))
@@ -147,12 +170,14 @@ class CatalogWebControllerTest {
 
         verify(userRepository, times(1)).findByUsername("testuser");
         verify(catalogService, times(1)).findAllCatalogs(any(User.class));
+        verify(catalogMapper, times(1)).toDtoList(catalogs);
     }
 
     @Test
     void testEditCatalogPage() throws Exception {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(catalogService.getCatalogById(catalogId, testUser)).thenReturn(testCatalog);
+        when(catalogMapper.toDto(testCatalog)).thenReturn(testCatalogDto);
 
         mockMvc.perform(get("/catalog/edit/" + catalogId)
                 .with(user("testuser")))
@@ -162,23 +187,36 @@ class CatalogWebControllerTest {
 
         verify(userRepository, times(1)).findByUsername("testuser");
         verify(catalogService, times(1)).getCatalogById(catalogId, testUser);
+        verify(catalogMapper, times(1)).toDto(testCatalog);
     }
 
     @Test
     void testUpdateCatalogPost() throws Exception {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogService.updateCatalog(any(UUID.class), any(Catalog.class), any(User.class)))
+        when(catalogMapper.toUpdateCommand(any(CatalogDto.class))).thenReturn(
+            new UpdateCatalogCommand(
+                testCatalogDto.getName(),
+                testCatalogDto.getDescription(),
+                testCatalogDto.getImageUrl(),
+                testCatalogDto.getPrice(),
+                testCatalogDto.getStock(),
+                testCatalogDto.getOriginLocation(),
+                testCatalogDto.getTravelDate()
+            )
+        );
+        when(catalogService.updateCatalog(any(UUID.class), any(UpdateCatalogCommand.class), any(User.class)))
                 .thenReturn(testCatalog);
 
         mockMvc.perform(post("/catalog/edit")
                 .with(user("testuser"))
                 .with(csrf())
-                .flashAttr("catalog", testCatalog))
+            .flashAttr("catalog", testCatalogDto))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/catalog/my"));
 
         verify(userRepository, times(1)).findByUsername("testuser");
-        verify(catalogService, times(1)).updateCatalog(any(UUID.class), any(Catalog.class), any(User.class));
+        verify(catalogMapper, times(1)).toUpdateCommand(any(CatalogDto.class));
+        verify(catalogService, times(1)).updateCatalog(any(UUID.class), any(UpdateCatalogCommand.class), any(User.class));
     }
 
     @Test
@@ -208,17 +246,29 @@ class CatalogWebControllerTest {
     @Test
     void testCreateCatalogPost() throws Exception {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogService.createCatalog(any(Catalog.class), any(User.class))).thenReturn(testCatalog);
+        when(catalogMapper.toCreateCommand(any(CatalogDto.class))).thenReturn(
+            new CreateCatalogCommand(
+                testCatalogDto.getName(),
+                testCatalogDto.getDescription(),
+                testCatalogDto.getImageUrl(),
+                testCatalogDto.getPrice(),
+                testCatalogDto.getStock(),
+                testCatalogDto.getOriginLocation(),
+                testCatalogDto.getTravelDate()
+            )
+        );
+        when(catalogService.createCatalog(any(CreateCatalogCommand.class), any(User.class))).thenReturn(testCatalog);
 
         mockMvc.perform(post("/catalog/add")
                 .with(user("testuser"))
                 .with(csrf())
-                .flashAttr("catalog", testCatalog))
+            .flashAttr("catalog", testCatalogDto))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/catalog/my"));
 
         verify(userRepository, times(1)).findByUsername("testuser");
-        verify(catalogService, times(1)).createCatalog(any(Catalog.class), any(User.class));
+        verify(catalogMapper, times(1)).toCreateCommand(any(CatalogDto.class));
+        verify(catalogService, times(1)).createCatalog(any(CreateCatalogCommand.class), any(User.class));
     }
 
     @Test
@@ -228,7 +278,7 @@ class CatalogWebControllerTest {
         mockMvc.perform(post("/catalog/add")
                 .with(user("customer"))
                 .with(csrf())
-                .flashAttr("catalog", testCatalog))
+            .flashAttr("catalog", testCatalogDto))
                 .andExpect(status().isForbidden());
 
         verify(userRepository, times(1)).findByUsername("customer");

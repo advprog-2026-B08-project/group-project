@@ -46,9 +46,9 @@
             <td th:text="${catalog.originLocation}"></td>
             <td th:text="${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMM yyyy') : '-'}"></td>
             <td>
-                <a th:href="@{/catalog/{userId}(userId=${catalog.jastiper.id})}" 
+                <a th:href="@{/catalog/{userId}(userId=${catalog.jastiperId})}" 
                    class="text-primary font-weight-bold"
-                   th:text="${catalog.jastiper.username}"></a>
+                   th:text="${catalog.jastiperUsername}"></a>
             </td>
         </tr>
         </tbody>

@@ -1,5 +1,8 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
+import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
@@ -26,6 +29,9 @@ class CatalogServiceTest {
 
     @Mock
     private CatalogRepository catalogRepository;
+
+    @Mock
+    private CatalogFactory catalogFactory;
 
     @InjectMocks
     private CatalogService catalogService;
@@ -64,16 +70,28 @@ class CatalogServiceTest {
 
     @Test
     void testCreateCatalog() {
+        CreateCatalogCommand command = new CreateCatalogCommand(
+            "New Product",
+            "New Description",
+            "http://example.com/new.jpg",
+            200.0,
+            5,
+            "Jakarta",
+            LocalDate.now().plusDays(10)
+        );
+
         Catalog newCatalog = new Catalog();
         newCatalog.setName("New Product");
         newCatalog.setPrice(200.0);
+        newCatalog.setJastiper(testUser);
 
+        when(catalogFactory.create(command, testUser)).thenReturn(newCatalog);
         when(catalogRepository.save(any(Catalog.class))).thenReturn(newCatalog);
 
-        Catalog result = catalogService.createCatalog(newCatalog, testUser);
+        Catalog result = catalogService.createCatalog(command, testUser);
 
         assertNotNull(result);
-        assertEquals(testUser, newCatalog.getJastiper());
+        verify(catalogFactory, times(1)).create(command, testUser);
         verify(catalogRepository, times(1)).save(newCatalog);
     }
 
@@ -153,58 +171,83 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogSuccess() {
-        Catalog updatedData = new Catalog();
-        updatedData.setName("Updated Product");
-        updatedData.setDescription("Updated Description");
-        updatedData.setImageUrl("http://example.com/updated.jpg");
-        updatedData.setPrice(150.0);
-        updatedData.setStock(20);
-        updatedData.setOriginLocation("Bandung");
-        updatedData.setTravelDate(LocalDate.now().plusDays(14));
+        UpdateCatalogCommand command = new UpdateCatalogCommand(
+            "Updated Product",
+            "Updated Description",
+            "http://example.com/updated.jpg",
+            150.0,
+            20,
+            "Bandung",
+            LocalDate.now().plusDays(14)
+        );
 
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
         when(catalogRepository.save(any(Catalog.class))).thenReturn(testCatalog);
 
-        Catalog result = catalogService.updateCatalog(catalogId, updatedData, testUser);
+        doAnswer(invocation -> {
+            Catalog target = invocation.getArgument(0);
+            UpdateCatalogCommand cmd = invocation.getArgument(1);
+            target.setName(cmd.getName());
+            target.setDescription(cmd.getDescription());
+            target.setImageUrl(cmd.getImageUrl());
+            target.setPrice(cmd.getPrice());
+            target.setStock(cmd.getStock());
+            target.setOriginLocation(cmd.getOriginLocation());
+            target.setTravelDate(cmd.getTravelDate());
+            return null;
+        }).when(catalogFactory).applyUpdate(any(Catalog.class), any(UpdateCatalogCommand.class));
+
+        Catalog result = catalogService.updateCatalog(catalogId, command, testUser);
 
         assertNotNull(result);
-        assertEquals("Updated Product", testCatalog.getName());
-        assertEquals("Updated Description", testCatalog.getDescription());
-        assertEquals("http://example.com/updated.jpg", testCatalog.getImageUrl());
-        assertEquals(150.0, testCatalog.getPrice());
-        assertEquals(20, testCatalog.getStock());
-        assertEquals("Bandung", testCatalog.getOriginLocation());
         verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogFactory, times(1)).applyUpdate(testCatalog, command);
         verify(catalogRepository, times(1)).save(testCatalog);
     }
 
     @Test
     void testUpdateCatalogNotFound() {
-        Catalog updatedData = new Catalog();
-        updatedData.setName("Updated Product");
+        UpdateCatalogCommand command = new UpdateCatalogCommand(
+            "Updated Product",
+            "Updated Description",
+            "http://example.com/updated.jpg",
+            150.0,
+            20,
+            "Bandung",
+            LocalDate.now().plusDays(14)
+        );
 
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> {
-            catalogService.updateCatalog(catalogId, updatedData, testUser);
+            catalogService.updateCatalog(catalogId, command, testUser);
         });
 
         verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogFactory, never()).applyUpdate(any(), any());
         verify(catalogRepository, never()).save(any());
     }
 
     @Test
     void testUpdateCatalogForbidden() {
-        Catalog updatedData = new Catalog();
-        updatedData.setName("Updated Product");
+        UpdateCatalogCommand command = new UpdateCatalogCommand(
+            "Updated Product",
+            "Updated Description",
+            "http://example.com/updated.jpg",
+            150.0,
+            20,
+            "Bandung",
+            LocalDate.now().plusDays(14)
+        );
 
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
 
         assertThrows(ResponseStatusException.class, () -> {
-            catalogService.updateCatalog(catalogId, updatedData, anotherUser);
+            catalogService.updateCatalog(catalogId, command, anotherUser);
         });
 
         verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogFactory, never()).applyUpdate(any(), any());
         verify(catalogRepository, never()).save(any());
     }
 
