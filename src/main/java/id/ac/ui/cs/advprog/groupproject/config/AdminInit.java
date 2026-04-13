@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.config;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class AdminInit implements CommandLineRunner {
             admin.setUsername("admin");
             admin.setPassword(encoder.encode(adminPassword));
             admin.setRole(Role.ROLE_ADMIN.toString());
+            admin.setStatus(Status.Aktif.toString());
             userRepository.save(admin);
         }
     }

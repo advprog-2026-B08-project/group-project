@@ -27,10 +27,7 @@ public class CustomUserDetailService implements UserDetailsService {
         System.out.println("USER FOUND: " + user.getEmail());
         System.out.println("PASSWORD IN DB: " + user.getPassword());
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .build();
+        return user;
     }
 
     public boolean emailExists(String email) {

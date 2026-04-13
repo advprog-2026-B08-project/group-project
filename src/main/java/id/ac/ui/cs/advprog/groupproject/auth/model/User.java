@@ -4,14 +4,17 @@ import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.List;
 
 @Entity @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue
     @UuidGenerator
@@ -30,14 +33,22 @@ public class User {
     private String status;
 
     //TODO: buat user bisa ambil banyak role
-    // drew : but why?
     @Column(nullable = false)
     private String role;
+
+    @Column
+    private String profilePictureURL;
 
     @OneToMany(mappedBy = "jastiper", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Catalog> catalog = new ArrayList<>();
 
     public boolean isJastiper() {
         return "JASTIPER".equalsIgnoreCase(this.role);
+    }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
     }
 }
