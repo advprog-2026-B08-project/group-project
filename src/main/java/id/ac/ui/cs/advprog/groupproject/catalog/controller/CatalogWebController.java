@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
@@ -24,10 +27,16 @@ public class CatalogWebController {
     private static final String CATALOGS_ATTRIBUTE = "catalogs";
     
     private final CatalogService catalogService;
+    private final CatalogImageService catalogImageService;
     private final UserRepository userRepository;
 
-    public CatalogWebController(CatalogService catalogService, UserRepository userRepository) {
+    public CatalogWebController(
+            CatalogService catalogService,
+            CatalogImageService catalogImageService,
+            UserRepository userRepository
+    ) {
         this.catalogService = catalogService;
+        this.catalogImageService = catalogImageService;
         this.userRepository = userRepository;
     }
     
@@ -71,9 +80,17 @@ public class CatalogWebController {
     }
     
     @PostMapping("/edit")
-    public String updateCatalog(@Valid @ModelAttribute Catalog catalog, Principal principal) {
+    public String updateCatalog(
+            @Valid @ModelAttribute Catalog catalog,
+            @RequestParam(name = "file", required = false) MultipartFile file,
+            Principal principal
+    ) {
         User currentUser = getCurrentUser(principal);
-        
+
+        if (file != null && !file.isEmpty()) {
+            catalog.setImageUrl(catalogImageService.uploadCatalogImage(file));
+        }
+
         catalogService.updateCatalog(catalog.getId(), catalog, currentUser);
         return "redirect:/catalog/my";
     }
@@ -91,11 +108,19 @@ public class CatalogWebController {
     }
     
     @PostMapping("/add")
-    public String createCatalog(@Valid @ModelAttribute Catalog catalog, Principal principal) {
+    public String createCatalog(
+            @Valid @ModelAttribute Catalog catalog,
+            @RequestParam(name = "file", required = false) MultipartFile file,
+            Principal principal
+    ) {
         User currentUser = getCurrentUser(principal);
         
         if (!currentUser.isJastiper()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
+        }
+
+        if (file != null && !file.isEmpty()) {
+            catalog.setImageUrl(catalogImageService.uploadCatalogImage(file));
         }
         
         catalogService.createCatalog(catalog, currentUser);

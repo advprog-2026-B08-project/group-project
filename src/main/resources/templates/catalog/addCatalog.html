@@ -10,7 +10,7 @@
 <div class="container">
     <h3>Add New Catalog</h3>
 
-    <form th:action="@{/catalog/add}" th:object="${catalog}" method="post">
+    <form th:action="@{/catalog/add}" th:object="${catalog}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="nameInput">Product Name</label>
             <input th:field="*{name}" type="text" class="form-control mb-4 col-4" id="nameInput" required placeholder="Enter product name">
@@ -20,9 +20,10 @@
             <textarea th:field="*{description}" class="form-control mb-4 col-4" id="descriptionInput" rows="3" placeholder="Enter product description"></textarea>
         </div>
         <div class="form-group">
-            <label for="imageUrlInput">Image URL</label>
-            <input th:field="*{imageUrl}" type="url" class="form-control mb-4 col-4" id="imageUrlInput" placeholder="Enter image URL (e.g., https://example.com/image.jpg)">
+                <label for="imageFileInput">Upload Image</label>
+                <input type="file" name="file" class="form-control mb-4 col-4" id="imageFileInput" accept="image/*">
         </div>
+        <input type="hidden" th:field="*{imageUrl}">
         <div class="form-group">
             <label for="priceInput">Price</label>
             <input th:field="*{price}" type="number" step="0.01" class="form-control mb-4 col-4" min="0" id="priceInput" required placeholder="Enter price">

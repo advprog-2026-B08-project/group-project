@@ -10,8 +10,9 @@
 <div class="container">
     <h3>Edit Catalog</h3>
 
-    <form th:action="@{/catalog/edit}" th:object="${catalog}" method="post">
+    <form th:action="@{/catalog/edit}" th:object="${catalog}" method="post" enctype="multipart/form-data">
         <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{imageUrl}">
         <div class="form-group">
             <label for="nameInput">Product Name</label>
             <input th:field="*{name}" type="text" class="form-control mb-4 col-4" id="nameInput" required placeholder="Enter product name">
@@ -21,8 +22,13 @@
             <textarea th:field="*{description}" class="form-control mb-4 col-4" id="descriptionInput" rows="3" placeholder="Enter product description"></textarea>
         </div>
         <div class="form-group">
-            <label for="imageUrlInput">Image URL</label>
-            <input th:field="*{imageUrl}" type="url" class="form-control mb-4 col-4" id="imageUrlInput" placeholder="Enter image URL (e.g., https://example.com/image.jpg)">
+            <label for="imageFileInput">Upload New Image</label>
+            <input type="file" name="file" class="form-control mb-2 col-4" id="imageFileInput" accept="image/*">
+            <small class="form-text text-muted">Kosongkan jika ingin tetap memakai gambar lama.</small>
+        </div>
+        <div class="form-group" th:if="${catalog.imageUrl != null and !#strings.isEmpty(catalog.imageUrl)}">
+            <label>Current Image</label><br>
+            <img th:src="${catalog.imageUrl}" alt="Current catalog image" style="max-width: 200px; height: auto;">
         </div>
         <div class="form-group">
             <label for="priceInput">Price</label>

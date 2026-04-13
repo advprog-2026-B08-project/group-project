@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,9 @@ class CatalogWebControllerTest {
 
     @MockitoBean
     private CatalogService catalogService;
+
+    @MockitoBean
+    private CatalogImageService catalogImageService;
 
     @MockitoBean
     private UserRepository userRepository;
