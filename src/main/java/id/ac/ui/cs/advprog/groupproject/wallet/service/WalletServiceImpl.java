@@ -1,14 +1,14 @@
-package id.ac.ui.cs.advprog.groupproject.service;
+package id.ac.ui.cs.advprog.groupproject.wallet.service;
 
-import id.ac.ui.cs.advprog.groupproject.dto.TopUpRequest;
-import id.ac.ui.cs.advprog.groupproject.dto.TransactionResponse;
-import id.ac.ui.cs.advprog.groupproject.dto.WalletResponse;
-import id.ac.ui.cs.advprog.groupproject.enums.TransactionStatus;
-import id.ac.ui.cs.advprog.groupproject.enums.TransactionType;
-import id.ac.ui.cs.advprog.groupproject.model.Wallet;
-import id.ac.ui.cs.advprog.groupproject.model.WalletTransaction;
-import id.ac.ui.cs.advprog.groupproject.repository.WalletRepository;
-import id.ac.ui.cs.advprog.groupproject.repository.WalletTransactionRepository;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionType;
+import id.ac.ui.cs.advprog.groupproject.wallet.model.Wallet;
+import id.ac.ui.cs.advprog.groupproject.wallet.model.WalletTransaction;
+import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
+import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,6 +77,44 @@ public class WalletServiceImpl implements WalletService {
         walletTransactionRepository.save(transaction);
 
         // 5. Return response
+        return new TransactionResponse(
+                transaction.getId(),
+                transaction.getType().name(),
+                transaction.getAmount(),
+                transaction.getStatus().name(),
+                transaction.getDescription(),
+                transaction.getCreatedAt());
+    }
+
+    @Override
+    @Transactional
+    public TransactionResponse deductBalance(UUID userId, BigDecimal amount, String description) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Deduct amount must be greater than zero");
+        }
+
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+
+        if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Insufficient balance for user: " + userId);
+        }
+
+        wallet.setBalance(wallet.getBalance().subtract(amount));
+        walletRepository.save(wallet);
+
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.DEBIT);
+        transaction.setAmount(amount);
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        if (description == null || description.isBlank()) {
+            transaction.setDescription("Deduct sebesar " + amount);
+        } else {
+            transaction.setDescription(description);
+        }
+        walletTransactionRepository.save(transaction);
+
         return new TransactionResponse(
                 transaction.getId(),
                 transaction.getType().name(),

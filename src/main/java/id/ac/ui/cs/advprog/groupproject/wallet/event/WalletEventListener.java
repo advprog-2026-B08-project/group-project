@@ -1,9 +1,10 @@
-package id.ac.ui.cs.advprog.groupproject.event;
+package id.ac.ui.cs.advprog.groupproject.wallet.event;
+
+import id.ac.ui.cs.advprog.groupproject.event.UserRegisteredEvent;
+import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import id.ac.ui.cs.advprog.groupproject.service.WalletService;
 
 @Component
 public class WalletEventListener {

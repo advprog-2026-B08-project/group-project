@@ -1,6 +1,6 @@
-package id.ac.ui.cs.advprog.groupproject.repository;
+package id.ac.ui.cs.advprog.groupproject.wallet.repository;
 
-import id.ac.ui.cs.advprog.groupproject.model.WalletTransaction;
+import id.ac.ui.cs.advprog.groupproject.wallet.model.WalletTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

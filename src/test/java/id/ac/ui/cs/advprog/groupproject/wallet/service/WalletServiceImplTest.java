@@ -1,12 +1,12 @@
-package id.ac.ui.cs.advprog.groupproject.service;
+package id.ac.ui.cs.advprog.groupproject.wallet.service;
 
-import id.ac.ui.cs.advprog.groupproject.dto.TopUpRequest;
-import id.ac.ui.cs.advprog.groupproject.dto.TransactionResponse;
-import id.ac.ui.cs.advprog.groupproject.dto.WalletResponse;
-import id.ac.ui.cs.advprog.groupproject.model.Wallet;
-import id.ac.ui.cs.advprog.groupproject.model.WalletTransaction;
-import id.ac.ui.cs.advprog.groupproject.repository.WalletRepository;
-import id.ac.ui.cs.advprog.groupproject.repository.WalletTransactionRepository;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.model.Wallet;
+import id.ac.ui.cs.advprog.groupproject.wallet.model.WalletTransaction;
+import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
+import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -146,5 +146,66 @@ class WalletServiceImplTest {
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> walletService.topUp(userId, request));
+    }
+
+    // ===================== deductBalance tests =====================
+
+    @Test
+    void deductBalance_Success() {
+        wallet.setBalance(new BigDecimal("200000"));
+        BigDecimal amount = new BigDecimal("75000");
+
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+                .thenAnswer(invocation -> {
+                    WalletTransaction tx = invocation.getArgument(0);
+                    tx.setId(UUID.randomUUID());
+                    return tx;
+                });
+
+        TransactionResponse response = walletService.deductBalance(userId, amount, "Checkout order");
+
+        assertNotNull(response);
+        assertEquals("DEBIT", response.getType());
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals(amount, response.getAmount());
+        assertEquals("Checkout order", response.getDescription());
+        assertEquals(new BigDecimal("125000"), wallet.getBalance());
+    }
+
+    @Test
+    void deductBalance_NullAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, null, "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_ZeroAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, BigDecimal.ZERO, "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_NegativeAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, new BigDecimal("-1000"), "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_WalletNotFound_ThrowsException() {
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, new BigDecimal("1000"), "Checkout order"));
+    }
+
+    @Test
+    void deductBalance_InsufficientBalance_ThrowsException() {
+        wallet.setBalance(new BigDecimal("5000"));
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.deductBalance(userId, new BigDecimal("10000"), "Checkout order"));
     }
 }
