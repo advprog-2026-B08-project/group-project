@@ -1,6 +1,8 @@
 package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -12,7 +14,13 @@ public class PageController {
     }
 
     @GetMapping("/homepage")
-    public String homepage() {
+    public String homepage(HttpSession session, Model model) {
+        System.out.println("SESSION unauthorized = " + session.getAttribute("unauthorized"));
+
+        if (session.getAttribute("unauthorized") != null) {
+            model.addAttribute("unauthorized", true);
+            session.removeAttribute("unauthorized"); // 🔥 important (one-time)
+        }
         return "homepage";
     }
 
@@ -24,5 +32,10 @@ public class PageController {
     @GetMapping("/profile")
     public String profile() {
         return "auth/profile";
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "auth/admin";
     }
 }

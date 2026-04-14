@@ -13,8 +13,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/login", "/register", "/h2-console/**")
-                        .permitAll().anyRequest().authenticated()
+                        .requestMatchers("/login", "/register", "/h2-console/**").permitAll()
+                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
+                        .anyRequest().authenticated()
         ).formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/homepage", true)
@@ -26,6 +27,12 @@ public class SecurityConfig {
                 .ignoringRequestMatchers("/api/**", "/h2-console/**")
         ).headers(headers -> headers
                 .frameOptions(frame -> frame.sameOrigin())
+        ).exceptionHandling(error -> error
+                .accessDeniedHandler((request, response, exception) -> {
+                    System.out.println("ACCESS DENIED HANDLER TRIGGERED");
+                    request.getSession().setAttribute("unauthorized", true);
+                    response.sendRedirect("/homepage");
+                })
         );
 
         return http.build();

@@ -2,33 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Homepage</title>
+    <title>Admin page</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
     <div th:replace="fragments/navbar :: navbar"></div>
-
-    <h1>Hello There!</h1>
-    <h4>you are logged in!</h4>
-
-    <div style="height:20px"></div>
-    <a href="/catalog">Head to the catalog</a>
-
-    <br>
-    <a href="/catalog/my">Add your product to the catalog</a>
-
-    <div style="height:20px"></div>
-    <div id="unauthorizedAlert" th:if="${unauthorized}" class="alert alert-danger unauthorized">
-        403 Unauthorized Access
-    </div>
-
-    <script>
-        const alertBox = document.getElementById("unauthorizedAlert");
-        if (alertBox) {
-            setTimeout(() => alertBox.remove(), 3000);
-        }
-    </script>
+    <h1>A fine addition to my unfinished pages collection!</h1>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

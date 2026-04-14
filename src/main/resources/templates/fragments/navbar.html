@@ -2,6 +2,9 @@
     <div class="nav-left">
         <a th:href="@{/homepage}">Homepage</a>
     </div>
+    <div th:if="${user.role == 'ROLE_ADMIN'}">
+        <a th:href="@{/admin}">Admin</a>
+    </div>
     <div class="nav-right">
         <a th:href="@{/catalog}">Catalog</a>
         <form th:action="@{/logout}" method="post">
