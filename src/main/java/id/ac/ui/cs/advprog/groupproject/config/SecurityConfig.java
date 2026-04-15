@@ -14,8 +14,10 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 auth -> auth
                         .requestMatchers("/login", "/register", "/h2-console/**").permitAll()
-                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/catalog/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_JASTIPER")
+                        .requestMatchers("/kycRequestJastiper").hasAuthority("ROLE_TITIPER")
+                        .requestMatchers("/kycRequestAdmin").hasAuthority("ROLE_JASTIPER")
                         .anyRequest().authenticated()
         ).formLogin(form -> form
                 .loginPage("/login")
@@ -30,7 +32,6 @@ public class SecurityConfig {
                 .frameOptions(frame -> frame.sameOrigin())
         ).exceptionHandling(error -> error
                 .accessDeniedHandler((request, response, exception) -> {
-                    System.out.println("ACCESS DENIED HANDLER TRIGGERED");
                     request.getSession().setAttribute("unauthorized", true);
                     response.sendRedirect("/homepage");
                 })
