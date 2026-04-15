@@ -14,21 +14,32 @@ public class KycRequestService {
     public KycRequestService(KycRequestRepository kycRequestRepository) {
         this.kycRequestRepository = kycRequestRepository;
     }
-    public KycRequest createRequestForJastiper(User user) {
+    public KycRequest createRequestForJastiper(User user, String email,
+                                               String fullName, String socials) {
         KycRequest request = new KycRequest();
         request.setUser(user);
         request.setRequestedRole(Role.ROLE_JASTIPER);
         request.setStatus(Status.Pending);
+
+        request.setEmail(email);
+        request.setFullName(fullName);
+        request.setSocials(socials);
 
         kycRequestRepository.save(request);
         return request;
     }
 
-    public KycRequest createRequestForAdmin(User user) {
+    public KycRequest createRequestForAdmin(User user, String email, String fullName,
+                                            String phoneNumber, String socials) {
         KycRequest request = new KycRequest();
         request.setUser(user);
         request.setRequestedRole(Role.ROLE_JASTIPER);
         request.setStatus(Status.Pending);
+
+        request.setEmail(email);
+        request.setFullName(fullName);
+        request.setPhoneNumber(phoneNumber);
+        request.setSocials(socials);
 
         kycRequestRepository.save(request);
         return request;

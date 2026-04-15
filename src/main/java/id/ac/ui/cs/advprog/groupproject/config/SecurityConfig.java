@@ -16,8 +16,8 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register", "/h2-console/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/catalog/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_JASTIPER")
-                        .requestMatchers("/kycRequestJastiper").hasAuthority("ROLE_TITIPER")
-                        .requestMatchers("/kycRequestAdmin").hasAuthority("ROLE_JASTIPER")
+                        .requestMatchers("/kycRequestJastiper/**").hasAuthority("ROLE_TITIPER")
+                        .requestMatchers("/kycRequestAdmin/**").hasAuthority("ROLE_JASTIPER")
                         .anyRequest().authenticated()
         ).formLogin(form -> form
                 .loginPage("/login")

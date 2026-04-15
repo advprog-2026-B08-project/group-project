@@ -20,4 +20,9 @@ public class KycRequest {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    private String email;
+    private String fullName;
+    private String phoneNumber;
+    private String socials;
 }

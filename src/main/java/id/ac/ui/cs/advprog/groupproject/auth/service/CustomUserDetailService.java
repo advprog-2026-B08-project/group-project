@@ -34,7 +34,7 @@ public class CustomUserDetailService implements UserDetailsService {
         return password.equals(confirmPassword);
     }
 
-    public User createUser(String email, String password, String username) {
+    public User createUser(String email, String password, String username, String fullName) {
         String usernameInput = username;
         if (usernameInput == null || usernameInput.isBlank()) {
             usernameInput = getDefaultUsername(email);
@@ -46,6 +46,8 @@ public class CustomUserDetailService implements UserDetailsService {
         user.setRole(Role.ROLE_TITIPER.toString());
         user.setStatus(Status.Aktif.toString());
         user.setEmail(email);
+        if (fullName != null) user.setFullName(fullName);
+
         userRepository.save(user);
 
         return user;

@@ -3,6 +3,8 @@ package id.ac.ui.cs.advprog.groupproject.auth.controller;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public class KycController {
     KycRequestService kycRequestService;
@@ -11,13 +13,22 @@ public class KycController {
         this.kycRequestService = kycRequestService;
     }
 
-    // TODO : kurang param lain, implement
-    public String createRequestAdmin(@AuthenticationPrincipal User user) {
+    @PostMapping("/kycRequestAdmin/create")
+    public String createRequestAdmin(@AuthenticationPrincipal User user,
+                                     @RequestParam String email,
+                                     @RequestParam String fullName,
+                                     @RequestParam String phoneNumber,
+                                     @RequestParam String socials) {
+        kycRequestService.createRequestForAdmin(user, email, fullName, phoneNumber, socials);
         return "redirect:/homepage";
     }
 
-    // TODO : kurang param lain, implement
-    public String createRequestJastiper(@AuthenticationPrincipal User user) {
+    @PostMapping("/kycRequestJastiper/create")
+    public String createRequestJastiper(@AuthenticationPrincipal User user,
+                                        @RequestParam String email,
+                                        @RequestParam String fullName,
+                                        @RequestParam String socials) {
+        kycRequestService.createRequestForJastiper(user, email, fullName, socials);
         return "redirect:/homepage";
     }
 }

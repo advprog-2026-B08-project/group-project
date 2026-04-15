@@ -40,6 +40,9 @@ public class User implements UserDetails {
     @Column
     private String profilePictureURL;
 
+    @Column
+    private String fullName;
+
     @OneToMany(mappedBy = "jastiper", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Catalog> catalog = new ArrayList<>();
 

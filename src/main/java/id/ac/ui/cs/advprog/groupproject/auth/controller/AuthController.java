@@ -18,12 +18,13 @@ public class AuthController {
     public String register(@RequestParam String username,
                            @RequestParam String password,
                            @RequestParam String confirmPassword,
-                           @RequestParam String email) {
+                           @RequestParam String email,
+                           @RequestParam String fullName) {
 
         if (service.emailExists(email)) return "redirect:/register?userExists";
         if (!service.confirmPassword(password, confirmPassword)) return "redirect:/register?error";
 
-        service.createUser(email, password, username);
+        service.createUser(email, password, username, fullName);
         return "redirect:/login?registered";
     }
 }
