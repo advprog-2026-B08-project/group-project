@@ -3,6 +3,7 @@ plugins {
     id("org.springframework.boot") version "3.5.10"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
+    id("checkstyle")
     id("org.sonarqube") version "6.0.1.5171"
 }
 
@@ -59,5 +60,20 @@ sonar {
         property("sonar.projectKey", "advprog-2026-B08-project_group-project")
         property("sonar.organization", "advprog-2026-b08-project")
         property("sonar.host.url", "https://sonarcloud.io")
+    }
+}
+
+checkstyle {
+    toolVersion = "10.26.1"
+    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    isIgnoreFailures = false
+    maxWarnings = 0
+}
+
+tasks.withType<Checkstyle> {
+    reports {
+        xml.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(file("build/reports/checkstyle/${name}.html"))
     }
 }
