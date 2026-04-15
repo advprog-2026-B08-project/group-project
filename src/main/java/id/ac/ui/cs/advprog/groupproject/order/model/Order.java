@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.groupproject.order.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -18,14 +19,19 @@ public class Order {
 
     private UUID buyerId;
     private UUID jastiperId;
+    private UUID productId;
 
     private Integer quantity;
     private String shippingAddress;
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @PrePersist
     public void prePersist() {
@@ -35,5 +41,11 @@ public class Order {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
