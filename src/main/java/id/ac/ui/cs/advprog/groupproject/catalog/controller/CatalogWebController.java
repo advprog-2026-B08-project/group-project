@@ -57,7 +57,7 @@ public class CatalogWebController {
     @GetMapping
     public String catalog(Model model) {
         model.addAttribute(CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
-        return "catalog/catalog";
+        return "catalog/html/catalog";
     }
 
     @GetMapping("/{userId}")
@@ -67,7 +67,7 @@ public class CatalogWebController {
         
         model.addAttribute(CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId)));
         model.addAttribute("username", user.getUsername());
-        return "catalog/userCatalog";
+        return "catalog/html/userCatalog";
     }
 
     @GetMapping("/my")
@@ -76,7 +76,7 @@ public class CatalogWebController {
         
         model.addAttribute(CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.findAllCatalogs(currentUser)));
         model.addAttribute("username", currentUser.getUsername());
-        return "catalog/myCatalog";
+        return "catalog/html/myCatalog";
     }
     
     @GetMapping("/edit/{id}")
@@ -85,7 +85,7 @@ public class CatalogWebController {
         
         Catalog catalog = catalogService.getCatalogById(id, currentUser);
         model.addAttribute("catalog", catalogMapper.toDto(catalog));
-        return "catalog/editCatalog";
+        return "catalog/html/editCatalog";
     }
     
     @PostMapping("/edit")
@@ -113,7 +113,7 @@ public class CatalogWebController {
         }
         
         model.addAttribute("catalog", new CatalogDto());
-        return "catalog/addCatalog";
+        return "catalog/html/addCatalog";
     }
     
     @PostMapping("/add")

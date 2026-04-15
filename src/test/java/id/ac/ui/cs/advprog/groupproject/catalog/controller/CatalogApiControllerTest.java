@@ -232,6 +232,25 @@ class CatalogApiControllerTest {
     }
 
     @Test
+    void testSearchCatalogs() {
+        List<Catalog> catalogs = new ArrayList<>();
+        catalogs.add(testCatalog);
+        List<CatalogDto> catalogDtos = new ArrayList<>();
+        catalogDtos.add(testCatalogDto);
+
+        when(catalogService.searchCatalogs("Test")).thenReturn(catalogs);
+        when(catalogMapper.toDtoList(catalogs)).thenReturn(catalogDtos);
+
+        ResponseEntity<List<CatalogDto>> response = catalogApiController.searchCatalogs("Test", null, null);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        verify(catalogService, times(1)).searchCatalogs("Test");
+        verify(catalogMapper, times(1)).toDtoList(catalogs);
+    }
+
+    @Test
     void testDecreaseStockSuccess() {
         DecreaseStockRequest request = new DecreaseStockRequest();
         request.setQuantity(2);

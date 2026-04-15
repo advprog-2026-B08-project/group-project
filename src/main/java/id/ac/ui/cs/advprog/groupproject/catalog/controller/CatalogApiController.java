@@ -50,6 +50,21 @@ public class CatalogApiController {
         List<Catalog> catalogs = catalogService.findAllCatalogs(currentUser);
         return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CatalogDto>> searchCatalogs(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String jastiper) {
+        List<Catalog> catalogs;
+        if (keyword != null && !keyword.isBlank()) {
+            catalogs = catalogService.searchCatalogs(keyword);
+        } else {
+            catalogs = catalogService.searchCatalogs(name, jastiper);
+        }
+
+        return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));
+    }
     
     @PostMapping
     public ResponseEntity<CatalogDto> createCatalog(@Valid @RequestBody CatalogDto catalogDto, Principal principal) {

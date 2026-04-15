@@ -112,7 +112,7 @@ class CatalogWebControllerTest {
         mockMvc.perform(get("/catalog")
                 .with(user("testuser")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("catalog/catalog"))
+                .andExpect(view().name("catalog/html/catalog"))
                 .andExpect(model().attributeExists("catalogs"));
 
         verify(catalogService, times(1)).getAllCatalogs();
@@ -131,7 +131,7 @@ class CatalogWebControllerTest {
         mockMvc.perform(get("/catalog/" + userId)
                 .with(user("testuser")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("catalog/userCatalog"))
+                .andExpect(view().name("catalog/html/userCatalog"))
                 .andExpect(model().attributeExists("catalogs"))
                 .andExpect(model().attributeExists("username"));
 
@@ -164,7 +164,7 @@ class CatalogWebControllerTest {
         mockMvc.perform(get("/catalog/my")
                 .with(user("testuser")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("catalog/myCatalog"))
+                .andExpect(view().name("catalog/html/myCatalog"))
                 .andExpect(model().attributeExists("catalogs"))
                 .andExpect(model().attributeExists("username"));
 
@@ -182,7 +182,7 @@ class CatalogWebControllerTest {
         mockMvc.perform(get("/catalog/edit/" + catalogId)
                 .with(user("testuser")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("catalog/editCatalog"))
+                .andExpect(view().name("catalog/html/editCatalog"))
                 .andExpect(model().attributeExists("catalog"));
 
         verify(userRepository, times(1)).findByUsername("testuser");
@@ -226,7 +226,7 @@ class CatalogWebControllerTest {
         mockMvc.perform(get("/catalog/add")
                 .with(user("testuser")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("catalog/addCatalog"))
+                .andExpect(view().name("catalog/html/addCatalog"))
                 .andExpect(model().attributeExists("catalog"));
 
         verify(userRepository, times(1)).findByUsername("testuser");

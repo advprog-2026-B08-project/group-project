@@ -43,6 +43,14 @@ public class CatalogService {
         return catalogRepository.findAll();
     }
 
+    public List<Catalog> searchCatalogs(String name, String jastiper) {
+        return catalogRepository.searchCatalogs(normalizeSearchTerm(name), normalizeSearchTerm(jastiper));
+    }
+
+    public List<Catalog> searchCatalogs(String keyword) {
+        return catalogRepository.searchCatalogsByKeyword(normalizeSearchTerm(keyword));
+    }
+
     public List<Catalog> getCatalogsByUserId(UUID userId) {
         return catalogRepository.findByJastiperId(userId);
     }
@@ -95,5 +103,14 @@ public class CatalogService {
 
         catalog.setStock(catalog.getStock() - quantity);
         return catalogRepository.save(catalog);
+    }
+
+    private String normalizeSearchTerm(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        String trimmedValue = value.trim();
+        return trimmedValue.isEmpty() ? null : trimmedValue;
     }
 }

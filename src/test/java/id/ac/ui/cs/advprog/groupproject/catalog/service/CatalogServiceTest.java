@@ -151,6 +151,34 @@ class CatalogServiceTest {
     }
 
     @Test
+    void testSearchCatalogs() {
+        List<Catalog> catalogList = new ArrayList<>();
+        catalogList.add(testCatalog);
+
+        when(catalogRepository.searchCatalogs("test", "seller")).thenReturn(catalogList);
+
+        List<Catalog> result = catalogService.searchCatalogs("test", "seller");
+
+        assertEquals(1, result.size());
+        assertEquals(testCatalog, result.get(0));
+        verify(catalogRepository, times(1)).searchCatalogs("test", "seller");
+    }
+
+    @Test
+    void testSearchCatalogsByKeyword() {
+        List<Catalog> catalogList = new ArrayList<>();
+        catalogList.add(testCatalog);
+
+        when(catalogRepository.searchCatalogsByKeyword("test")).thenReturn(catalogList);
+
+        List<Catalog> result = catalogService.searchCatalogs("test");
+
+        assertEquals(1, result.size());
+        assertEquals(testCatalog, result.get(0));
+        verify(catalogRepository, times(1)).searchCatalogsByKeyword("test");
+    }
+
+    @Test
     void testGetCatalogsByUserId() {
         List<Catalog> catalogList = new ArrayList<>();
         catalogList.add(testCatalog);
