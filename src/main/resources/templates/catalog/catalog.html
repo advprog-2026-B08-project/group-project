@@ -23,11 +23,12 @@
             <th scope="col">Origin Location</th>
             <th scope="col">Travel Date</th>
             <th scope="col">Jastiper</th>
+            <th scope="col">Order Test</th>
         </tr>
         </thead>
         <tbody>
         <tr th:if="${catalogs.isEmpty()}">
-            <td colspan="8" class="text-center text-muted">
+            <td colspan="9" class="text-center text-muted">
                 <em>No products available yet</em>
             </td>
         </tr>
@@ -50,11 +51,68 @@
                    class="text-primary font-weight-bold"
                    th:text="${catalog.jastiperUsername}"></a>
             </td>
+            <td>
+                <div class="d-flex" style="gap: 0.5rem;">
+                    <input type="number"
+                           min="1"
+                           value="1"
+                           class="form-control form-control-sm"
+                           style="width: 85px;"
+                           th:id="${'qty-' + catalog.id}">
+                    <button class="btn btn-success btn-sm"
+                            th:data-catalog-id="${catalog.id}"
+                            onclick="submitOrderTest(this.dataset.catalogId)">
+                        Order Test
+                    </button>
+                </div>
+            </td>
         </tr>
         </tbody>
     </table>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script>
+    //TODO REMOVE DUMMY WHEN 75%
+    function submitOrderTest(catalogId) {
+        const quantityInput = document.getElementById('qty-' + catalogId);
+        const quantity = Number(quantityInput.value);
+
+        if (!Number.isInteger(quantity) || quantity <= 0) {
+            alert('Quantity must be a positive integer.');
+            return;
+        }
+
+        fetch('/api/catalogs/' + catalogId + '/decrease-stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quantity: quantity })
+        })
+            .then(async (response) => {
+                if (response.ok) {
+                    alert('Order test success: stock reduced.');
+                    location.reload();
+                    return;
+                }
+
+                let message = 'Failed to create test order.';
+                try {
+                    const errorPayload = await response.json();
+                    if (errorPayload && errorPayload.message) {
+                        message = errorPayload.message;
+                    }
+                } catch (e) {
+                    // Keep default message when response body is not JSON.
+                }
+
+                alert(message);
+            })
+            .catch(() => {
+                alert('Failed to call order test endpoint.');
+            });
+    }
+</script>
 </body>
 </html>

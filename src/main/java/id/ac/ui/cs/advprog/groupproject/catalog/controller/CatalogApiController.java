@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
@@ -35,6 +36,10 @@ public class CatalogApiController {
     }
     
     private User getCurrentUser(Principal principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
+
         return userRepository.findByUsername(principal.getName())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
     }
@@ -73,5 +78,13 @@ public class CatalogApiController {
         User currentUser = getCurrentUser(principal);
         catalogService.deleteCatalog(id, currentUser);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/decrease-stock")
+    public ResponseEntity<CatalogDto> decreaseStock(
+            @PathVariable UUID id,
+            @Valid @RequestBody DecreaseStockRequest request) {
+        Catalog updatedCatalog = catalogService.decreaseStock(id, request.getQuantity());
+        return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));
     }
 }

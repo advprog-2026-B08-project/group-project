@@ -27,6 +27,10 @@ public class CatalogService {
     }
 
     public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
+        if (!currentUser.isJastiper()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
+        }
+
         Catalog catalog = catalogFactory.create(command, currentUser);
         return catalogRepository.save(catalog);
     }
@@ -75,5 +79,21 @@ public class CatalogService {
         }
 
         catalogRepository.deleteById(catalogId);
+    }
+
+    public Catalog decreaseStock(UUID catalogId, int quantity) {
+        if (quantity <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
+        }
+
+        Catalog catalog = catalogRepository.findById(catalogId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+
+        if (catalog.getStock() < quantity) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
+        }
+
+        catalog.setStock(catalog.getStock() - quantity);
+        return catalogRepository.save(catalog);
     }
 }

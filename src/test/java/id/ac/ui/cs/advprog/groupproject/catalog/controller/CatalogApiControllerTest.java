@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
@@ -207,5 +208,67 @@ class CatalogApiControllerTest {
         });
 
         verify(userRepository, times(1)).findByUsername("unknownuser");
+    }
+
+    @Test
+    void testGetAllMyCatalogsUnauthorizedWhenPrincipalMissing() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogApiController.getAllMyCatalogs(null);
+        });
+
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void testCreateCatalogUnauthorizedWhenPrincipalMissing() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogApiController.createCatalog(testCatalogDto, null);
+        });
+
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(catalogService);
+    }
+
+    @Test
+    void testDecreaseStockSuccess() {
+        DecreaseStockRequest request = new DecreaseStockRequest();
+        request.setQuantity(2);
+
+        Catalog updatedCatalog = new Catalog();
+        updatedCatalog.setId(catalogId);
+        updatedCatalog.setStock(8);
+
+        CatalogDto updatedDto = new CatalogDto();
+        updatedDto.setId(catalogId);
+        updatedDto.setStock(8);
+
+        when(catalogService.decreaseStock(catalogId, 2)).thenReturn(updatedCatalog);
+        when(catalogMapper.toDto(updatedCatalog)).thenReturn(updatedDto);
+
+        ResponseEntity<CatalogDto> response = catalogApiController.decreaseStock(catalogId, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(8, response.getBody().getStock());
+        verify(catalogService, times(1)).decreaseStock(catalogId, 2);
+        verify(catalogMapper, times(1)).toDto(updatedCatalog);
+    }
+
+    @Test
+    void testDecreaseStockConflict() {
+        DecreaseStockRequest request = new DecreaseStockRequest();
+        request.setQuantity(99);
+
+        when(catalogService.decreaseStock(catalogId, 99))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock"));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogApiController.decreaseStock(catalogId, request);
+        });
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(catalogService, times(1)).decreaseStock(catalogId, 99);
     }
 }

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -93,6 +94,32 @@ class CatalogServiceTest {
         assertNotNull(result);
         verify(catalogFactory, times(1)).create(command, testUser);
         verify(catalogRepository, times(1)).save(newCatalog);
+    }
+
+    @Test
+    void testCreateCatalogForbiddenForNonJastiper() {
+        CreateCatalogCommand command = new CreateCatalogCommand(
+            "New Product",
+            "New Description",
+            "http://example.com/new.jpg",
+            200.0,
+            5,
+            "Jakarta",
+            LocalDate.now().plusDays(10)
+        );
+
+        User customerUser = new User();
+        customerUser.setId(UUID.randomUUID());
+        customerUser.setUsername("customer");
+        customerUser.setRole("CUSTOMER");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.createCatalog(command, customerUser);
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        verify(catalogFactory, never()).create(any(CreateCatalogCommand.class), any(User.class));
+        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test
@@ -284,5 +311,55 @@ class CatalogServiceTest {
 
         verify(catalogRepository, times(1)).findById(catalogId);
         verify(catalogRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void testDecreaseStockSuccess() {
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+        when(catalogRepository.save(any(Catalog.class))).thenReturn(testCatalog);
+
+        Catalog result = catalogService.decreaseStock(catalogId, 3);
+
+        assertNotNull(result);
+        assertEquals(7, result.getStock());
+        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, times(1)).save(testCatalog);
+    }
+
+    @Test
+    void testDecreaseStockBadRequestWhenQuantityInvalid() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.decreaseStock(catalogId, 0);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(catalogRepository, never()).findById(any(UUID.class));
+        verify(catalogRepository, never()).save(any(Catalog.class));
+    }
+
+    @Test
+    void testDecreaseStockNotFound() {
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.decreaseStock(catalogId, 2);
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, never()).save(any(Catalog.class));
+    }
+
+    @Test
+    void testDecreaseStockConflictWhenInsufficientStock() {
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.decreaseStock(catalogId, 999);
+        });
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 }

@@ -46,6 +46,10 @@ public class CatalogWebController {
     }
     
     private User getCurrentUser(Principal principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
+
         return userRepository.findByUsername(principal.getName())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
     }
