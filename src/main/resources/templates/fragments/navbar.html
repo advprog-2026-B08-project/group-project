@@ -1,12 +1,16 @@
 <nav th:fragment="navbar" class="navbar">
-    <div class="nav-left">
+    <div class="nav">
         <a th:href="@{/homepage}">Homepage</a>
+        <div th:if="${user.role == 'ROLE_ADMIN'}">
+            <a th:href="@{/admin}">Admin</a>
+        </div>
+        <div th:if="${user.role == 'ROLE_JASTIPER' or user.role =='ROLE_ADMIN'}">
+            <a th:href="@{/catalog}">Catalog</a>
+        </div>
+        <a th:href="@{/order}">Order</a>
     </div>
-    <div th:if="${user.role == 'ROLE_ADMIN'}">
-        <a th:href="@{/admin}">Admin</a>
-    </div>
-    <div class="nav-right">
-        <a th:href="@{/catalog}">Catalog</a>
+
+    <div class="nav">
         <form th:action="@{/logout}" method="post">
             <input type="hidden"
                    th:name="${_csrf.parameterName}"

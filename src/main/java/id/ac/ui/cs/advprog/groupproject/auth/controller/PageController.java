@@ -38,4 +38,9 @@ public class PageController {
     public String admin() {
         return "auth/admin";
     }
+
+    @GetMapping("/order")
+    public String order() {
+        return "auth/order";
+    }
 }

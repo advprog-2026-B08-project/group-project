@@ -24,6 +24,18 @@ public class AdminInit implements CommandLineRunner {
     @Value("${app.admin.password}")
     private String adminPassword;
 
+    @Value("${JASTIPER_EMAIL}")
+    private String jastiperEmail;
+
+    @Value("${JASTIPER_PASSWORD}")
+    private String jastiperPassword;
+
+    @Value("${TITIPER_EMAIL}")
+    private String titiperEmail;
+
+    @Value("${TITIPER_PASSWORD}")
+    private String titiperPassword;
+
     public AdminInit(UserRepository userRepository, PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.encoder = encoder;
@@ -31,12 +43,32 @@ public class AdminInit implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.findByEmail("andrew.wanarahardja@ui.ac.id").isEmpty()) {
+        if (userRepository.findByEmail(adminEmail).isEmpty()) {
             User admin = new User();
             admin.setEmail(adminEmail);
             admin.setUsername("admin");
             admin.setPassword(encoder.encode(adminPassword));
             admin.setRole(Role.ROLE_ADMIN.toString());
+            admin.setStatus(Status.Aktif.toString());
+            userRepository.save(admin);
+        }
+
+        if (userRepository.findByEmail(jastiperEmail).isEmpty()) {
+            User admin = new User();
+            admin.setEmail(jastiperEmail);
+            admin.setUsername("jastiper");
+            admin.setPassword(encoder.encode(jastiperPassword));
+            admin.setRole(Role.ROLE_JASTIPER.toString());
+            admin.setStatus(Status.Aktif.toString());
+            userRepository.save(admin);
+        }
+
+        if (userRepository.findByEmail(titiperEmail).isEmpty()) {
+            User admin = new User();
+            admin.setEmail(titiperEmail);
+            admin.setUsername("titiper");
+            admin.setPassword(encoder.encode(titiperPassword));
+            admin.setRole(Role.ROLE_TITIPER.toString());
             admin.setStatus(Status.Aktif.toString());
             userRepository.save(admin);
         }
