@@ -49,11 +49,11 @@ public class PageController {
 
     @GetMapping("/kycRequestJastiper")
     public String kycRequestJastiper() {
-        return "kyc-jastiper";
+        return "auth/kyc/kyc-jastiper";
     }
 
     @GetMapping("/kycRequestAdmin")
     public String kycRequestAdmin() {
-        return "kyc-admin";
+        return "auth/kyc/kyc-admin";
     }
 }
