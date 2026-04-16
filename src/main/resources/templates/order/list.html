@@ -35,13 +35,14 @@
                     <th>Buyer ID</th>
                     <th>Total Price</th>
                     <th>Status</th>
-                    <th class="pe-4 text-end">Created At</th>
+                    <th class="text-end">Created At</th>
+                    <th class="pe-4 text-center">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="order : ${orders}">
-                    <td class="ps-4 fw-bold" th:text="${order.id}">ORD-001</td>
-                    <td th:text="${order.buyerId}">User123</td>
+                    <td class="ps-4 fw-bold" th:text="${#strings.substring(order.id, 0, 8)} + '...'">ORD-001</td>
+                    <td th:text="${#strings.substring(order.buyerId, 0, 8)} + '...'">User123</td>
                     <td th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</td>
                     <td>
                                 <span class="badge"
@@ -49,10 +50,21 @@
                                                       (order.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
                                       th:text="${order.status}">PENDING</span>
                     </td>
-                    <td class="pe-4 text-end text-muted" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">01 Mar 2024</td>
+                    <td class="text-end text-muted" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">01 Mar 2024</td>
+                    <td class="pe-4 text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button th:if="${order.status.name() == 'PAID'}" class="btn btn-primary" th:onclick="'updateStatus(\'' + ${order.id} + '\', \'PURCHASED\')'">🛒 Buy</button>
+                            <button th:if="${order.status.name() == 'PURCHASED'}" class="btn btn-info text-white" th:onclick="'updateStatus(\'' + ${order.id} + '\', \'SHIPPED\')'">✈️ Ship</button>
+                            <button th:if="${order.status.name() == 'SHIPPED'}" class="btn btn-success" th:onclick="'updateStatus(\'' + ${order.id} + '\', \'COMPLETED\')'">✅ Complete</button>
+                            
+                            <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}" class="btn btn-outline-danger" th:onclick="'cancelOrder(\'' + ${order.id} + '\')'">❌ Cancel</button>
+                            
+                            <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}" class="text-muted small">-</span>
+                        </div>
+                    </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(orders)}">
-                    <td colspan="5" class="text-center py-5">
+                    <td colspan="6" class="text-center py-5">
                         <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" alt="empty" style="width: 80px;" class="mb-3 opacity-50">
                         <p class="text-muted">No orders found.</p>
                     </td>
@@ -87,6 +99,50 @@
         } catch (error) {
             console.error(error);
             alert('System error saat top up.');
+        }
+    }
+
+    async function updateStatus(orderId, newStatus) {
+        if (!confirm(`Are you sure you want to change the status to ${newStatus}?`)) return;
+
+        try {
+            const response = await fetch(`/api/orders/${orderId}/status?status=${newStatus}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                alert('Status updated successfully!');
+                window.location.reload();
+            } else {
+                const msg = await response.text();
+                alert('Failed to update status: ' + msg);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error occurred.');
+        }
+    }
+
+    async function cancelOrder(orderId) {
+        if (!confirm('Are you sure you want to cancel this order? This will refund the payment.')) return;
+
+        try {
+            const response = await fetch(`/api/orders/${orderId}/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                alert('Order cancelled and refunded successfully!');
+                window.location.reload();
+            } else {
+                const msg = await response.text();
+                alert('Failed to cancel order: ' + msg);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error occurred.');
         }
     }
 </script>
