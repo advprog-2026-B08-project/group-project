@@ -40,8 +40,8 @@
                 </thead>
                 <tbody>
                 <tr th:each="order : ${orders}">
-                    <td class="ps-4 fw-bold" th:text="${#strings.substring(order.id.toString(), 0, 8) + '...'}">ORD-001</td>
-                    <td th:text="${#strings.substring(order.buyerId.toString(), 0, 8) + '...'}">User123</td>
+                    <td class="ps-4 fw-bold" th:text="${#strings.substring(#strings.toString(order.id), 0, 8) + '...'}">ORD-001</td>
+                    <td th:text="${#strings.substring(#strings.toString(order.buyerId), 0, 8) + '...'}">User123</td>
                     <td th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</td>
                     <td>
                         <span class="badge"
