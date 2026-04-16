@@ -1,1 +1,2 @@
-halo
+- Production Deployment: https://json-prod-0561d3767929.herokuapp.com/login
+- Staging Deployment: https://json-staging-cdf3ecf67eca.herokuapp.com/login

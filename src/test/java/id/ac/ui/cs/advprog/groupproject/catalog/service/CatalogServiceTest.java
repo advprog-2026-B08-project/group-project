@@ -1,5 +1,8 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
+import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.model.User;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
@@ -13,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -26,6 +30,9 @@ class CatalogServiceTest {
 
     @Mock
     private CatalogRepository catalogRepository;
+
+    @Mock
+    private CatalogFactory catalogFactory;
 
     @InjectMocks
     private CatalogService catalogService;
@@ -64,17 +71,55 @@ class CatalogServiceTest {
 
     @Test
     void testCreateCatalog() {
+        CreateCatalogCommand command = new CreateCatalogCommand(
+            "New Product",
+            "New Description",
+            "http://example.com/new.jpg",
+            200.0,
+            5,
+            "Jakarta",
+            LocalDate.now().plusDays(10)
+        );
+
         Catalog newCatalog = new Catalog();
         newCatalog.setName("New Product");
         newCatalog.setPrice(200.0);
+        newCatalog.setJastiper(testUser);
 
+        when(catalogFactory.create(command, testUser)).thenReturn(newCatalog);
         when(catalogRepository.save(any(Catalog.class))).thenReturn(newCatalog);
 
-        Catalog result = catalogService.createCatalog(newCatalog, testUser);
+        Catalog result = catalogService.createCatalog(command, testUser);
 
         assertNotNull(result);
-        assertEquals(testUser, newCatalog.getJastiper());
+        verify(catalogFactory, times(1)).create(command, testUser);
         verify(catalogRepository, times(1)).save(newCatalog);
+    }
+
+    @Test
+    void testCreateCatalogForbiddenForNonJastiper() {
+        CreateCatalogCommand command = new CreateCatalogCommand(
+            "New Product",
+            "New Description",
+            "http://example.com/new.jpg",
+            200.0,
+            5,
+            "Jakarta",
+            LocalDate.now().plusDays(10)
+        );
+
+        User customerUser = new User();
+        customerUser.setId(UUID.randomUUID());
+        customerUser.setUsername("customer");
+        customerUser.setRole("CUSTOMER");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.createCatalog(command, customerUser);
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        verify(catalogFactory, never()).create(any(CreateCatalogCommand.class), any(User.class));
+        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test
@@ -103,6 +148,34 @@ class CatalogServiceTest {
 
         assertEquals(2, result.size());
         verify(catalogRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testSearchCatalogs() {
+        List<Catalog> catalogList = new ArrayList<>();
+        catalogList.add(testCatalog);
+
+        when(catalogRepository.searchCatalogs("test", "seller")).thenReturn(catalogList);
+
+        List<Catalog> result = catalogService.searchCatalogs("test", "seller");
+
+        assertEquals(1, result.size());
+        assertEquals(testCatalog, result.get(0));
+        verify(catalogRepository, times(1)).searchCatalogs("test", "seller");
+    }
+
+    @Test
+    void testSearchCatalogsByKeyword() {
+        List<Catalog> catalogList = new ArrayList<>();
+        catalogList.add(testCatalog);
+
+        when(catalogRepository.searchCatalogsByKeyword("test")).thenReturn(catalogList);
+
+        List<Catalog> result = catalogService.searchCatalogs("test");
+
+        assertEquals(1, result.size());
+        assertEquals(testCatalog, result.get(0));
+        verify(catalogRepository, times(1)).searchCatalogsByKeyword("test");
     }
 
     @Test
@@ -153,58 +226,83 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogSuccess() {
-        Catalog updatedData = new Catalog();
-        updatedData.setName("Updated Product");
-        updatedData.setDescription("Updated Description");
-        updatedData.setImageUrl("http://example.com/updated.jpg");
-        updatedData.setPrice(150.0);
-        updatedData.setStock(20);
-        updatedData.setOriginLocation("Bandung");
-        updatedData.setTravelDate(LocalDate.now().plusDays(14));
+        UpdateCatalogCommand command = new UpdateCatalogCommand(
+            "Updated Product",
+            "Updated Description",
+            "http://example.com/updated.jpg",
+            150.0,
+            20,
+            "Bandung",
+            LocalDate.now().plusDays(14)
+        );
 
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
         when(catalogRepository.save(any(Catalog.class))).thenReturn(testCatalog);
 
-        Catalog result = catalogService.updateCatalog(catalogId, updatedData, testUser);
+        doAnswer(invocation -> {
+            Catalog target = invocation.getArgument(0);
+            UpdateCatalogCommand cmd = invocation.getArgument(1);
+            target.setName(cmd.getName());
+            target.setDescription(cmd.getDescription());
+            target.setImageUrl(cmd.getImageUrl());
+            target.setPrice(cmd.getPrice());
+            target.setStock(cmd.getStock());
+            target.setOriginLocation(cmd.getOriginLocation());
+            target.setTravelDate(cmd.getTravelDate());
+            return null;
+        }).when(catalogFactory).applyUpdate(any(Catalog.class), any(UpdateCatalogCommand.class));
+
+        Catalog result = catalogService.updateCatalog(catalogId, command, testUser);
 
         assertNotNull(result);
-        assertEquals("Updated Product", testCatalog.getName());
-        assertEquals("Updated Description", testCatalog.getDescription());
-        assertEquals("http://example.com/updated.jpg", testCatalog.getImageUrl());
-        assertEquals(150.0, testCatalog.getPrice());
-        assertEquals(20, testCatalog.getStock());
-        assertEquals("Bandung", testCatalog.getOriginLocation());
         verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogFactory, times(1)).applyUpdate(testCatalog, command);
         verify(catalogRepository, times(1)).save(testCatalog);
     }
 
     @Test
     void testUpdateCatalogNotFound() {
-        Catalog updatedData = new Catalog();
-        updatedData.setName("Updated Product");
+        UpdateCatalogCommand command = new UpdateCatalogCommand(
+            "Updated Product",
+            "Updated Description",
+            "http://example.com/updated.jpg",
+            150.0,
+            20,
+            "Bandung",
+            LocalDate.now().plusDays(14)
+        );
 
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class, () -> {
-            catalogService.updateCatalog(catalogId, updatedData, testUser);
+            catalogService.updateCatalog(catalogId, command, testUser);
         });
 
         verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogFactory, never()).applyUpdate(any(), any());
         verify(catalogRepository, never()).save(any());
     }
 
     @Test
     void testUpdateCatalogForbidden() {
-        Catalog updatedData = new Catalog();
-        updatedData.setName("Updated Product");
+        UpdateCatalogCommand command = new UpdateCatalogCommand(
+            "Updated Product",
+            "Updated Description",
+            "http://example.com/updated.jpg",
+            150.0,
+            20,
+            "Bandung",
+            LocalDate.now().plusDays(14)
+        );
 
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
 
         assertThrows(ResponseStatusException.class, () -> {
-            catalogService.updateCatalog(catalogId, updatedData, anotherUser);
+            catalogService.updateCatalog(catalogId, command, anotherUser);
         });
 
         verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogFactory, never()).applyUpdate(any(), any());
         verify(catalogRepository, never()).save(any());
     }
 
@@ -241,5 +339,55 @@ class CatalogServiceTest {
 
         verify(catalogRepository, times(1)).findById(catalogId);
         verify(catalogRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void testDecreaseStockSuccess() {
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+        when(catalogRepository.save(any(Catalog.class))).thenReturn(testCatalog);
+
+        Catalog result = catalogService.decreaseStock(catalogId, 3);
+
+        assertNotNull(result);
+        assertEquals(7, result.getStock());
+        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, times(1)).save(testCatalog);
+    }
+
+    @Test
+    void testDecreaseStockBadRequestWhenQuantityInvalid() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.decreaseStock(catalogId, 0);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(catalogRepository, never()).findById(any(UUID.class));
+        verify(catalogRepository, never()).save(any(Catalog.class));
+    }
+
+    @Test
+    void testDecreaseStockNotFound() {
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.decreaseStock(catalogId, 2);
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, never()).save(any(Catalog.class));
+    }
+
+    @Test
+    void testDecreaseStockConflictWhenInsufficientStock() {
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.decreaseStock(catalogId, 999);
+        });
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 }
