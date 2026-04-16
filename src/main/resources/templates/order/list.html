@@ -9,6 +9,8 @@
         body { background-color: #f8f9fa; }
         .card { border-radius: 15px; border: none; }
         .table-dark { background-color: #212529; }
+        tbody tr { cursor: pointer; }
+        tbody tr:hover { background-color: #e9ecef; }
     </style>
 </head>
 <body>
@@ -153,6 +155,13 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const currentUserId = document.getElementById('currentUserId').value;
+
+        document.querySelectorAll('tbody tr[data-order-id]').forEach(function(row) {
+            row.addEventListener('click', function(e) {
+                if (e.target.closest('button')) return;
+                window.location.href = '/order/' + row.dataset.orderId;
+            });
+        });
 
         document.querySelectorAll('.jastiper-only').forEach(function(btn) {
             if (btn.dataset.jastiperId !== currentUserId) {
