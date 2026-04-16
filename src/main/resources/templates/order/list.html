@@ -18,7 +18,10 @@
             <h2 class="display-6 fw-bold">📦 Order List</h2>
             <p class="text-muted">Manage and track your project orders here.</p>
         </div>
-        <div class="col-md-4 text-end">
+        <div class="col-md-5 text-end">
+            <!-- Hidden input for User ID -->
+            <input type="hidden" id="currentUserId" th:value="${currentUserId}" />
+            <button onclick="topUpWallet()" class="btn btn-success me-2">💰 Top Up +Rp 10 Juta</button>
             <a href="/catalog" class="btn btn-outline-secondary">Return to Catalog</a>
         </div>
     </div>
@@ -59,5 +62,33 @@
         </div>
     </div>
 </div>
+<script>
+    async function topUpWallet() {
+        const userId = document.getElementById('currentUserId').value;
+        if (!userId) {
+            alert('User ID is missing. Please make sure you are logged in.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/wallet/top-up/${userId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: 10000000 })
+            });
+
+            if (response.ok) {
+                alert('Top Up Berhasil! Saldo +Rp 10.000.000.');
+            } else {
+                let msg = 'Gagal top up.';
+                try { msg += ' ' + await response.text(); } catch(e){}
+                alert(msg);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('System error saat top up.');
+        }
+    }
+</script>
 </body>
 </html>
