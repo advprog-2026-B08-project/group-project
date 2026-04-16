@@ -39,9 +39,7 @@ jobs:
           SPRING_PROFILES_ACTIVE: test
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./gradlew build jacocoTestReport --info || true
-          ./gradlew sonar --info
+        run: ./gradlew build jacocoTestReport sonar --info
 
       - name: Prepare Reports for Deployment
         run: |
