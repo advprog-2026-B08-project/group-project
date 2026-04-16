@@ -55,9 +55,14 @@ public class CatalogWebController {
   }
 
   @GetMapping
-  public String catalog(Model model) {
+  public String catalog(Model model, Principal principal) {
     model.addAttribute(
         CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
+    if (principal != null) {
+      userRepository
+          .findByUsername(principal.getName())
+          .ifPresent(user -> model.addAttribute("currentUserId", user.getId()));
+    }
     return "catalog/html/catalog";
   }
 
