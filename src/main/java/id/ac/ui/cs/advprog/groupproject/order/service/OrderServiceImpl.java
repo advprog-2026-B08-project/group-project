@@ -126,10 +126,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order cancelOrder(UUID orderId) {
-        Order order = updateStatus(orderId, OrderStatus.CANCELLED);
-        stockPort.releaseStock(order.getProductId(), order.getQuantity());
-        // Potential refund logic here via PaymentPort
-        return order;
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+        Order cancelled = updateStatus(orderId, OrderStatus.CANCELLED);
+        stockPort.releaseStock(cancelled.getProductId(), cancelled.getQuantity());
+        paymentPort.refund(
+                cancelled.getBuyerId(),
+                cancelled.getTotalPrice(),
+                "Refund for cancelled order: " + cancelled.getId()
+        );
+        return cancelled;
     }
 
     private void validateCheckoutRequest(CheckoutRequest request) {
