@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">1.185s</div>
+<div class="counter">0.948s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,52 +79,52 @@
 </thead>
 <tr>
 <td class="success">testAddCatalogPage()</td>
-<td class="success">0.049s</td>
+<td class="success">0.067s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testAddCatalogPageForbidden()</td>
-<td class="success">0.028s</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testCatalogPage()</td>
-<td class="success">0.756s</td>
+<td class="success">0.547s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testCreateCatalogPost()</td>
-<td class="success">0.021s</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testCreateCatalogPostForbidden()</td>
-<td class="success">0.015s</td>
+<td class="success">0.013s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testEditCatalogPage()</td>
-<td class="success">0.034s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">testMyCatalogPage()</td>
 <td class="success">0.027s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
+<td class="success">testMyCatalogPage()</td>
+<td class="success">0.085s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
 <td class="success">testUpdateCatalogPost()</td>
-<td class="success">0.084s</td>
+<td class="success">0.063s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testUserCatalogPage()</td>
-<td class="success">0.028s</td>
+<td class="success">0.021s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testUserCatalogPageNotFound()</td>
-<td class="success">0.143s</td>
+<td class="success">0.101s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -132,8 +132,8 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-04-16T14:52:02.400Z  INFO 2604 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest]: CatalogWebControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-16T14:52:02.469Z  INFO 2604 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest
+<pre>2026-04-16T15:17:59.066Z  INFO 2446 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest]: CatalogWebControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-16T15:17:59.131Z  INFO 2446 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -144,22 +144,22 @@
 
  :: Spring Boot ::               (v3.5.10)
 
-2026-04-16T14:52:02.564Z  INFO 2604 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Starting CatalogWebControllerTest using Java 21.0.10 with PID 2604 (started by runner in /home/runner/work/group-project/group-project)
-2026-04-16T14:52:02.565Z  INFO 2604 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : The following 1 profile is active: &quot;test&quot;
-2026-04-16T14:52:02.902Z  INFO 2604 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-16T14:52:02.933Z  INFO 2604 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 26 ms. Found 6 JPA repository interfaces.
-2026-04-16T14:52:03.431Z  INFO 2604 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
-2026-04-16T14:52:03.433Z  INFO 2604 --- [group-project] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn3: url=jdbc:h2:mem:testdb user=SA
-2026-04-16T14:52:03.434Z  INFO 2604 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
-2026-04-16T14:52:03.437Z  INFO 2604 --- [group-project] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:testdb (H2 2.3)
-2026-04-16T14:52:03.450Z  INFO 2604 --- [group-project] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.007s)
-2026-04-16T14:52:03.455Z  INFO 2604 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema &quot;PUBLIC&quot;: 20260416
-2026-04-16T14:52:03.457Z  INFO 2604 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Schema &quot;PUBLIC&quot; is up to date. No migration necessary.
-2026-04-16T14:52:03.492Z  INFO 2604 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-16T14:52:03.498Z  INFO 2604 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-16T14:52:03.512Z  INFO 2604 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-16T14:52:03.515Z  WARN 2604 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-16T14:52:03.516Z  INFO 2604 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-04-16T15:17:59.217Z  INFO 2446 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Starting CatalogWebControllerTest using Java 21.0.10 with PID 2446 (started by runner in /home/runner/work/group-project/group-project)
+2026-04-16T15:17:59.218Z  INFO 2446 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : The following 1 profile is active: &quot;test&quot;
+2026-04-16T15:17:59.495Z  INFO 2446 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-16T15:17:59.514Z  INFO 2446 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 15 ms. Found 6 JPA repository interfaces.
+2026-04-16T15:17:59.928Z  INFO 2446 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-04-16T15:17:59.929Z  INFO 2446 --- [group-project] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn3: url=jdbc:h2:mem:testdb user=SA
+2026-04-16T15:17:59.930Z  INFO 2446 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-04-16T15:17:59.933Z  INFO 2446 --- [group-project] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:testdb (H2 2.3)
+2026-04-16T15:17:59.945Z  INFO 2446 --- [group-project] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.006s)
+2026-04-16T15:17:59.950Z  INFO 2446 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema &quot;PUBLIC&quot;: 20260416
+2026-04-16T15:17:59.952Z  INFO 2446 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Schema &quot;PUBLIC&quot; is up to date. No migration necessary.
+2026-04-16T15:17:59.983Z  INFO 2446 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-16T15:17:59.988Z  INFO 2446 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-16T15:18:00.006Z  INFO 2446 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-16T15:18:00.009Z  WARN 2446 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-16T15:18:00.010Z  INFO 2446 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
 	Database driver: undefined/unknown
 	Database version: 2.3.232
@@ -167,14 +167,14 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-04-16T14:52:03.638Z  INFO 2604 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-16T14:52:03.643Z  INFO 2604 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-16T14:52:03.854Z  WARN 2604 --- [group-project] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-16T14:52:04.006Z  INFO 2604 --- [group-project] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
-2026-04-16T14:52:04.305Z  INFO 2604 --- [group-project] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2026-04-16T14:52:04.306Z  INFO 2604 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-04-16T14:52:04.308Z  INFO 2604 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
-2026-04-16T14:52:04.334Z  INFO 2604 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Started CatalogWebControllerTest in 1.855 seconds (process running for 18.123)
+2026-04-16T15:18:00.133Z  INFO 2446 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-16T15:18:00.137Z  INFO 2446 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-16T15:18:00.311Z  WARN 2446 --- [group-project] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-16T15:18:00.441Z  INFO 2446 --- [group-project] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
+2026-04-16T15:18:00.634Z  INFO 2446 --- [group-project] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-16T15:18:00.635Z  INFO 2446 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-16T15:18:00.637Z  INFO 2446 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-16T15:18:00.655Z  INFO 2446 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Started CatalogWebControllerTest in 1.516 seconds (process running for 16.522)
 </pre>
 </span>
 </div>
@@ -186,7 +186,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at Apr 16, 2026, 2:52:07 PM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at Apr 16, 2026, 3:18:04 PM</p>
 </div>
 </div>
 </body>
