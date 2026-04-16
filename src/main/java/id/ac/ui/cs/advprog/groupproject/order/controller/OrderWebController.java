@@ -25,7 +25,7 @@ public class OrderWebController {
         model.addAttribute("orders", orderService.findAll());
         if (principal != null) {
             userRepository.findByUsername(principal.getName())
-                .ifPresent(user -> model.addAttribute("currentUserId", user.getId()));
+                .ifPresent(user -> model.addAttribute("currentUserId", user.getId().toString()));
         }
         return "order/list";
     }

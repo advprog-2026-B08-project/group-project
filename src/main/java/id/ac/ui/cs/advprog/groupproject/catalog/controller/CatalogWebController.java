@@ -61,7 +61,7 @@ public class CatalogWebController {
     if (principal != null) {
       userRepository
           .findByUsername(principal.getName())
-          .ifPresent(user -> model.addAttribute("currentUserId", user.getId()));
+          .ifPresent(user -> model.addAttribute("currentUserId", user.getId().toString()));
     }
     return "catalog/html/catalog";
   }
