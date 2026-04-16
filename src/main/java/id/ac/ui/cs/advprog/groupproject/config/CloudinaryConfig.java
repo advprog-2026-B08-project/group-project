@@ -11,7 +11,6 @@ import java.util.Map;
 @Configuration
 public class CloudinaryConfig {
 
-    // Mengambil value dari application.yml
     @Value("${cloudinary.cloud-name}")
     private String cloudName;
 
