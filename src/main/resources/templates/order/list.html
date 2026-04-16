@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border-radius: 15px; border: none; }
+        .table-dark { background-color: #212529; }
+        tbody tr { cursor: pointer; }
+        tbody tr:hover { background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-7">
+            <h2 class="display-6 fw-bold">📦 Order List</h2>
+            <p class="text-muted">Manage and track your project orders here.</p>
+        </div>
+        <div class="col-md-5 text-end">
+            <input type="hidden" id="currentUserId" th:value="${currentUserId}" />
+            <button onclick="topUpWallet()" class="btn btn-success me-2">Top Up (test)</button>
+            <a href="/catalog" class="btn btn-outline-secondary">Return to Catalog</a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                <tr>
+                    <th class="ps-4">Order ID</th>
+                    <th>Buyer ID</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th class="text-end">Created At</th>
+                    <th class="pe-4 text-center">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}"
+                    th:data-order-id="${order.id}"
+                    th:data-jastiper-id="${order.jastiperId}"
+                    th:data-buyer-id="${order.buyerId}"
+                    th:data-status="${order.status}">
+                    <td class="ps-4 fw-bold" th:text="${order.id}">ORD-001</td>
+                    <td th:text="${order.buyerId}">User123</td>
+                    <td th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${order.status.name() == 'COMPLETED' ? 'bg-success' :
+                                              (order.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
+                              th:text="${order.status}">PENDING</span>
+                    </td>
+                    <td class="text-end text-muted" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">01 Mar 2024</td>
+                    <td class="pe-4 text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button th:if="${order.status.name() == 'PAID'}"
+                                    class="btn btn-primary action-btn jastiper-only"
+                                    th:data-id="${order.id}"
+                                    th:data-jastiper-id="${order.jastiperId}"
+                                    data-action="PURCHASED">🛒 Buy</button>
+                            <button th:if="${order.status.name() == 'PURCHASED'}"
+                                    class="btn btn-info text-white action-btn jastiper-only"
+                                    th:data-id="${order.id}"
+                                    th:data-jastiper-id="${order.jastiperId}"
+                                    data-action="SHIPPED">✈️ Ship</button>
+                            <button th:if="${order.status.name() == 'SHIPPED'}"
+                                    class="btn btn-success action-btn buyer-only"
+                                    th:data-id="${order.id}"
+                                    th:data-buyer-id="${order.buyerId}"
+                                    data-action="COMPLETED">✅ Terima</button>
+                            <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}"
+                                    class="btn btn-outline-danger cancel-btn"
+                                    th:data-id="${order.id}"
+                                    th:data-buyer-id="${order.buyerId}"
+                                    th:data-jastiper-id="${order.jastiperId}">❌ Cancel</button>
+                            <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}"
+                                  class="text-muted small">-</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(orders)}">
+                    <td colspan="6" class="text-center py-5">
+                        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" alt="empty" style="width: 80px;" class="mb-3 opacity-50">
+                        <p class="text-muted">No orders found.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    async function topUpWallet() {
+        const userId = document.getElementById('currentUserId').value;
+        if (!userId) {
+            alert('User ID tidak ditemukan. Silakan login ulang.');
+            return;
+        }
+        try {
+            const response = await fetch('/api/wallet/top-up/' + userId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: 10000000 })
+            });
+            if (response.ok) {
+                alert('Top Up Berhasil! Saldo +Rp 10.000.000.');
+            } else {
+                alert('Gagal top up: ' + await response.text());
+            }
+        } catch (e) {
+            alert('System error saat top up.');
+        }
+    }
+
+    async function updateStatus(orderId, newStatus) {
+        if (!confirm('Ubah status order ke ' + newStatus + '?')) return;
+        try {
+            const response = await fetch('/api/orders/' + orderId + '/status?status=' + newStatus, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                alert('Status berhasil diupdate!');
+                window.location.reload();
+            } else {
+                alert('Gagal: ' + await response.text());
+            }
+        } catch (e) {
+            alert('System error.');
+        }
+    }
+
+    async function cancelOrder(orderId) {
+        if (!confirm('Batalkan order ini? Saldo akan dikembalikan.')) return;
+        try {
+            const response = await fetch('/api/orders/' + orderId + '/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                alert('Order dibatalkan dan saldo dikembalikan!');
+                window.location.reload();
+            } else {
+                alert('Gagal cancel: ' + await response.text());
+            }
+        } catch (e) {
+            alert('System error.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentUserId = document.getElementById('currentUserId').value;
+
+        document.querySelectorAll('tbody tr[data-order-id]').forEach(function(row) {
+            row.addEventListener('click', function(e) {
+                if (e.target.closest('button')) return;
+                window.location.href = '/order/' + row.dataset.orderId;
+            });
+        });
+
+        document.querySelectorAll('.jastiper-only').forEach(function(btn) {
+            if (btn.dataset.jastiperId !== currentUserId) {
+                btn.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.buyer-only').forEach(function(btn) {
+            if (btn.dataset.buyerId !== currentUserId) {
+                btn.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+            if (btn.dataset.buyerId !== currentUserId && btn.dataset.jastiperId !== currentUserId) {
+                btn.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.action-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                updateStatus(this.dataset.id, this.dataset.action);
+            });
+        });
+
+        document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                cancelOrder(this.dataset.id);
+            });
+        });
+    });
+</script>
+</body>
+</html>

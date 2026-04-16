@@ -139,37 +139,54 @@ async function submitOrderTest(catalogId) {
         return;
     }
 
+    const buyerId = document.querySelector('meta[name="current-user-id"]')?.content;
+    if (!buyerId) {
+        alert('You must be logged in to place an order.');
+        return;
+    }
+
+    const shippingAddress = prompt('Enter your shipping address:', 'Jl. Contoh No. 1, Jakarta');
+    if (!shippingAddress || shippingAddress.trim() === '') {
+        alert('Shipping address is required.');
+        return;
+    }
+
     try {
-        const response = await fetch('/api/catalogs/' + catalogId + '/decrease-stock', {
+        const response = await fetch('/api/orders/checkout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ quantity: quantity })
+            body: JSON.stringify({
+                buyerId: buyerId,
+                productId: catalogId,
+                quantity: quantity,
+                shippingAddress: shippingAddress.trim()
+            })
         });
 
         if (response.ok) {
-            const updatedCatalog = await response.json();
+            const order = await response.json();
             const stockCell = document.getElementById('stock-' + catalogId);
             if (stockCell) {
-                stockCell.textContent = updatedCatalog.stock;
+                stockCell.textContent = Math.max(0, Number(stockCell.textContent) - quantity);
             }
-            alert('Order test success: stock reduced.');
+            alert(`Order placed! Status: ${order.status}. View it in Order List.`);
             return;
         }
 
-        let message = 'Failed to create test order.';
+        let message = 'Failed to create order.';
         try {
-            const errorPayload = await response.json();
-            if (errorPayload && errorPayload.message) {
-                message = errorPayload.message;
+            const text = await response.text();
+            if (text) {
+                message = text;
             }
-        } catch (error) {
+        } catch (e) {
         }
 
         alert(message);
     } catch (error) {
-        alert('Failed to call order test endpoint.');
+        alert('Failed to call order endpoint.');
     }
 }
 

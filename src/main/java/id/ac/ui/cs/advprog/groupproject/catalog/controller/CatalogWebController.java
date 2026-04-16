@@ -55,9 +55,14 @@ public class CatalogWebController {
   }
 
   @GetMapping
-  public String catalog(Model model) {
+  public String catalog(Model model, Principal principal) {
     model.addAttribute(
         CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
+    if (principal != null) {
+      userRepository
+          .findByUsername(principal.getName())
+          .ifPresent(user -> model.addAttribute("currentUserId", user.getId().toString()));
+    }
     return "catalog/html/catalog";
   }
 
@@ -96,10 +101,14 @@ public class CatalogWebController {
   @PostMapping("/edit")
   public String updateCatalog(
       @Valid @ModelAttribute("catalog") CatalogDto catalogDto,
+      org.springframework.validation.BindingResult result,
       @RequestParam(name = "file", required = false) MultipartFile file,
       Principal principal) {
+    if (result.hasErrors()) {
+      return "catalog/html/editCatalog";
+    }
     User currentUser = getCurrentUser(principal);
-
+    
     if (file != null && !file.isEmpty()) {
       catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
@@ -124,8 +133,12 @@ public class CatalogWebController {
   @PostMapping("/add")
   public String createCatalog(
       @Valid @ModelAttribute("catalog") CatalogDto catalogDto,
+      org.springframework.validation.BindingResult result,
       @RequestParam(name = "file", required = false) MultipartFile file,
       Principal principal) {
+    if (result.hasErrors()) {
+      return "catalog/html/addCatalog";
+    }
     User currentUser = getCurrentUser(principal);
 
     if (!currentUser.isJastiper()) {

@@ -7,6 +7,7 @@ plugins {
     id("org.sonarqube") version "6.0.1.5171"
 }
 
+
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
 description = "group-project"
@@ -57,7 +58,7 @@ tasks.named<Test>("test") {
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     reports {
-        xml.required.set(true) 
+        xml.required.set(true)
         html.required.set(true)
     }
 }

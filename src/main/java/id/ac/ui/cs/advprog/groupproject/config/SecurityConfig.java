@@ -1,12 +1,12 @@
 package id.ac.ui.cs.advprog.groupproject.config;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration @EnableWebSecurity
+@Configuration 
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
@@ -14,10 +14,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 auth -> auth
                         .requestMatchers("/login", "/register", "/h2-console/**")
-                        .permitAll()
-                        .requestMatchers("/api/**") // TODO: Sementara permitAll untuk testing, nanti ganti authenticated setelah integrasi Auth
-                        .permitAll()
-                        .anyRequest().authenticated()
+                        .permitAll().anyRequest().authenticated()
         ).formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/homepage", true)
