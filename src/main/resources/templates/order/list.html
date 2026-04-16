@@ -39,9 +39,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="order : ${orders}">
-                    <td class="ps-4 fw-bold" th:text="${#strings.substring(#strings.toString(order.id), 0, 8) + '...'}">ORD-001</td>
-                    <td th:text="${#strings.substring(#strings.toString(order.buyerId), 0, 8) + '...'}">User123</td>
+                <tr th:each="order : ${orders}" th:data-order-id="${order.id}" th:data-status="${order.status}">
+                    <td class="ps-4 fw-bold" th:text="${order.id}">ORD-001</td>
+                    <td th:text="${order.buyerId}">User123</td>
                     <td th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</td>
                     <td>
                         <span class="badge"
@@ -52,15 +52,21 @@
                     <td class="text-end text-muted" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">01 Mar 2024</td>
                     <td class="pe-4 text-center">
                         <div class="btn-group btn-group-sm">
-                            <button th:if="${order.status.name() == 'PAID'}" class="btn btn-primary"
-                                    th:onclick="|updateStatus('${order.id}', 'PURCHASED')|">🛒 Buy</button>
-                            <button th:if="${order.status.name() == 'PURCHASED'}" class="btn btn-info text-white"
-                                    th:onclick="|updateStatus('${order.id}', 'SHIPPED')|">✈️ Ship</button>
-                            <button th:if="${order.status.name() == 'SHIPPED'}" class="btn btn-success"
-                                    th:onclick="|updateStatus('${order.id}', 'COMPLETED')|">✅ Complete</button>
+                            <button th:if="${order.status.name() == 'PAID'}"
+                                    class="btn btn-primary action-btn"
+                                    th:data-id="${order.id}"
+                                    data-action="PURCHASED">🛒 Buy</button>
+                            <button th:if="${order.status.name() == 'PURCHASED'}"
+                                    class="btn btn-info text-white action-btn"
+                                    th:data-id="${order.id}"
+                                    data-action="SHIPPED">✈️ Ship</button>
+                            <button th:if="${order.status.name() == 'SHIPPED'}"
+                                    class="btn btn-success action-btn"
+                                    th:data-id="${order.id}"
+                                    data-action="COMPLETED">✅ Complete</button>
                             <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}"
-                                    class="btn btn-outline-danger"
-                                    th:onclick="|cancelOrder('${order.id}')|">❌ Cancel</button>
+                                    class="btn btn-outline-danger cancel-btn"
+                                    th:data-id="${order.id}">❌ Cancel</button>
                             <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}"
                                   class="text-muted small">-</span>
                         </div>
@@ -81,11 +87,11 @@
     async function topUpWallet() {
         const userId = document.getElementById('currentUserId').value;
         if (!userId) {
-            alert('User ID is missing. Please make sure you are logged in.');
+            alert('User ID tidak ditemukan. Silakan login ulang.');
             return;
         }
         try {
-            const response = await fetch(`/api/wallet/top-up/${userId}`, {
+            const response = await fetch('/api/wallet/top-up/' + userId, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: 10000000 })
@@ -93,19 +99,17 @@
             if (response.ok) {
                 alert('Top Up Berhasil! Saldo +Rp 10.000.000.');
             } else {
-                let msg = 'Gagal top up.';
-                try { msg += ' ' + await response.text(); } catch(e){}
-                alert(msg);
+                alert('Gagal top up: ' + await response.text());
             }
-        } catch (error) {
+        } catch (e) {
             alert('System error saat top up.');
         }
     }
 
     async function updateStatus(orderId, newStatus) {
-        if (!confirm(`Ubah status order ke ${newStatus}?`)) return;
+        if (!confirm('Ubah status order ke ' + newStatus + '?')) return;
         try {
-            const response = await fetch(`/api/orders/${orderId}/status?status=${newStatus}`, {
+            const response = await fetch('/api/orders/' + orderId + '/status?status=' + newStatus, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -113,9 +117,9 @@
                 alert('Status berhasil diupdate!');
                 window.location.reload();
             } else {
-                alert('Gagal update status: ' + await response.text());
+                alert('Gagal: ' + await response.text());
             }
-        } catch (error) {
+        } catch (e) {
             alert('System error.');
         }
     }
@@ -123,7 +127,7 @@
     async function cancelOrder(orderId) {
         if (!confirm('Batalkan order ini? Saldo akan dikembalikan.')) return;
         try {
-            const response = await fetch(`/api/orders/${orderId}/cancel`, {
+            const response = await fetch('/api/orders/' + orderId + '/cancel', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -133,10 +137,23 @@
             } else {
                 alert('Gagal cancel: ' + await response.text());
             }
-        } catch (error) {
+        } catch (e) {
             alert('System error.');
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.action-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                updateStatus(this.dataset.id, this.dataset.action);
+            });
+        });
+        document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                cancelOrder(this.dataset.id);
+            });
+        });
+    });
 </script>
 </body>
 </html>
