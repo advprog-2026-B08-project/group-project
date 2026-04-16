@@ -7,9 +7,6 @@ plugins {
     id("org.sonarqube") version "6.0.1.5171"
 }
 
-jacoco {
-    toolVersion = "0.8.12"
-}
 
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
@@ -60,13 +57,6 @@ tasks.named<Test>("test") {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    classDirectories.setFrom(
-        fileTree(layout.buildDirectory.dir("classes/java/main"))
-    )
-    sourceDirectories.setFrom(files("src/main/java"))
-    executionData.setFrom(
-        fileTree(layout.buildDirectory.dir("jacoco")).include("*.exec")
-    )
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -78,10 +68,6 @@ sonar {
         property("sonar.projectKey", "advprog-2026-B08-project_group-project")
         property("sonar.organization", "advprog-2026-b08-project")
         property("sonar.host.url", "https://sonarcloud.io")
-        property(
-            "sonar.coverage.jacoco.xmlReportPaths",
-            "${layout.buildDirectory.get().asFile}/reports/jacoco/test/jacocoTestReport.xml"
-        )
     }
 }
 
