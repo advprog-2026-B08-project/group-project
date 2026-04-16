@@ -6,19 +6,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 <span class="fc" id="L7">public class PageController {</span>
     
+    @GetMapping(&quot;/&quot;)
+    public String root() {
+<span class="nc" id="L11">        return &quot;redirect:/login&quot;;</span>
+    }
+
     @GetMapping(&quot;/login&quot;)
     public String login() {
-<span class="nc" id="L11">        return &quot;login&quot;;</span>
+<span class="nc" id="L16">        return &quot;login&quot;;</span>
     }
 
     @GetMapping(&quot;/homepage&quot;)
     public String homepage() {
-<span class="nc" id="L16">        return &quot;homepage&quot;;</span>
+<span class="nc" id="L21">        return &quot;homepage&quot;;</span>
     }
-
     @GetMapping(&quot;/register&quot;)
     public String register() {
-<span class="nc" id="L21">        return &quot;register&quot;;</span>
+<span class="nc" id="L25">        return &quot;register&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
