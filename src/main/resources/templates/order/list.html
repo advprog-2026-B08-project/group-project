@@ -14,12 +14,11 @@
 <body>
 <div class="container mt-5">
     <div class="row mb-4">
-        <div class="col-md-8">
+        <div class="col-md-7">
             <h2 class="display-6 fw-bold">📦 Order List</h2>
             <p class="text-muted">Manage and track your project orders here.</p>
         </div>
         <div class="col-md-5 text-end">
-            <!-- Hidden input for User ID -->
             <input type="hidden" id="currentUserId" th:value="${currentUserId}" />
             <button onclick="topUpWallet()" class="btn btn-success me-2">💰 Top Up +Rp 10 Juta</button>
             <a href="/catalog" class="btn btn-outline-secondary">Return to Catalog</a>
@@ -41,25 +40,29 @@
                 </thead>
                 <tbody>
                 <tr th:each="order : ${orders}">
-                    <td class="ps-4 fw-bold" th:text="${#strings.substring(order.id, 0, 8)} + '...'">ORD-001</td>
-                    <td th:text="${#strings.substring(order.buyerId, 0, 8)} + '...'">User123</td>
+                    <td class="ps-4 fw-bold" th:text="${#strings.substring(order.id.toString(), 0, 8) + '...'}">ORD-001</td>
+                    <td th:text="${#strings.substring(order.buyerId.toString(), 0, 8) + '...'}">User123</td>
                     <td th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</td>
                     <td>
-                                <span class="badge"
-                                      th:classappend="${order.status.name() == 'COMPLETED' ? 'bg-success' :
-                                                      (order.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
-                                      th:text="${order.status}">PENDING</span>
+                        <span class="badge"
+                              th:classappend="${order.status.name() == 'COMPLETED' ? 'bg-success' :
+                                              (order.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
+                              th:text="${order.status}">PENDING</span>
                     </td>
                     <td class="text-end text-muted" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">01 Mar 2024</td>
                     <td class="pe-4 text-center">
                         <div class="btn-group btn-group-sm">
-                            <button th:if="${order.status.name() == 'PAID'}" class="btn btn-primary" th:onclick="'updateStatus(\'' + ${order.id} + '\', \'PURCHASED\')'">🛒 Buy</button>
-                            <button th:if="${order.status.name() == 'PURCHASED'}" class="btn btn-info text-white" th:onclick="'updateStatus(\'' + ${order.id} + '\', \'SHIPPED\')'">✈️ Ship</button>
-                            <button th:if="${order.status.name() == 'SHIPPED'}" class="btn btn-success" th:onclick="'updateStatus(\'' + ${order.id} + '\', \'COMPLETED\')'">✅ Complete</button>
-                            
-                            <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}" class="btn btn-outline-danger" th:onclick="'cancelOrder(\'' + ${order.id} + '\')'">❌ Cancel</button>
-                            
-                            <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}" class="text-muted small">-</span>
+                            <button th:if="${order.status.name() == 'PAID'}" class="btn btn-primary"
+                                    th:onclick="|updateStatus('${order.id}', 'PURCHASED')|">🛒 Buy</button>
+                            <button th:if="${order.status.name() == 'PURCHASED'}" class="btn btn-info text-white"
+                                    th:onclick="|updateStatus('${order.id}', 'SHIPPED')|">✈️ Ship</button>
+                            <button th:if="${order.status.name() == 'SHIPPED'}" class="btn btn-success"
+                                    th:onclick="|updateStatus('${order.id}', 'COMPLETED')|">✅ Complete</button>
+                            <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}"
+                                    class="btn btn-outline-danger"
+                                    th:onclick="|cancelOrder('${order.id}')|">❌ Cancel</button>
+                            <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}"
+                                  class="text-muted small">-</span>
                         </div>
                     </td>
                 </tr>
@@ -81,14 +84,12 @@
             alert('User ID is missing. Please make sure you are logged in.');
             return;
         }
-
         try {
             const response = await fetch(`/api/wallet/top-up/${userId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: 10000000 })
             });
-
             if (response.ok) {
                 alert('Top Up Berhasil! Saldo +Rp 10.000.000.');
             } else {
@@ -97,52 +98,43 @@
                 alert(msg);
             }
         } catch (error) {
-            console.error(error);
             alert('System error saat top up.');
         }
     }
 
     async function updateStatus(orderId, newStatus) {
-        if (!confirm(`Are you sure you want to change the status to ${newStatus}?`)) return;
-
+        if (!confirm(`Ubah status order ke ${newStatus}?`)) return;
         try {
             const response = await fetch(`/api/orders/${orderId}/status?status=${newStatus}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' }
             });
-
             if (response.ok) {
-                alert('Status updated successfully!');
+                alert('Status berhasil diupdate!');
                 window.location.reload();
             } else {
-                const msg = await response.text();
-                alert('Failed to update status: ' + msg);
+                alert('Gagal update status: ' + await response.text());
             }
         } catch (error) {
-            console.error(error);
-            alert('System error occurred.');
+            alert('System error.');
         }
     }
 
     async function cancelOrder(orderId) {
-        if (!confirm('Are you sure you want to cancel this order? This will refund the payment.')) return;
-
+        if (!confirm('Batalkan order ini? Saldo akan dikembalikan.')) return;
         try {
             const response = await fetch(`/api/orders/${orderId}/cancel`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
-
             if (response.ok) {
-                alert('Order cancelled and refunded successfully!');
+                alert('Order dibatalkan dan saldo dikembalikan!');
                 window.location.reload();
             } else {
-                const msg = await response.text();
-                alert('Failed to cancel order: ' + msg);
+                alert('Gagal cancel: ' + await response.text());
             }
         } catch (error) {
-            console.error(error);
-            alert('System error occurred.');
+            alert('System error.');
         }
     }
 </script>

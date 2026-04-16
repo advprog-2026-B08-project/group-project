@@ -38,22 +38,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order checkout(CheckoutRequest request) {
-        // 1. Validate inputs
         validateCheckoutRequest(request);
 
-        // 2. Reserve stock (decoupled via StockPort)
         ProductSnapshot productInfo = stockPort.reserveStock(request.getProductId(), request.getQuantity());
 
-        // 3. Prevent self-purchase
         if (request.getBuyerId().equals(productInfo.jastiperId())) {
             stockPort.releaseStock(request.getProductId(), request.getQuantity());
             throw new IllegalArgumentException("Jastiper tidak boleh memesan dari jasanya sendiri!");
         }
 
-        // 4. Calculate total price
         BigDecimal totalPrice = productInfo.pricePerItem().multiply(BigDecimal.valueOf(request.getQuantity()));
 
-        // 5. Pay (decoupled via PaymentPort)
         try {
             paymentPort.pay(request.getBuyerId(), totalPrice, "Payment for " + productInfo.productName());
         } catch (Exception e) {
@@ -61,7 +56,6 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Payment failed: " + e.getMessage());
         }
 
-        // 6. Create Order
         Order order = new Order();
         order.setBuyerId(request.getBuyerId());
         order.setJastiperId(productInfo.jastiperId());
@@ -73,7 +67,6 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        // 7. Initial Status History
         StatusHistory history = new StatusHistory();
         history.setOrder(savedOrder);
         history.setStatus(OrderStatus.PAID);
@@ -107,7 +100,7 @@ public class OrderServiceImpl implements OrderService {
     public Order updateStatus(UUID orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
-        
+
         if (!order.getStatus().canTransitionTo(newStatus)) {
             throw new IllegalStateException("Cannot transition from " + order.getStatus() + " to " + newStatus);
         }
