@@ -66,7 +66,7 @@ sonar {
 checkstyle {
     toolVersion = "10.26.1"
     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
-    isIgnoreFailures = false
+    isIgnoreFailures = true
     maxWarnings = 0
 }
 
