@@ -39,7 +39,11 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="order : ${orders}" th:data-order-id="${order.id}" th:data-status="${order.status}">
+                <tr th:each="order : ${orders}"
+                    th:data-order-id="${order.id}"
+                    th:data-jastiper-id="${order.jastiperId}"
+                    th:data-buyer-id="${order.buyerId}"
+                    th:data-status="${order.status}">
                     <td class="ps-4 fw-bold" th:text="${order.id}">ORD-001</td>
                     <td th:text="${order.buyerId}">User123</td>
                     <td th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</td>
@@ -53,20 +57,25 @@
                     <td class="pe-4 text-center">
                         <div class="btn-group btn-group-sm">
                             <button th:if="${order.status.name() == 'PAID'}"
-                                    class="btn btn-primary action-btn"
+                                    class="btn btn-primary action-btn jastiper-only"
                                     th:data-id="${order.id}"
+                                    th:data-jastiper-id="${order.jastiperId}"
                                     data-action="PURCHASED">🛒 Buy</button>
                             <button th:if="${order.status.name() == 'PURCHASED'}"
-                                    class="btn btn-info text-white action-btn"
+                                    class="btn btn-info text-white action-btn jastiper-only"
                                     th:data-id="${order.id}"
+                                    th:data-jastiper-id="${order.jastiperId}"
                                     data-action="SHIPPED">✈️ Ship</button>
                             <button th:if="${order.status.name() == 'SHIPPED'}"
-                                    class="btn btn-success action-btn"
+                                    class="btn btn-success action-btn buyer-only"
                                     th:data-id="${order.id}"
-                                    data-action="COMPLETED">✅ Complete</button>
+                                    th:data-buyer-id="${order.buyerId}"
+                                    data-action="COMPLETED">✅ Terima</button>
                             <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}"
                                     class="btn btn-outline-danger cancel-btn"
-                                    th:data-id="${order.id}">❌ Cancel</button>
+                                    th:data-id="${order.id}"
+                                    th:data-buyer-id="${order.buyerId}"
+                                    th:data-jastiper-id="${order.jastiperId}">❌ Cancel</button>
                             <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}"
                                   class="text-muted small">-</span>
                         </div>
@@ -143,11 +152,32 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        const currentUserId = document.getElementById('currentUserId').value;
+
+        document.querySelectorAll('.jastiper-only').forEach(function(btn) {
+            if (btn.dataset.jastiperId !== currentUserId) {
+                btn.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.buyer-only').forEach(function(btn) {
+            if (btn.dataset.buyerId !== currentUserId) {
+                btn.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+            if (btn.dataset.buyerId !== currentUserId && btn.dataset.jastiperId !== currentUserId) {
+                btn.style.display = 'none';
+            }
+        });
+
         document.querySelectorAll('.action-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 updateStatus(this.dataset.id, this.dataset.action);
             });
         });
+
         document.querySelectorAll('.cancel-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 cancelOrder(this.dataset.id);
