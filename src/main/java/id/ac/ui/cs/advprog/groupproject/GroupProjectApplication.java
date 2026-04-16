@@ -9,11 +9,15 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication
 @EntityScan(basePackages = {
     "id.ac.ui.cs.advprog.groupproject.model",
-    "id.ac.ui.cs.advprog.groupproject.catalog.model"
+    "id.ac.ui.cs.advprog.groupproject.catalog.model",
+    "id.ac.ui.cs.advprog.groupproject.wallet.model",
+    "id.ac.ui.cs.advprog.groupproject.order.model"
 })
 @EnableJpaRepositories(basePackages = {
     "id.ac.ui.cs.advprog.groupproject.repository",
-    "id.ac.ui.cs.advprog.groupproject.catalog.repository"
+    "id.ac.ui.cs.advprog.groupproject.catalog.repository",
+    "id.ac.ui.cs.advprog.groupproject.wallet.repository",
+    "id.ac.ui.cs.advprog.groupproject.order.repository"
 })
 public class GroupProjectApplication {
     public static void main(String[] args) {
