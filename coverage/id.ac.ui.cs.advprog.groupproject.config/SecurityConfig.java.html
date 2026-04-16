@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.config</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration @EnableWebSecurity
+<span class="fc" id="L10">public class SecurityConfig {</span>
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+<span class="fc" id="L14">        http.authorizeHttpRequests(</span>
+                auth -&gt; auth
+<span class="fc" id="L16">                        .requestMatchers(&quot;/login&quot;, &quot;/register&quot;, &quot;/h2-console/**&quot;)</span>
+<span class="fc" id="L17">                        .permitAll()</span>
+<span class="fc" id="L18">                        .requestMatchers(&quot;/api/**&quot;) // TODO: Sementara permitAll untuk testing, nanti ganti authenticated setelah integrasi Auth</span>
+<span class="fc" id="L19">                        .permitAll()</span>
+<span class="fc" id="L20">                        .anyRequest().authenticated()</span>
+<span class="fc" id="L21">        ).formLogin(form -&gt; form</span>
+<span class="fc" id="L22">                .loginPage(&quot;/login&quot;)</span>
+<span class="fc" id="L23">                .defaultSuccessUrl(&quot;/homepage&quot;, true)</span>
+<span class="fc" id="L24">                .permitAll()</span>
+<span class="fc" id="L25">        ).logout(logout -&gt; logout</span>
+<span class="fc" id="L26">                .logoutSuccessUrl(&quot;/login?logout&quot;)</span>
+<span class="fc" id="L27">        ).csrf(csrf -&gt; csrf</span>
+<span class="fc" id="L28">                .ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/h2-console/**&quot;)</span>
+<span class="fc" id="L29">        ).headers(headers -&gt; headers</span>
+<span class="fc" id="L30">                .frameOptions(frame -&gt; frame.sameOrigin())</span>
+        );
+
+<span class="fc" id="L33">        return http.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
