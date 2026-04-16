@@ -7,6 +7,10 @@ plugins {
     id("org.sonarqube") version "6.0.1.5171"
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
+
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
 description = "group-project"
