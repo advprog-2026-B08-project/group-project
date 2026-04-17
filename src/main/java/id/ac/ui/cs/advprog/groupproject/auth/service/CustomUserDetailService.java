@@ -44,7 +44,7 @@ public class CustomUserDetailService implements UserDetailsService {
         user.setUsername(usernameInput);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(Role.ROLE_TITIPER.toString());
-        user.setStatus(Status.Aktif.toString());
+        user.setStatus(Status.AKTIF.toString());
         user.setEmail(email);
         if (fullName != null) user.setFullName(fullName);
 

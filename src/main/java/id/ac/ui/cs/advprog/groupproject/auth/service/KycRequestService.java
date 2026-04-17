@@ -19,13 +19,14 @@ public class KycRequestService {
         KycRequest request = new KycRequest();
         request.setUser(user);
         request.setRequestedRole(Role.ROLE_JASTIPER);
-        request.setStatus(Status.Pending);
+        request.setStatus(Status.PENDING);
 
         request.setEmail(email);
         request.setFullName(fullName);
         request.setSocials(socials);
 
         kycRequestRepository.save(request);
+        user.setStatus(Status.PENDING.toString());
         return request;
     }
 
@@ -34,7 +35,7 @@ public class KycRequestService {
         KycRequest request = new KycRequest();
         request.setUser(user);
         request.setRequestedRole(Role.ROLE_JASTIPER);
-        request.setStatus(Status.Pending);
+        request.setStatus(Status.PENDING);
 
         request.setEmail(email);
         request.setFullName(fullName);
@@ -42,6 +43,7 @@ public class KycRequestService {
         request.setSocials(socials);
 
         kycRequestRepository.save(request);
+        user.setStatus(Status.PENDING.toString());
         return request;
     }
 }

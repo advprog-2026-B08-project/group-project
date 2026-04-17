@@ -20,7 +20,7 @@ public class KycController {
                                      @RequestParam String phoneNumber,
                                      @RequestParam String socials) {
         kycRequestService.createRequestForAdmin(user, email, fullName, phoneNumber, socials);
-        return "redirect:/homepage";
+        return "redirect:/kycRequestAdmin";
     }
 
     @PostMapping("/kycRequestJastiper/create")
@@ -29,6 +29,6 @@ public class KycController {
                                         @RequestParam String fullName,
                                         @RequestParam String socials) {
         kycRequestService.createRequestForJastiper(user, email, fullName, socials);
-        return "redirect:/homepage";
+        return "redirect:/kycRequestJastiper";
     }
 }
