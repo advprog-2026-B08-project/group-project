@@ -18,11 +18,9 @@ public class PageController {
 
     @GetMapping("/homepage")
     public String homepage(HttpSession session, Model model) {
-        System.out.println("SESSION unauthorized = " + session.getAttribute("unauthorized"));
-
         if (session.getAttribute("unauthorized") != null) {
             model.addAttribute("unauthorized", true);
-            session.removeAttribute("unauthorized"); // 🔥 important (one-time)
+            session.removeAttribute("unauthorized");
         }
         return "homepage";
     }
@@ -44,7 +42,7 @@ public class PageController {
 
     @GetMapping("/order")
     public String order() {
-        return "auth/order";
+        return "order/list";
     }
 
     @GetMapping("/kycRequestJastiper")

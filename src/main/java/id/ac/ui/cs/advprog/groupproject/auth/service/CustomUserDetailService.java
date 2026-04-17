@@ -5,6 +5,8 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
+import id.ac.ui.cs.advprog.groupproject.event.UserRegisteredEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,13 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                                   ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -49,7 +54,7 @@ public class CustomUserDetailService implements UserDetailsService {
         if (fullName != null) user.setFullName(fullName);
 
         userRepository.save(user);
-
+        eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));
         return user;
     }
 

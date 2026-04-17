@@ -1,80 +1,129 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
+
+import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import java.util.UUID;
+import java.util.List;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
-import java.util.UUID;
-import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
-import org.springframework.http.HttpStatus;
-
-import java.util.List;
-
 @Service
 public class CatalogService {
-    private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found";
-    private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
+  private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found";
+  private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
 
-    private final CatalogRepository catalogRepository;
+  private final CatalogRepository catalogRepository;
+  private final CatalogFactory catalogFactory;
 
-    public CatalogService(CatalogRepository catalogRepository) {
-        this.catalogRepository = catalogRepository;
+  public CatalogService(CatalogRepository catalogRepository, CatalogFactory catalogFactory) {
+    this.catalogRepository = catalogRepository;
+    this.catalogFactory = catalogFactory;
+  }
+
+  public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
+    // TODO : !currentUser.role.toString.equals("ROLE_JASTIPER")
+    if (!currentUser.isJastiper()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }
 
-    public Catalog createCatalog(Catalog catalog, User currentUser) {
-        catalog.setJastiper(currentUser);
-        return catalogRepository.save(catalog);
+    Catalog catalog = catalogFactory.create(command, currentUser);
+    return catalogRepository.save(catalog);
+  }
+
+  public List<Catalog> findAllCatalogs(User currentUser) {
+    return catalogRepository.findByJastiperId(currentUser.getId());
+  }
+
+  public List<Catalog> getAllCatalogs() {
+    return catalogRepository.findAll();
+  }
+
+  public List<Catalog> searchCatalogs(String name, String jastiper) {
+    return catalogRepository.searchCatalogs(
+        normalizeSearchTerm(name), normalizeSearchTerm(jastiper));
+  }
+
+  public List<Catalog> searchCatalogs(String keyword) {
+    return catalogRepository.searchCatalogsByKeyword(normalizeSearchTerm(keyword));
+  }
+
+  public List<Catalog> getCatalogsByUserId(UUID userId) {
+    return catalogRepository.findByJastiperId(userId);
+  }
+
+  public Catalog getCatalogById(UUID catalogId, User currentUser) {
+    Catalog catalog =
+        catalogRepository
+            .findById(catalogId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+
+    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
     }
 
-    public List<Catalog> findAllCatalogs(User currentUser) {
-        return catalogRepository.findByJastiperId(currentUser.getId());
+    return catalog;
+  }
+
+  public Catalog updateCatalog(UUID catalogId, UpdateCatalogCommand command, User currentUser) {
+    Catalog catalog =
+        catalogRepository
+            .findById(catalogId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+
+    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
     }
 
-    public List<Catalog> getAllCatalogs() {
-        return catalogRepository.findAll();
+    catalogFactory.applyUpdate(catalog, command);
+    return catalogRepository.save(catalog);
+  }
+
+  public void deleteCatalog(UUID catalogId, User currentUser) {
+    Catalog catalog =
+        catalogRepository
+            .findById(catalogId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+
+    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
     }
 
-    public List<Catalog> getCatalogsByUserId(UUID userId) {
-        return catalogRepository.findByJastiperId(userId);
+    catalogRepository.deleteById(catalogId);
+  }
+
+  public Catalog decreaseStock(UUID catalogId, int quantity) {
+    if (quantity <= 0) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
     }
 
-    public Catalog getCatalogById(UUID catalogId, User currentUser) {
-        Catalog catalog = catalogRepository.findById(catalogId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-        
-        if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-        }
-        
-        return catalog;
+    Catalog catalog =
+        catalogRepository
+            .findById(catalogId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+
+    if (catalog.getStock() < quantity) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
     }
 
-    public Catalog updateCatalog(UUID catalogId, Catalog newData, User currentUser) {
-        Catalog catalog = catalogRepository.findById(catalogId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-        
-        if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-        }
-        
-        catalog.setName(newData.getName());
-        catalog.setDescription(newData.getDescription());
-        catalog.setImageUrl(newData.getImageUrl());
-        catalog.setPrice(newData.getPrice());
-        catalog.setStock(newData.getStock());
-        catalog.setOriginLocation(newData.getOriginLocation());
-        catalog.setTravelDate(newData.getTravelDate());
-        return catalogRepository.save(catalog);
+    catalog.setStock(catalog.getStock() - quantity);
+    return catalogRepository.save(catalog);
+  }
+
+  private String normalizeSearchTerm(String value) {
+    if (value == null) {
+      return null;
     }
 
-    public void deleteCatalog(UUID catalogId, User currentUser) {
-        Catalog catalog = catalogRepository.findById(catalogId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-
-        if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-        }
-
-        catalogRepository.deleteById(catalogId);
-    }
+    String trimmedValue = value.trim();
+    return trimmedValue.isEmpty() ? null : trimmedValue;
+  }
 }
