@@ -54,6 +54,11 @@ public class CatalogWebController {
             () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
   }
 
+  private boolean isJastiper(User user) {
+    String role = user.getRole();
+    return "JASTIPER".equalsIgnoreCase(role) || "ROLE_JASTIPER".equalsIgnoreCase(role);
+  }
+
   @GetMapping
   public String catalog(Model model, Principal principal) {
     model.addAttribute(
@@ -122,8 +127,7 @@ public class CatalogWebController {
   public String addCatalogPage(Model model, Principal principal) {
     User currentUser = getCurrentUser(principal);
 
-    // TODO : !currentUser.role.toString.equals("ROLE_JASTIPER")
-    if (!currentUser.isJastiper()) {
+    if (!isJastiper(currentUser)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }
 
@@ -142,8 +146,7 @@ public class CatalogWebController {
     }
     User currentUser = getCurrentUser(principal);
 
-    // TODO : !currentUser.role.toString.equals("ROLE_JASTIPER")
-    if (!currentUser.isJastiper()) {
+    if (!isJastiper(currentUser)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }
 

@@ -26,8 +26,7 @@ public class CatalogService {
   }
 
   public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
-    // TODO : !currentUser.role.toString.equals("ROLE_JASTIPER")
-    if (!currentUser.isJastiper()) {
+    if (!isJastiper(currentUser)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }
 
@@ -125,5 +124,10 @@ public class CatalogService {
 
     String trimmedValue = value.trim();
     return trimmedValue.isEmpty() ? null : trimmedValue;
+  }
+
+  private boolean isJastiper(User user) {
+    String role = user.getRole();
+    return "JASTIPER".equalsIgnoreCase(role) || "ROLE_JASTIPER".equalsIgnoreCase(role);
   }
 }

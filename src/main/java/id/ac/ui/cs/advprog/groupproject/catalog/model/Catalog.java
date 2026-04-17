@@ -1,8 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.model;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
-import jakarta.persistence.*;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,8 +14,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
-import java.util.UUID;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity 
 @Getter @Setter
