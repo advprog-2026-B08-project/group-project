@@ -4,25 +4,18 @@ import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(&quot;/api/catalogs&quot;)
@@ -33,28 +26,28 @@ public class CatalogApiController {
   private final UserRepository userRepository;
 
   public CatalogApiController(
-<span class="fc" id="L36">      CatalogService catalogService, CatalogMapper catalogMapper, UserRepository userRepository) {</span>
-<span class="fc" id="L37">    this.catalogService = catalogService;</span>
-<span class="fc" id="L38">    this.catalogMapper = catalogMapper;</span>
-<span class="fc" id="L39">    this.userRepository = userRepository;</span>
-<span class="fc" id="L40">  }</span>
+<span class="fc" id="L29">      CatalogService catalogService, CatalogMapper catalogMapper, UserRepository userRepository) {</span>
+<span class="fc" id="L30">    this.catalogService = catalogService;</span>
+<span class="fc" id="L31">    this.catalogMapper = catalogMapper;</span>
+<span class="fc" id="L32">    this.userRepository = userRepository;</span>
+<span class="fc" id="L33">  }</span>
 
   private User getCurrentUser(Principal principal) {
-<span class="fc bfc" id="L43" title="All 2 branches covered.">    if (principal == null) {</span>
-<span class="fc" id="L44">      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not authenticated&quot;);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">    if (principal == null) {</span>
+<span class="fc" id="L37">      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not authenticated&quot;);</span>
     }
 
-<span class="fc" id="L47">    return userRepository</span>
-<span class="fc" id="L48">        .findByUsername(principal.getName())</span>
-<span class="fc" id="L49">        .orElseThrow(</span>
-<span class="fc" id="L50">            () -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not authenticated&quot;));</span>
+<span class="fc" id="L40">    return userRepository</span>
+<span class="fc" id="L41">        .findByUsername(principal.getName())</span>
+<span class="fc" id="L42">        .orElseThrow(</span>
+<span class="fc" id="L43">            () -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not authenticated&quot;));</span>
   }
 
   @GetMapping
   public ResponseEntity&lt;List&lt;CatalogDto&gt;&gt; getAllMyCatalogs(Principal principal) {
-<span class="fc" id="L55">    User currentUser = getCurrentUser(principal);</span>
-<span class="fc" id="L56">    List&lt;Catalog&gt; catalogs = catalogService.findAllCatalogs(currentUser);</span>
-<span class="fc" id="L57">    return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));</span>
+<span class="fc" id="L48">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L49">    List&lt;Catalog&gt; catalogs = catalogService.findAllCatalogs(currentUser);</span>
+<span class="fc" id="L50">    return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));</span>
   }
 
   @GetMapping(&quot;/search&quot;)
@@ -63,50 +56,50 @@ public class CatalogApiController {
       @RequestParam(required = false) String name,
       @RequestParam(required = false) String jastiper) {
     List&lt;Catalog&gt; catalogs;
-<span class="pc bpc" id="L66" title="2 of 4 branches missed.">    if (keyword != null &amp;&amp; !keyword.isBlank()) {</span>
-<span class="fc" id="L67">      catalogs = catalogService.searchCatalogs(keyword);</span>
+<span class="pc bpc" id="L59" title="2 of 4 branches missed.">    if (keyword != null &amp;&amp; !keyword.isBlank()) {</span>
+<span class="fc" id="L60">      catalogs = catalogService.searchCatalogs(keyword);</span>
     } else {
-<span class="nc" id="L69">      catalogs = catalogService.searchCatalogs(name, jastiper);</span>
+<span class="nc" id="L62">      catalogs = catalogService.searchCatalogs(name, jastiper);</span>
     }
 
-<span class="fc" id="L72">    return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));</span>
+<span class="fc" id="L65">    return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));</span>
   }
 
   @PostMapping
   public ResponseEntity&lt;CatalogDto&gt; createCatalog(
       @Valid @RequestBody CatalogDto catalogDto, Principal principal) {
-<span class="fc" id="L78">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L71">    User currentUser = getCurrentUser(principal);</span>
 
-<span class="fc bfc" id="L80" title="All 2 branches covered.">    if (!currentUser.isJastiper()) {</span>
-<span class="fc" id="L81">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only Jastiper can create catalog&quot;);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    if (!currentUser.isJastiper()) {</span>
+<span class="fc" id="L74">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only Jastiper can create catalog&quot;);</span>
     }
 
-<span class="fc" id="L84">    Catalog createdCatalog =</span>
-<span class="fc" id="L85">        catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);</span>
-<span class="fc" id="L86">    return ResponseEntity.status(HttpStatus.CREATED).body(catalogMapper.toDto(createdCatalog));</span>
+<span class="fc" id="L77">    Catalog createdCatalog =</span>
+<span class="fc" id="L78">        catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);</span>
+<span class="fc" id="L79">    return ResponseEntity.status(HttpStatus.CREATED).body(catalogMapper.toDto(createdCatalog));</span>
   }
 
   @PutMapping(&quot;/{id}&quot;)
   public ResponseEntity&lt;CatalogDto&gt; updateCatalog(
       @PathVariable UUID id, @Valid @RequestBody CatalogDto catalogDto, Principal principal) {
-<span class="fc" id="L92">    User currentUser = getCurrentUser(principal);</span>
-<span class="fc" id="L93">    Catalog updatedCatalog =</span>
-<span class="fc" id="L94">        catalogService.updateCatalog(id, catalogMapper.toUpdateCommand(catalogDto), currentUser);</span>
-<span class="fc" id="L95">    return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));</span>
+<span class="fc" id="L85">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L86">    Catalog updatedCatalog =</span>
+<span class="fc" id="L87">        catalogService.updateCatalog(id, catalogMapper.toUpdateCommand(catalogDto), currentUser);</span>
+<span class="fc" id="L88">    return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));</span>
   }
 
   @DeleteMapping(&quot;/{id}&quot;)
   public ResponseEntity&lt;Void&gt; deleteCatalog(@PathVariable UUID id, Principal principal) {
-<span class="fc" id="L100">    User currentUser = getCurrentUser(principal);</span>
-<span class="fc" id="L101">    catalogService.deleteCatalog(id, currentUser);</span>
-<span class="fc" id="L102">    return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L93">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L94">    catalogService.deleteCatalog(id, currentUser);</span>
+<span class="fc" id="L95">    return ResponseEntity.noContent().build();</span>
   }
 
   @PostMapping(&quot;/{id}/decrease-stock&quot;)
   public ResponseEntity&lt;CatalogDto&gt; decreaseStock(
       @PathVariable UUID id, @Valid @RequestBody DecreaseStockRequest request) {
-<span class="fc" id="L108">    Catalog updatedCatalog = catalogService.decreaseStock(id, request.getQuantity());</span>
-<span class="fc" id="L109">    return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));</span>
+<span class="fc" id="L101">    Catalog updatedCatalog = catalogService.decreaseStock(id, request.getQuantity());</span>
+<span class="fc" id="L102">    return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -5,9 +5,9 @@ import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import java.util.List;
 import java.util.UUID;
+import java.util.List;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,7 +26,7 @@ public class CatalogService {
 <span class="fc" id="L26">  }</span>
 
   public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
-<span class="fc bfc" id="L29" title="All 2 branches covered.">    if (!currentUser.isJastiper()) {</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">    if (!isJastiper(currentUser)) {</span>
 <span class="fc" id="L30">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only Jastiper can create catalog&quot;);</span>
     }
 
@@ -124,6 +124,11 @@ public class CatalogService {
 
 <span class="fc" id="L125">    String trimmedValue = value.trim();</span>
 <span class="pc bpc" id="L126" title="1 of 2 branches missed.">    return trimmedValue.isEmpty() ? null : trimmedValue;</span>
+  }
+
+  private boolean isJastiper(User user) {
+<span class="fc" id="L130">    String role = user.getRole();</span>
+<span class="pc bpc" id="L131" title="1 of 4 branches missed.">    return &quot;JASTIPER&quot;.equalsIgnoreCase(role) || &quot;ROLE_JASTIPER&quot;.equalsIgnoreCase(role);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

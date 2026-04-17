@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KycRequestService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.auth.service</a> &gt; <span class="el_source">KycRequestService.java</span></div><h1>KycRequestService.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.auth.service;
+
+import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.KycRequestRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class KycRequestService {
+    KycRequestRepository kycRequestRepository;
+
+<span class="fc" id="L14">    public KycRequestService(KycRequestRepository kycRequestRepository) {</span>
+<span class="fc" id="L15">        this.kycRequestRepository = kycRequestRepository;</span>
+<span class="fc" id="L16">    }</span>
+    public KycRequest createRequestForJastiper(User user, String email,
+                                               String fullName, String socials) {
+<span class="nc" id="L19">        KycRequest request = new KycRequest();</span>
+<span class="nc" id="L20">        request.setUser(user);</span>
+<span class="nc" id="L21">        request.setRequestedRole(Role.ROLE_JASTIPER);</span>
+<span class="nc" id="L22">        request.setStatus(Status.PENDING);</span>
+
+<span class="nc" id="L24">        request.setEmail(email);</span>
+<span class="nc" id="L25">        request.setFullName(fullName);</span>
+<span class="nc" id="L26">        request.setSocials(socials);</span>
+
+<span class="nc" id="L28">        kycRequestRepository.save(request);</span>
+<span class="nc" id="L29">        user.setStatus(Status.PENDING.toString());</span>
+<span class="nc" id="L30">        return request;</span>
+    }
+
+    public KycRequest createRequestForAdmin(User user, String email, String fullName,
+                                            String phoneNumber, String socials) {
+<span class="nc" id="L35">        KycRequest request = new KycRequest();</span>
+<span class="nc" id="L36">        request.setUser(user);</span>
+<span class="nc" id="L37">        request.setRequestedRole(Role.ROLE_JASTIPER);</span>
+<span class="nc" id="L38">        request.setStatus(Status.PENDING);</span>
+
+<span class="nc" id="L40">        request.setEmail(email);</span>
+<span class="nc" id="L41">        request.setFullName(fullName);</span>
+<span class="nc" id="L42">        request.setPhoneNumber(phoneNumber);</span>
+<span class="nc" id="L43">        request.setSocials(socials);</span>
+
+<span class="nc" id="L45">        kycRequestRepository.save(request);</span>
+<span class="nc" id="L46">        user.setStatus(Status.PENDING.toString());</span>
+<span class="nc" id="L47">        return request;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
