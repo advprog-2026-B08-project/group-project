@@ -1,8 +1,8 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.repository;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +32,18 @@ class CatalogRepositoryTest {
     void setUp() {
         testUser = new User();
         testUser.setUsername("testuser");
+        testUser.setEmail("testuser@gmail.com");
         testUser.setPassword("password");
         testUser.setRole("JASTIPER");
+        testUser.setStatus("AKTIF");
         testUser = userRepository.save(testUser);
 
         anotherUser = new User();
         anotherUser.setUsername("anotheruser");
+        anotherUser.setEmail("anotheruser@gmail.com");
         anotherUser.setPassword("password");
         anotherUser.setRole("JASTIPER");
+        anotherUser.setStatus("AKTIF");
         anotherUser = userRepository.save(anotherUser);
     }
 

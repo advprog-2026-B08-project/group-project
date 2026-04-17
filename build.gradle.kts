@@ -3,12 +3,18 @@ plugins {
     id("org.springframework.boot") version "3.5.10"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
+    id("checkstyle")
     id("org.sonarqube") version "6.0.1.5171"
 }
+
 
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
 description = "group-project"
+
+val seleniumJavaVersion = "4.14.1"
+val seleniumJupiterVersion = "5.0.1"
+val webdrivermanagerVersion = "5.6.3"
 
 java {
     toolchain {
@@ -29,6 +35,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("io.github.cdimascio:dotenv-java:3.0.0")
+    implementation("com.cloudinary:cloudinary-http5:2.0.0")
     runtimeOnly("org.postgresql:postgresql")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -38,6 +45,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.seleniumhq.selenium:selenium-java:$seleniumJavaVersion")
+    testImplementation("io.github.bonigarcia:selenium-jupiter:$seleniumJupiterVersion")
+    testImplementation("io.github.bonigarcia:webdrivermanager:$webdrivermanagerVersion")
 }
 
 tasks.named<Test>("test") {
@@ -48,7 +58,7 @@ tasks.named<Test>("test") {
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     reports {
-        xml.required.set(true) 
+        xml.required.set(true)
         html.required.set(true)
     }
 }
@@ -58,5 +68,20 @@ sonar {
         property("sonar.projectKey", "advprog-2026-B08-project_group-project")
         property("sonar.organization", "advprog-2026-b08-project")
         property("sonar.host.url", "https://sonarcloud.io")
+    }
+}
+
+checkstyle {
+    toolVersion = "10.26.1"
+    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    isIgnoreFailures = true
+    maxWarnings = 0
+}
+
+tasks.withType<Checkstyle> {
+    reports {
+        xml.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(file("build/reports/checkstyle/${name}.html"))
     }
 }

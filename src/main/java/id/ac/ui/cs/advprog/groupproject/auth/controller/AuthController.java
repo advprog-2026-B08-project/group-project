@@ -1,0 +1,30 @@
+package id.ac.ui.cs.advprog.groupproject.auth.controller;
+
+import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class AuthController {
+
+    private final CustomUserDetailService service;
+
+    public AuthController(CustomUserDetailService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/register")
+    public String register(@RequestParam String username,
+                           @RequestParam String password,
+                           @RequestParam String confirmPassword,
+                           @RequestParam String email,
+                           @RequestParam String fullName) {
+
+        if (service.emailExists(email)) return "redirect:/register?userExists";
+        if (!service.confirmPassword(password, confirmPassword)) return "redirect:/register?error";
+
+        service.createUser(email, password, username, fullName);
+        return "redirect:/login?registered";
+    }
+}

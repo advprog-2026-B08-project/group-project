@@ -1,10 +1,15 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
+import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
 import jakarta.validation.Valid;
+import java.security.Principal;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,92 +18,143 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.security.Principal;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/catalog")
 public class CatalogWebController {
-    private static final String CATALOGS_ATTRIBUTE = "catalogs";
-    
-    private final CatalogService catalogService;
-    private final UserRepository userRepository;
+  private static final String CATALOGS_ATTRIBUTE = "catalogs";
 
-    public CatalogWebController(CatalogService catalogService, UserRepository userRepository) {
-        this.catalogService = catalogService;
-        this.userRepository = userRepository;
-    }
-    
-    private User getCurrentUser(Principal principal) {
-        return userRepository.findByUsername(principal.getName())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
-    }
-    
-    @GetMapping
-    public String catalog(Model model) {
-        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.getAllCatalogs());
-        return "catalog/catalog";
+  private final CatalogService catalogService;
+  private final CatalogImageService catalogImageService;
+  private final CatalogMapper catalogMapper;
+  private final UserRepository userRepository;
+
+  public CatalogWebController(
+      CatalogService catalogService,
+      CatalogImageService catalogImageService,
+      CatalogMapper catalogMapper,
+      UserRepository userRepository) {
+    this.catalogService = catalogService;
+    this.catalogImageService = catalogImageService;
+    this.catalogMapper = catalogMapper;
+    this.userRepository = userRepository;
+  }
+
+  private User getCurrentUser(Principal principal) {
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
     }
 
-    @GetMapping("/{userId}")
-    public String userCatalog(@PathVariable UUID userId, Model model) {
-        User user = userRepository.findById(userId)
+    return userRepository
+        .findByUsername(principal.getName())
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
+  }
+
+  private boolean isJastiper(User user) {
+    String role = user.getRole();
+    return "JASTIPER".equalsIgnoreCase(role) || "ROLE_JASTIPER".equalsIgnoreCase(role);
+  }
+
+  @GetMapping
+  public String catalog(Model model, Principal principal) {
+    model.addAttribute(
+        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
+    if (principal != null) {
+      userRepository
+          .findByUsername(principal.getName())
+          .ifPresent(user -> model.addAttribute("currentUserId", user.getId().toString()));
+    }
+    return "catalog/html/catalog";
+  }
+
+  @GetMapping("/{userId}")
+  public String userCatalog(@PathVariable UUID userId, Model model) {
+    User user =
+        userRepository
+            .findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        
-        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.getCatalogsByUserId(userId));
-        model.addAttribute("username", user.getUsername());
-        return "catalog/userCatalog";
+
+    model.addAttribute(
+        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId)));
+    model.addAttribute("username", user.getUsername());
+    return "catalog/html/userCatalog";
+  }
+
+  @GetMapping("/my")
+  public String myCatalog(Model model, Principal principal) {
+    User currentUser = getCurrentUser(principal);
+
+    model.addAttribute(
+        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.findAllCatalogs(currentUser)));
+    model.addAttribute("username", currentUser.getUsername());
+    return "catalog/html/myCatalog";
+  }
+
+  @GetMapping("/edit/{id}")
+  public String editCatalog(@PathVariable UUID id, Model model, Principal principal) {
+    User currentUser = getCurrentUser(principal);
+
+    Catalog catalog = catalogService.getCatalogById(id, currentUser);
+    model.addAttribute("catalog", catalogMapper.toDto(catalog));
+    return "catalog/html/editCatalog";
+  }
+
+  @PostMapping("/edit")
+  public String updateCatalog(
+      @Valid @ModelAttribute("catalog") CatalogDto catalogDto,
+      org.springframework.validation.BindingResult result,
+      @RequestParam(name = "file", required = false) MultipartFile file,
+      Principal principal) {
+    if (result.hasErrors()) {
+      return "catalog/html/editCatalog";
+    }
+    User currentUser = getCurrentUser(principal);
+
+    if (file != null && !file.isEmpty()) {
+      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
 
-    @GetMapping("/my")
-    public String myCatalog(Model model, Principal principal) {
-        User currentUser = getCurrentUser(principal);
-        
-        model.addAttribute(CATALOGS_ATTRIBUTE, catalogService.findAllCatalogs(currentUser));
-        model.addAttribute("username", currentUser.getUsername());
-        return "catalog/myCatalog";
+    catalogService.updateCatalog(
+        catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto), currentUser);
+    return "redirect:/catalog/my";
+  }
+
+  @GetMapping("/add")
+  public String addCatalogPage(Model model, Principal principal) {
+    User currentUser = getCurrentUser(principal);
+
+    if (!isJastiper(currentUser)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }
-    
-    @GetMapping("/edit/{id}")
-    public String editCatalog(@PathVariable UUID id, Model model, Principal principal) {
-        User currentUser = getCurrentUser(principal);
-        
-        Catalog catalog = catalogService.getCatalogById(id, currentUser);
-        model.addAttribute("catalog", catalog);
-        return "catalog/editCatalog";
+
+    model.addAttribute("catalog", new CatalogDto());
+    return "catalog/html/addCatalog";
+  }
+
+  @PostMapping("/add")
+  public String createCatalog(
+      @Valid @ModelAttribute("catalog") CatalogDto catalogDto,
+      org.springframework.validation.BindingResult result,
+      @RequestParam(name = "file", required = false) MultipartFile file,
+      Principal principal) {
+    if (result.hasErrors()) {
+      return "catalog/html/addCatalog";
     }
-    
-    @PostMapping("/edit")
-    public String updateCatalog(@Valid @ModelAttribute Catalog catalog, Principal principal) {
-        User currentUser = getCurrentUser(principal);
-        
-        catalogService.updateCatalog(catalog.getId(), catalog, currentUser);
-        return "redirect:/catalog/my";
+    User currentUser = getCurrentUser(principal);
+
+    if (!isJastiper(currentUser)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }
-    
-    @GetMapping("/add")
-    public String addCatalogPage(Model model, Principal principal) {
-        User currentUser = getCurrentUser(principal);
-        
-        if (!currentUser.isJastiper()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
-        }
-        
-        model.addAttribute("catalog", new Catalog());
-        return "catalog/addCatalog";
+
+    if (file != null && !file.isEmpty()) {
+      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
-    
-    @PostMapping("/add")
-    public String createCatalog(@Valid @ModelAttribute Catalog catalog, Principal principal) {
-        User currentUser = getCurrentUser(principal);
-        
-        if (!currentUser.isJastiper()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
-        }
-        
-        catalogService.createCatalog(catalog, currentUser);
-        return "redirect:/catalog/my";
-    }
+
+    catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);
+    return "redirect:/catalog/my";
+  }
 }
