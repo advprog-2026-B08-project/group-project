@@ -18,14 +18,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-<<<<<<< HEAD
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
-=======
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
->>>>>>> 5fb8bbb3e1f8684f57e642835df2942f9239c7ea
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -78,10 +73,16 @@ class CatalogWebControllerTest {
         testUser.setUsername("testuser");
         testUser.setRole("JASTIPER");
 
+        testUser.setEmail("testuser@gmail.com");
+        testUser.setStatus("AKTIF");
+
         customerUser = new User();
         customerUser.setId(UUID.randomUUID());
         customerUser.setUsername("customer");
         customerUser.setRole("CUSTOMER");
+
+        customerUser.setEmail("customerUser@gmail.com");
+        customerUser.setStatus("AKTIF");
 
         catalogId = UUID.randomUUID();
         testCatalog = new Catalog();

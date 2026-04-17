@@ -32,14 +32,18 @@ class CatalogRepositoryTest {
     void setUp() {
         testUser = new User();
         testUser.setUsername("testuser");
+        testUser.setEmail("testuser@gmail.com");
         testUser.setPassword("password");
         testUser.setRole("JASTIPER");
+        testUser.setStatus("AKTIF");
         testUser = userRepository.save(testUser);
 
         anotherUser = new User();
         anotherUser.setUsername("anotheruser");
+        anotherUser.setEmail("anotheruser@gmail.com");
         anotherUser.setPassword("password");
         anotherUser.setRole("JASTIPER");
+        anotherUser.setStatus("AKTIF");
         anotherUser = userRepository.save(anotherUser);
     }
 
