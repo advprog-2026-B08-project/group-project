@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">1.195s</div>
+<div class="counter">1.180s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,7 +79,7 @@
 </thead>
 <tr>
 <td class="success">testAddCatalogPage()</td>
-<td class="success">0.040s</td>
+<td class="success">0.038s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -89,7 +89,7 @@
 </tr>
 <tr>
 <td class="success">testCatalogPage()</td>
-<td class="success">0.774s</td>
+<td class="success">0.808s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -99,27 +99,27 @@
 </tr>
 <tr>
 <td class="success">testCreateCatalogPostForbidden()</td>
-<td class="success">0.009s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">testEditCatalogPage()</td>
-<td class="success">0.025s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">testEditCatalogPageForbiddenForNonJastiper()</td>
 <td class="success">0.010s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
+<td class="success">testEditCatalogPage()</td>
+<td class="success">0.027s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testEditCatalogPageForbiddenForNonJastiper()</td>
+<td class="success">0.009s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
 <td class="success">testMyCatalogPage()</td>
-<td class="success">0.030s</td>
+<td class="success">0.029s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testUpdateCatalogPost()</td>
-<td class="success">0.054s</td>
+<td class="success">0.062s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -129,12 +129,12 @@
 </tr>
 <tr>
 <td class="success">testUserCatalogPage()</td>
-<td class="success">0.027s</td>
+<td class="success">0.026s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testUserCatalogPageNotFound()</td>
-<td class="success">0.189s</td>
+<td class="success">0.134s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -142,8 +142,8 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-04-17T13:59:44.981Z  INFO 2627 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest]: CatalogWebControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-17T13:59:45.054Z  INFO 2627 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest
+<pre>2026-04-17T14:01:55.593Z  INFO 2498 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest]: CatalogWebControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-17T14:01:55.660Z  INFO 2498 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.catalog.controller.CatalogWebControllerTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -154,22 +154,22 @@
 
  :: Spring Boot ::               (v3.5.10)
 
-2026-04-17T13:59:45.151Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Starting CatalogWebControllerTest using Java 21.0.10 with PID 2627 (started by runner in /home/runner/work/group-project/group-project)
-2026-04-17T13:59:45.152Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : The following 1 profile is active: &quot;test&quot;
-2026-04-17T13:59:45.449Z  INFO 2627 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-17T13:59:45.472Z  INFO 2627 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 20 ms. Found 7 JPA repository interfaces.
-2026-04-17T13:59:45.879Z  INFO 2627 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
-2026-04-17T13:59:45.882Z  INFO 2627 --- [group-project] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn3: url=jdbc:h2:mem:testdb user=SA
-2026-04-17T13:59:45.882Z  INFO 2627 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
-2026-04-17T13:59:45.886Z  INFO 2627 --- [group-project] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:testdb (H2 2.3)
-2026-04-17T13:59:45.900Z  INFO 2627 --- [group-project] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 7 migrations (execution time 00:00.009s)
-2026-04-17T13:59:45.905Z  INFO 2627 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema &quot;PUBLIC&quot;: 20260417.2
-2026-04-17T13:59:45.907Z  INFO 2627 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Schema &quot;PUBLIC&quot; is up to date. No migration necessary.
-2026-04-17T13:59:45.938Z  INFO 2627 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-17T13:59:45.943Z  INFO 2627 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-17T13:59:45.956Z  INFO 2627 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-17T13:59:45.958Z  WARN 2627 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-17T13:59:45.959Z  INFO 2627 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-04-17T14:01:55.758Z  INFO 2498 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Starting CatalogWebControllerTest using Java 21.0.10 with PID 2498 (started by runner in /home/runner/work/group-project/group-project)
+2026-04-17T14:01:55.758Z  INFO 2498 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : The following 1 profile is active: &quot;test&quot;
+2026-04-17T14:01:56.046Z  INFO 2498 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-17T14:01:56.066Z  INFO 2498 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 17 ms. Found 7 JPA repository interfaces.
+2026-04-17T14:01:56.485Z  INFO 2498 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-04-17T14:01:56.487Z  INFO 2498 --- [group-project] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn3: url=jdbc:h2:mem:testdb user=SA
+2026-04-17T14:01:56.488Z  INFO 2498 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-04-17T14:01:56.491Z  INFO 2498 --- [group-project] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:testdb (H2 2.3)
+2026-04-17T14:01:56.504Z  INFO 2498 --- [group-project] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 7 migrations (execution time 00:00.008s)
+2026-04-17T14:01:56.507Z  INFO 2498 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema &quot;PUBLIC&quot;: 20260417.2
+2026-04-17T14:01:56.508Z  INFO 2498 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Schema &quot;PUBLIC&quot; is up to date. No migration necessary.
+2026-04-17T14:01:56.541Z  INFO 2498 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-17T14:01:56.545Z  INFO 2498 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-17T14:01:56.559Z  INFO 2498 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-17T14:01:56.561Z  WARN 2498 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-17T14:01:56.562Z  INFO 2498 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
 	Database driver: undefined/unknown
 	Database version: 2.3.232
@@ -177,33 +177,33 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-04-17T13:59:46.098Z  INFO 2627 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-17T13:59:46.103Z  INFO 2627 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-17T13:59:46.294Z  WARN 2627 --- [group-project] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-17T13:59:46.415Z  INFO 2627 --- [group-project] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
-2026-04-17T13:59:46.618Z  INFO 2627 --- [group-project] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2026-04-17T13:59:46.619Z  INFO 2627 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-04-17T13:59:46.621Z  INFO 2627 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
-2026-04-17T13:59:46.660Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Started CatalogWebControllerTest in 1.597 seconds (process running for 18.014)
+2026-04-17T14:01:56.699Z  INFO 2498 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-17T14:01:56.705Z  INFO 2498 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-17T14:01:57.008Z  WARN 2498 --- [group-project] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-17T14:01:57.151Z  INFO 2498 --- [group-project] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
+2026-04-17T14:01:57.411Z  INFO 2498 --- [group-project] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-04-17T14:01:57.412Z  INFO 2498 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-04-17T14:01:57.415Z  INFO 2498 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-04-17T14:01:57.444Z  INFO 2498 --- [group-project] [    Test worker] i.a.u.c.a.g.c.c.CatalogWebControllerTest : Started CatalogWebControllerTest in 1.776 seconds (process running for 17.392)
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@2d31d383
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@6f03a5e
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@195a0207
-2026-04-17T13:59:47.479Z  WARN 2627 --- [group-project] [    Test worker] actStandardFragmentInsertionTagProcessor : [THYMELEAF][Test worker][catalog/html/catalog] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template catalog/html/catalog, line 11, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@754a705d
+2026-04-17T14:01:58.255Z  WARN 2498 --- [group-project] [    Test worker] actStandardFragmentInsertionTagProcessor : [THYMELEAF][Test worker][catalog/html/catalog] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template catalog/html/catalog, line 11, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@b0c0029
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@fe51385
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@494bcce
-2026-04-17T13:59:47.715Z  WARN 2627 --- [group-project] [    Test worker] actStandardFragmentInsertionTagProcessor : [THYMELEAF][Test worker][catalog/html/myCatalog] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template catalog/html/myCatalog, line 12, col 10. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@2b9a60d8
+2026-04-17T14:01:58.466Z  WARN 2498 --- [group-project] [    Test worker] actStandardFragmentInsertionTagProcessor : [THYMELEAF][Test worker][catalog/html/myCatalog] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template catalog/html/myCatalog, line 12, col 10. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@53f0f9ef
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@5cec7d67
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@700714fe
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@566f2f1
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@28b5ad8a
-2026-04-17T13:59:47.840Z  WARN 2627 --- [group-project] [    Test worker] actStandardFragmentInsertionTagProcessor : [THYMELEAF][Test worker][catalog/html/userCatalog] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template catalog/html/userCatalog, line 10, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@14bf517e
+2026-04-17T14:01:58.600Z  WARN 2498 --- [group-project] [    Test worker] actStandardFragmentInsertionTagProcessor : [THYMELEAF][Test worker][catalog/html/userCatalog] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template catalog/html/userCatalog, line 10, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
 
- User : id.ac.ui.cs.advprog.groupproject.auth.model.User@5c0d125c
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@52cf209c
 </pre>
 </span>
 </div>
@@ -215,7 +215,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at Apr 17, 2026, 1:59:50 PM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at Apr 17, 2026, 2:02:01 PM</p>
 </div>
 </div>
 </body>
