@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>User Catalog</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
+<div th:replace="fragments/navbar :: navbar"></div>
 <div class="container my-2">
     <h2>Catalog by <span th:text="${username}">User</span></h2>
     <a th:href="@{/catalog}" class="btn btn-secondary btn-sm mb-3">View All Catalogs</a>

@@ -4,25 +4,18 @@ import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/catalogs")

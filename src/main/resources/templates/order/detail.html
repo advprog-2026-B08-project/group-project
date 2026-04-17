@@ -16,8 +16,10 @@
         .timeline-dot.completed { background: #198754; }
         .timeline-dot.cancelled { background: #dc3545; }
     </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+<div th:replace="fragments/navbar :: navbar"></div>
 <div class="container mt-5 mb-5">
 
     <div class="d-flex align-items-center mb-4 gap-3">

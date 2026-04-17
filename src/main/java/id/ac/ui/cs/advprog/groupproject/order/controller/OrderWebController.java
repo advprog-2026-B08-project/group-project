@@ -3,7 +3,7 @@ package id.ac.ui.cs.advprog.groupproject.order.controller;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
 import id.ac.ui.cs.advprog.groupproject.order.service.OrderService;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;

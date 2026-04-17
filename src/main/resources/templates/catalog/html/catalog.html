@@ -5,9 +5,10 @@
     <meta name="current-user-id" th:content="${currentUserId != null ? currentUserId : ''}">
     <title>Catalog List</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
+<div th:replace="fragments/navbar :: navbar"></div>
 <div class="container my-2">
     <h2>Catalog List</h2>
     <a th:href="@{/homepage}" class="btn btn-secondary btn-sm mb-3">Back to Home</a>

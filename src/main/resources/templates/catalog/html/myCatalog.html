@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>My Catalog</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <div class="container my-2">
+    <div th:replace="fragments/navbar :: navbar"></div>
     <h2>My Catalog</h2>
     <p>Welcome, <strong th:text="${username}">User</strong>!</p>
     <a th:href="@{/catalog/add}" class="btn btn-primary btn-sm mb-3">Add Product</a>

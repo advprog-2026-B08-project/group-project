@@ -3,10 +3,10 @@ package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.UUID;
@@ -108,7 +108,7 @@ public class CatalogWebController {
       return "catalog/html/editCatalog";
     }
     User currentUser = getCurrentUser(principal);
-    
+
     if (file != null && !file.isEmpty()) {
       catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
@@ -122,6 +122,7 @@ public class CatalogWebController {
   public String addCatalogPage(Model model, Principal principal) {
     User currentUser = getCurrentUser(principal);
 
+    // TODO : !currentUser.role.toString.equals("ROLE_JASTIPER")
     if (!currentUser.isJastiper()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }
@@ -141,6 +142,7 @@ public class CatalogWebController {
     }
     User currentUser = getCurrentUser(principal);
 
+    // TODO : !currentUser.role.toString.equals("ROLE_JASTIPER")
     if (!currentUser.isJastiper()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }

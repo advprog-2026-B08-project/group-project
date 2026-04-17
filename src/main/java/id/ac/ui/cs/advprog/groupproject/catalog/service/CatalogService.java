@@ -5,9 +5,9 @@ import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import java.util.List;
 import java.util.UUID;
+import java.util.List;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +26,7 @@ public class CatalogService {
   }
 
   public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
+    // TODO : !currentUser.role.toString.equals("ROLE_JASTIPER")
     if (!currentUser.isJastiper()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
     }

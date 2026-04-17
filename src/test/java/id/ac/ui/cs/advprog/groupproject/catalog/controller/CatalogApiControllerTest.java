@@ -6,8 +6,8 @@ import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.model.User;
-import id.ac.ui.cs.advprog.groupproject.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 
 import org.junit.jupiter.api.BeforeEach;

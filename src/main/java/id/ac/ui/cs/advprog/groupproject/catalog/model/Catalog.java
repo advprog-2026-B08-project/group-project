@@ -1,6 +1,8 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.model;
 
-import id.ac.ui.cs.advprog.groupproject.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import jakarta.persistence.*;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,18 +14,19 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
+import java.util.UUID;
+import java.time.LocalDate;
 
-@Entity
-@Getter
-@Setter
+@Entity 
+@Getter @Setter
 @Table(name = "Catalog")
 public class Catalog {
-  @Id @GeneratedValue @UuidGenerator private UUID id;
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    private UUID id;
 
   @NotBlank(message = "Product name is required")
   private String name;

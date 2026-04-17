@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin role request</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<h1>Welcome to Los Pollos Hermanos, what can we get you?</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div th:if="${user.status != 'PENDING'}" class="col-md-6">
+            <h1>Apply for jastiper</h1>
+            <form th:action="@{/kycRequestJastiper}" method="post">
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="emailInput">Email</label>
+                    <div class="col-sm-9">
+                        <input id="emailInput" name="email" placeholder="example@gmail.com" required class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="fullNameInput">Full name</label>
+                    <div class="col-sm-9">
+                        <input id="fullNameInput" name="fullName" placeholder="Ren Nora" required class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="socialsInput">Link to socials</label>
+                    <div class="col-sm-9">
+                        <input id="socialsInput" name="socials" placeholder="https://www.instagram.com/your_ig_acc_link" required class="form-control">
+                    </div>
+                </div>
+                <button type="submit" id="submitButton" class="btn btn-primary">Apply</button>
+            </form>
+        </div>
+        <div th:if="${user.status == 'PENDING'}" style="text-align: center">
+            <div>
+                <h1>Your request has been sent!</h1>
+            </div>
+            <div>
+                <p>Please wait for the admin to review your application</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
