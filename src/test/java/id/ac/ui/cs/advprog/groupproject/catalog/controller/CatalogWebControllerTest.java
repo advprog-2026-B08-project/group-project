@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -60,6 +61,7 @@ class CatalogWebControllerTest {
 
     private User testUser;
     private User customerUser;
+    private User adminUser;
     private Catalog testCatalog;
     private CatalogDto testCatalogDto;
     private UUID catalogId;
@@ -71,7 +73,8 @@ class CatalogWebControllerTest {
         testUser = new User();
         testUser.setId(userId);
         testUser.setUsername("testuser");
-        testUser.setRole("JASTIPER");
+        testUser.setRole("ROLE_JASTIPER");
+        testUser.setPassword("password");
 
         testUser.setEmail("testuser@gmail.com");
         testUser.setStatus("AKTIF");
@@ -79,10 +82,19 @@ class CatalogWebControllerTest {
         customerUser = new User();
         customerUser.setId(UUID.randomUUID());
         customerUser.setUsername("customer");
-        customerUser.setRole("CUSTOMER");
+        customerUser.setRole("ROLE_TITIPER");
+        customerUser.setPassword("password");
 
         customerUser.setEmail("customerUser@gmail.com");
         customerUser.setStatus("AKTIF");
+
+        adminUser = new User();
+        adminUser.setId(UUID.randomUUID());
+        adminUser.setUsername("admin");
+        adminUser.setRole("ROLE_ADMIN");
+        adminUser.setPassword("password");
+        adminUser.setEmail("admin@gmail.com");
+        adminUser.setStatus("AKTIF");
 
         catalogId = UUID.randomUUID();
         testCatalog = new Catalog();
@@ -116,7 +128,7 @@ class CatalogWebControllerTest {
         when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
 
         mockMvc.perform(get("/catalog")
-                .with(user("testuser")))
+            .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("catalog/html/catalog"))
                 .andExpect(model().attributeExists("catalogs"));
@@ -135,7 +147,7 @@ class CatalogWebControllerTest {
         when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
 
         mockMvc.perform(get("/catalog/" + userId)
-                .with(user("testuser")))
+            .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("catalog/html/userCatalog"))
                 .andExpect(model().attributeExists("catalogs"))
@@ -152,7 +164,7 @@ class CatalogWebControllerTest {
         when(userRepository.findById(unknownUserId)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/catalog/" + unknownUserId)
-                .with(user("testuser")))
+            .with(user(testUser)))
                 .andExpect(status().isNotFound());
 
         verify(userRepository, times(1)).findById(unknownUserId);
@@ -168,7 +180,7 @@ class CatalogWebControllerTest {
         when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
 
         mockMvc.perform(get("/catalog/my")
-                .with(user("testuser")))
+            .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("catalog/html/myCatalog"))
                 .andExpect(model().attributeExists("catalogs"))
@@ -186,7 +198,7 @@ class CatalogWebControllerTest {
         when(catalogMapper.toDto(testCatalog)).thenReturn(testCatalogDto);
 
         mockMvc.perform(get("/catalog/edit/" + catalogId)
-                .with(user("testuser")))
+            .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("catalog/html/editCatalog"))
                 .andExpect(model().attributeExists("catalog"));
@@ -214,7 +226,7 @@ class CatalogWebControllerTest {
                 .thenReturn(testCatalog);
 
         mockMvc.perform(post("/catalog/edit")
-                .with(user("testuser"))
+                .with(user(testUser))
                 .with(csrf())
             .flashAttr("catalog", testCatalogDto))
                 .andExpect(status().is3xxRedirection())
@@ -230,7 +242,7 @@ class CatalogWebControllerTest {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
 
         mockMvc.perform(get("/catalog/add")
-                .with(user("testuser")))
+            .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("catalog/html/addCatalog"))
                 .andExpect(model().attributeExists("catalog"));
@@ -240,13 +252,12 @@ class CatalogWebControllerTest {
 
     @Test
     void testAddCatalogPageForbidden() throws Exception {
-        when(userRepository.findByUsername("customer")).thenReturn(Optional.of(customerUser));
-
         mockMvc.perform(get("/catalog/add")
-                .with(user("customer")))
-                .andExpect(status().isForbidden());
+            .with(user(adminUser)))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/homepage"));
 
-        verify(userRepository, times(1)).findByUsername("customer");
+        verifyNoInteractions(userRepository);
     }
 
     @Test
@@ -266,7 +277,7 @@ class CatalogWebControllerTest {
         when(catalogService.createCatalog(any(CreateCatalogCommand.class), any(User.class))).thenReturn(testCatalog);
 
         mockMvc.perform(post("/catalog/add")
-                .with(user("testuser"))
+                .with(user(testUser))
                 .with(csrf())
             .flashAttr("catalog", testCatalogDto))
                 .andExpect(status().is3xxRedirection())
@@ -279,14 +290,35 @@ class CatalogWebControllerTest {
 
     @Test
     void testCreateCatalogPostForbidden() throws Exception {
-        when(userRepository.findByUsername("customer")).thenReturn(Optional.of(customerUser));
-
         mockMvc.perform(post("/catalog/add")
-                .with(user("customer"))
+            .with(user(adminUser))
                 .with(csrf())
             .flashAttr("catalog", testCatalogDto))
-                .andExpect(status().isForbidden());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/homepage"));
 
-        verify(userRepository, times(1)).findByUsername("customer");
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void testEditCatalogPageForbiddenForNonJastiper() throws Exception {
+        mockMvc.perform(get("/catalog/edit/" + catalogId)
+            .with(user(adminUser)))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/homepage"));
+
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void testUpdateCatalogPostForbiddenForNonJastiper() throws Exception {
+        mockMvc.perform(post("/catalog/edit")
+                .with(user(adminUser))
+                .with(csrf())
+            .flashAttr("catalog", testCatalogDto))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/homepage"));
+
+        verifyNoInteractions(userRepository);
     }
 }

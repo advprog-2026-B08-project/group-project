@@ -13,9 +13,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/login", "/register", "/h2-console/**").permitAll()
+                        .requestMatchers("/login", "/register").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/catalog/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_JASTIPER")
+                        .requestMatchers("/catalog/add", "/catalog/edit", "/catalog/edit/**" , "/catalog/my")
+                        .hasAuthority("ROLE_JASTIPER")
+                        .requestMatchers("/catalog/**").authenticated()
                         .requestMatchers("/kycRequestJastiper/**").hasAuthority("ROLE_TITIPER")
                         .requestMatchers("/kycRequestAdmin/**").hasAuthority("ROLE_JASTIPER")
                         .anyRequest().authenticated()
