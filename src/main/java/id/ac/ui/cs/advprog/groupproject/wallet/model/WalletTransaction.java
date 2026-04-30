@@ -24,6 +24,9 @@ public class WalletTransaction{
     @Column(nullable = false)
     private UUID walletId;
 
+    @Column(name = "reference_id")
+    private UUID referenceId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type;
