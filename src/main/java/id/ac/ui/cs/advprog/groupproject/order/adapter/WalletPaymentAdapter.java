@@ -23,7 +23,7 @@ public class WalletPaymentAdapter implements PaymentPort {
     }
 
     @Override
-    public void refund(UUID userId, BigDecimal amount, String description) {
-        walletService.refundBalance(userId, amount, description, UUID.randomUUID());
+    public void refund(UUID userId, BigDecimal amount, String description, UUID referenceId) {
+        walletService.refundBalance(userId, amount, description, referenceId);
     }
 }

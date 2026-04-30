@@ -12,6 +12,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import id.ac.ui.cs.advprog.groupproject.order.dto.CheckoutRequest;
 import id.ac.ui.cs.advprog.groupproject.order.dto.ProductSnapshot;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
@@ -21,15 +32,6 @@ import id.ac.ui.cs.advprog.groupproject.order.port.PaymentPort;
 import id.ac.ui.cs.advprog.groupproject.order.port.StockPort;
 import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -254,6 +256,6 @@ class OrderServiceImplTest {
     orderService.cancelOrder(orderId);
 
     verify(stockPort).releaseStock(productId, 3);
-    verify(paymentPort).refund(eq(buyerId), eq(BigDecimal.valueOf(300000)), anyString());
+    verify(paymentPort).refund(eq(buyerId), eq(BigDecimal.valueOf(300000)), anyString(), eq(orderId));
   }
 }
