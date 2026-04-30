@@ -95,7 +95,7 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Deduct amount must be greater than zero");
         }
 
-        Wallet wallet = walletRepository.findByUserId(userId)
+        Wallet wallet = walletRepository.findByUserIdForUpdate(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
 
         if (wallet.getBalance().compareTo(amount) < 0) {
@@ -136,7 +136,7 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Reference ID is required for refund");
         }
 
-        Wallet wallet = walletRepository.findByUserId(userId)
+        Wallet wallet = walletRepository.findByUserIdForUpdate(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
 
         wallet.setBalance(wallet.getBalance().add(amount));

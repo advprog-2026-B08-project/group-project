@@ -161,7 +161,7 @@ class WalletServiceImplTest {
         wallet.setBalance(new BigDecimal("200000"));
         BigDecimal amount = new BigDecimal("75000");
 
-        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
@@ -200,7 +200,7 @@ class WalletServiceImplTest {
 
     @Test
     void deductBalance_WalletNotFound_ThrowsException() {
-        when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
                 () -> walletService.deductBalance(userId, new BigDecimal("1000"), "Checkout order"));
@@ -209,7 +209,7 @@ class WalletServiceImplTest {
     @Test
     void deductBalance_InsufficientBalance_ThrowsException() {
         wallet.setBalance(new BigDecimal("5000"));
-        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
 
         assertThrows(IllegalArgumentException.class,
                 () -> walletService.deductBalance(userId, new BigDecimal("10000"), "Checkout order"));
@@ -223,7 +223,7 @@ class WalletServiceImplTest {
         BigDecimal amount = new BigDecimal("5000");
         UUID referenceId = UUID.randomUUID();
 
-        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
@@ -262,7 +262,7 @@ class WalletServiceImplTest {
 
     @Test
     void refundBalance_WalletNotFound_ThrowsException() {
-        when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
                 () -> walletService.refundBalance(userId, new BigDecimal("1000"), "Refund", UUID.randomUUID()));
@@ -273,7 +273,7 @@ class WalletServiceImplTest {
         wallet.setBalance(new BigDecimal("10000"));
         UUID referenceId = UUID.randomUUID();
 
-        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenThrow(new DataIntegrityViolationException("duplicate"));
