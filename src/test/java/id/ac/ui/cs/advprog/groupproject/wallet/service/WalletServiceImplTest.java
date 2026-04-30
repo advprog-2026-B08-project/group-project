@@ -1,5 +1,25 @@
 package id.ac.ui.cs.advprog.groupproject.wallet.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
@@ -7,20 +27,6 @@ import id.ac.ui.cs.advprog.groupproject.wallet.model.Wallet;
 import id.ac.ui.cs.advprog.groupproject.wallet.model.WalletTransaction;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class WalletServiceImplTest {
@@ -207,5 +213,72 @@ class WalletServiceImplTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> walletService.deductBalance(userId, new BigDecimal("10000"), "Checkout order"));
+    }
+
+    // ===================== refundBalance tests =====================
+
+    @Test
+    void refundBalance_Success() {
+        wallet.setBalance(new BigDecimal("10000"));
+        BigDecimal amount = new BigDecimal("5000");
+        UUID referenceId = UUID.randomUUID();
+
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+                .thenAnswer(invocation -> {
+                    WalletTransaction tx = invocation.getArgument(0);
+                    tx.setId(UUID.randomUUID());
+                    return tx;
+                });
+
+        TransactionResponse response = walletService.refundBalance(userId, amount, "Refund order", referenceId);
+
+        assertNotNull(response);
+        assertEquals("REFUND", response.getType());
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals(amount, response.getAmount());
+        assertEquals("Refund order", response.getDescription());
+        assertEquals(new BigDecimal("15000"), wallet.getBalance());
+    }
+
+    @Test
+    void refundBalance_NullAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.refundBalance(userId, null, "Refund", UUID.randomUUID()));
+    }
+
+    @Test
+    void refundBalance_ZeroAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.refundBalance(userId, BigDecimal.ZERO, "Refund", UUID.randomUUID()));
+    }
+
+    @Test
+    void refundBalance_NullReferenceId_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.refundBalance(userId, new BigDecimal("1000"), "Refund", null));
+    }
+
+    @Test
+    void refundBalance_WalletNotFound_ThrowsException() {
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.refundBalance(userId, new BigDecimal("1000"), "Refund", UUID.randomUUID()));
+    }
+
+    @Test
+    void refundBalance_DuplicateReference_ThrowsException() {
+        wallet.setBalance(new BigDecimal("10000"));
+        UUID referenceId = UUID.randomUUID();
+
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
+
+        assertThrows(IllegalStateException.class,
+                () -> walletService.refundBalance(userId, new BigDecimal("1000"), "Refund", referenceId));
     }
 }

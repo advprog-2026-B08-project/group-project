@@ -1,5 +1,12 @@
 package id.ac.ui.cs.advprog.groupproject.wallet.service;
 
+import java.math.BigDecimal;
+import java.util.UUID;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
@@ -9,11 +16,6 @@ import id.ac.ui.cs.advprog.groupproject.wallet.model.Wallet;
 import id.ac.ui.cs.advprog.groupproject.wallet.model.WalletTransaction;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @Service
 public class WalletServiceImpl implements WalletService {
@@ -114,6 +116,49 @@ public class WalletServiceImpl implements WalletService {
             transaction.setDescription(description);
         }
         walletTransactionRepository.save(transaction);
+
+        return new TransactionResponse(
+                transaction.getId(),
+                transaction.getType().name(),
+                transaction.getAmount(),
+                transaction.getStatus().name(),
+                transaction.getDescription(),
+                transaction.getCreatedAt());
+    }
+
+    @Override
+    @Transactional
+    public TransactionResponse refundBalance(UUID userId, BigDecimal amount, String description, UUID referenceId) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Refund amount must be greater than zero");
+        }
+        if (referenceId == null) {
+            throw new IllegalArgumentException("Reference ID is required for refund");
+        }
+
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+
+        wallet.setBalance(wallet.getBalance().add(amount));
+        walletRepository.save(wallet);
+
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setWalletId(wallet.getId());
+        transaction.setReferenceId(referenceId);
+        transaction.setType(TransactionType.REFUND);
+        transaction.setAmount(amount);
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        if (description == null || description.isBlank()) {
+            transaction.setDescription("Refund sebesar " + amount);
+        } else {
+            transaction.setDescription(description);
+        }
+
+        try {
+            walletTransactionRepository.save(transaction);
+        } catch (DataIntegrityViolationException ex) {
+            throw new IllegalStateException("Refund already processed for reference: " + referenceId, ex);
+        }
 
         return new TransactionResponse(
                 transaction.getId(),
