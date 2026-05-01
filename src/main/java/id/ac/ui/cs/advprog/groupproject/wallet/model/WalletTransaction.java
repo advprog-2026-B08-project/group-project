@@ -16,12 +16,21 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "wallet_transactions")
+@Table(
+    name = "wallet_transactions",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uq_wallet_transactions_reference",
+            columnNames = {"wallet_id", "reference_id", "type"}
+        )
+    }
+)
 @Getter @Setter
 @NoArgsConstructor
 public class WalletTransaction{

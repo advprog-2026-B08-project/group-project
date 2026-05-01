@@ -225,7 +225,7 @@ class WalletServiceImplTest {
 
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
-        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+        when(walletTransactionRepository.saveAndFlush(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
                     tx.setId(UUID.randomUUID());
@@ -275,7 +275,7 @@ class WalletServiceImplTest {
 
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
-        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+        when(walletTransactionRepository.saveAndFlush(any(WalletTransaction.class)))
                 .thenThrow(new DataIntegrityViolationException("duplicate"));
 
         assertThrows(IllegalStateException.class,

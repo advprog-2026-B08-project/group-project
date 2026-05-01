@@ -155,7 +155,7 @@ public class WalletServiceImpl implements WalletService {
         }
 
         try {
-            walletTransactionRepository.save(transaction);
+            walletTransactionRepository.saveAndFlush(transaction);
         } catch (DataIntegrityViolationException ex) {
             throw new IllegalStateException("Refund already processed for reference: " + referenceId, ex);
         }
