@@ -3,10 +3,12 @@ package id.ac.ui.cs.advprog.groupproject.wallet.controller;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.WithdrawalRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,6 +32,23 @@ public class WalletController {
             @PathVariable UUID userId,
             @RequestBody TopUpRequest request) {
         TransactionResponse response = walletService.topUp(userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/withdraw/{userId}")
+    public ResponseEntity<TransactionResponse> withdraw(
+            @PathVariable UUID userId,
+            @RequestBody WithdrawalRequest request) {
+        TransactionResponse response = walletService.withdrawBalance(
+                userId,
+                request.getAmount(),
+                request.getDestination());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/history/{userId}")
+    public ResponseEntity<List<TransactionResponse>> getTransactionHistory(@PathVariable UUID userId) {
+        List<TransactionResponse> response = walletService.getTransactionHistory(userId);
         return ResponseEntity.ok(response);
     }
 }

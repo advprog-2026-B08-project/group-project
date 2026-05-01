@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +24,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionType;
 import id.ac.ui.cs.advprog.groupproject.wallet.model.Wallet;
 import id.ac.ui.cs.advprog.groupproject.wallet.model.WalletTransaction;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
@@ -103,7 +106,6 @@ class WalletServiceImplTest {
         request.setAmount(new BigDecimal("100000"));
 
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
-        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
@@ -116,8 +118,8 @@ class WalletServiceImplTest {
         assertNotNull(response);
         assertEquals(new BigDecimal("100000"), response.getAmount());
         assertEquals("TOP_UP", response.getType());
-        assertEquals("SUCCESS", response.getStatus());
-        assertEquals(new BigDecimal("100000"), wallet.getBalance());
+        assertEquals("PENDING", response.getStatus());
+        assertEquals(BigDecimal.ZERO, wallet.getBalance());
     }
 
     @Test
@@ -215,6 +217,51 @@ class WalletServiceImplTest {
                 () -> walletService.deductBalance(userId, new BigDecimal("10000"), "Checkout order"));
     }
 
+    // ===================== withdrawBalance tests =====================
+
+    @Test
+    void withdrawBalance_Success() {
+        wallet.setBalance(new BigDecimal("200000"));
+        BigDecimal amount = new BigDecimal("75000");
+
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
+        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+                .thenAnswer(invocation -> {
+                    WalletTransaction tx = invocation.getArgument(0);
+                    tx.setId(UUID.randomUUID());
+                    return tx;
+                });
+
+        TransactionResponse response = walletService.withdrawBalance(userId, amount, "BCA-123");
+
+        assertNotNull(response);
+        assertEquals("WITHDRAWAL", response.getType());
+        assertEquals("PENDING", response.getStatus());
+        assertEquals(amount, response.getAmount());
+        assertEquals(new BigDecimal("200000"), wallet.getBalance());
+    }
+
+    @Test
+    void withdrawBalance_NullAmount_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.withdrawBalance(userId, null, "BCA-123"));
+    }
+
+    @Test
+    void withdrawBalance_InvalidDestination_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.withdrawBalance(userId, new BigDecimal("1000"), ""));
+    }
+
+    @Test
+    void withdrawBalance_InsufficientBalance_ThrowsException() {
+        wallet.setBalance(new BigDecimal("5000"));
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.withdrawBalance(userId, new BigDecimal("10000"), "BCA-123"));
+    }
+
     // ===================== refundBalance tests =====================
 
     @Test
@@ -280,5 +327,92 @@ class WalletServiceImplTest {
 
         assertThrows(IllegalStateException.class,
                 () -> walletService.refundBalance(userId, new BigDecimal("1000"), "Refund", referenceId));
+    }
+
+    // ===================== verifyTransaction tests =====================
+
+    @Test
+    void verifyTransaction_TopUpSuccess_AddsBalance() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.TOP_UP);
+        transaction.setAmount(new BigDecimal("5000"));
+        transaction.setStatus(TransactionStatus.PENDING);
+
+        wallet.setBalance(new BigDecimal("10000"));
+
+        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.save(any(WalletTransaction.class))).thenReturn(transaction);
+
+        TransactionResponse response = walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS);
+
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals(new BigDecimal("15000"), wallet.getBalance());
+    }
+
+    @Test
+    void verifyTransaction_WithdrawalSuccess_SubtractsBalance() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.WITHDRAWAL);
+        transaction.setAmount(new BigDecimal("3000"));
+        transaction.setStatus(TransactionStatus.PENDING);
+
+        wallet.setBalance(new BigDecimal("10000"));
+
+        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.save(any(WalletTransaction.class))).thenReturn(transaction);
+
+        TransactionResponse response = walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS);
+
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals(new BigDecimal("7000"), wallet.getBalance());
+    }
+
+    @Test
+    void verifyTransaction_Failed_DoesNotChangeBalance() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.TOP_UP);
+        transaction.setAmount(new BigDecimal("5000"));
+        transaction.setStatus(TransactionStatus.PENDING);
+
+        wallet.setBalance(new BigDecimal("10000"));
+
+        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.save(any(WalletTransaction.class))).thenReturn(transaction);
+
+        TransactionResponse response = walletService.verifyTransaction(transaction.getId(), TransactionStatus.FAILED);
+
+        assertEquals("FAILED", response.getStatus());
+        assertEquals(new BigDecimal("10000"), wallet.getBalance());
+    }
+
+    // ===================== getTransactionHistory tests =====================
+
+    @Test
+    void getTransactionHistory_ReturnsList() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.TOP_UP);
+        transaction.setAmount(new BigDecimal("10000"));
+        transaction.setStatus(TransactionStatus.SUCCESS);
+
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.of(wallet));
+        when(walletTransactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId()))
+                .thenReturn(List.of(transaction));
+
+        List<TransactionResponse> responses = walletService.getTransactionHistory(userId);
+
+        assertEquals(1, responses.size());
+        assertEquals("TOP_UP", responses.get(0).getType());
     }
 }
