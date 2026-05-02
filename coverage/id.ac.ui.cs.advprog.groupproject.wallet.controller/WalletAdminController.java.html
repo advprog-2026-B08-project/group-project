@@ -31,8 +31,8 @@ public class WalletAdminController {
     public ResponseEntity&lt;TransactionResponse&gt; updateStatus(
             @PathVariable UUID id,
             @RequestBody UpdateTransactionStatusRequest request) {
-<span class="pc bpc" id="L34" title="2 of 4 branches missed.">        if (request == null || request.getStatus() == null) {</span>
-<span class="nc" id="L35">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Status is required&quot;);</span>
+<span class="fc bfc" id="L34" title="All 4 branches covered.">        if (request == null || request.getStatus() == null) {</span>
+<span class="fc" id="L35">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Status is required&quot;);</span>
         }
 
 <span class="fc" id="L38">        TransactionResponse response = walletService.verifyTransaction(id, request.getStatus());</span>

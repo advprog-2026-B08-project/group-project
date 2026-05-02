@@ -19,12 +19,12 @@ public class WalletPaymentAdapter implements PaymentPort {
 
     @Override
     public void pay(UUID userId, BigDecimal amount, String description) {
-<span class="nc" id="L22">        walletService.deductBalance(userId, amount, description);</span>
-<span class="nc" id="L23">    }</span>
+<span class="fc" id="L22">        walletService.deductBalance(userId, amount, description);</span>
+<span class="fc" id="L23">    }</span>
 
     @Override
     public void refund(UUID userId, BigDecimal amount, String description, UUID referenceId) {
-<span class="nc" id="L27">        walletService.refundBalance(userId, amount, description, referenceId);</span>
-<span class="nc" id="L28">    }</span>
+<span class="fc" id="L27">        walletService.refundBalance(userId, amount, description, referenceId);</span>
+<span class="fc" id="L28">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
