@@ -254,6 +254,12 @@ class WalletServiceImplTest {
     }
 
     @Test
+    void withdrawBalance_NullDestination_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.withdrawBalance(userId, new BigDecimal("1000"), null));
+    }
+
+    @Test
     void withdrawBalance_InsufficientBalance_ThrowsException() {
         wallet.setBalance(new BigDecimal("5000"));
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
@@ -330,6 +336,91 @@ class WalletServiceImplTest {
     }
 
     // ===================== verifyTransaction tests =====================
+
+    @Test
+    void verifyTransaction_NullStatus_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.verifyTransaction(UUID.randomUUID(), null));
+    }
+
+    @Test
+    void verifyTransaction_PendingStatus_ThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.verifyTransaction(UUID.randomUUID(), TransactionStatus.PENDING));
+    }
+
+    @Test
+    void verifyTransaction_TransactionNotFound_ThrowsException() {
+        UUID transactionId = UUID.randomUUID();
+        when(walletTransactionRepository.findById(transactionId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.verifyTransaction(transactionId, TransactionStatus.SUCCESS));
+    }
+
+    @Test
+    void verifyTransaction_AlreadyProcessed_ThrowsException() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.TOP_UP);
+        transaction.setAmount(new BigDecimal("5000"));
+        transaction.setStatus(TransactionStatus.SUCCESS);
+
+        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+
+        assertThrows(IllegalStateException.class,
+                () -> walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS));
+    }
+
+    @Test
+    void verifyTransaction_InvalidType_ThrowsException() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.DEBIT);
+        transaction.setAmount(new BigDecimal("5000"));
+        transaction.setStatus(TransactionStatus.PENDING);
+
+        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS));
+    }
+
+    @Test
+    void verifyTransaction_WalletNotFound_ThrowsException() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.TOP_UP);
+        transaction.setAmount(new BigDecimal("5000"));
+        transaction.setStatus(TransactionStatus.PENDING);
+
+        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.empty());
+
+        assertThrows(IllegalStateException.class,
+                () -> walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS));
+    }
+
+    @Test
+    void verifyTransaction_WithdrawalInsufficientBalance_ThrowsException() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.WITHDRAWAL);
+        transaction.setAmount(new BigDecimal("5000"));
+        transaction.setStatus(TransactionStatus.PENDING);
+
+        wallet.setBalance(new BigDecimal("1000"));
+
+        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.of(wallet));
+
+        assertThrows(IllegalStateException.class,
+                () -> walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS));
+    }
 
     @Test
     void verifyTransaction_TopUpSuccess_AddsBalance() {
@@ -414,5 +505,29 @@ class WalletServiceImplTest {
 
         assertEquals(1, responses.size());
         assertEquals("TOP_UP", responses.get(0).getType());
+    }
+
+    @Test
+    void getTransactionHistory_WalletNotFound_ThrowsException() {
+        when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> walletService.getTransactionHistory(userId));
+    }
+
+    // ===================== getAllTransactions tests =====================
+
+    @Test
+    void getAllTransactions_MissingWallet_ThrowsException() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(UUID.randomUUID());
+        transaction.setType(TransactionType.TOP_UP);
+        transaction.setAmount(new BigDecimal("10000"));
+        transaction.setStatus(TransactionStatus.SUCCESS);
+
+        when(walletTransactionRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(transaction));
+        when(walletRepository.findAllById(any())).thenReturn(List.of());
+
+        assertThrows(IllegalStateException.class, () -> walletService.getAllTransactions());
     }
 }
