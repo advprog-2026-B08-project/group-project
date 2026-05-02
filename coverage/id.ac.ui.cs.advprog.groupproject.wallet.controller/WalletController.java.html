@@ -3,10 +3,12 @@
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.WithdrawalRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -15,22 +17,39 @@ public class WalletController {
 
     private final WalletService walletService;
 
-<span class="fc" id="L18">    public WalletController(WalletService walletService) {</span>
-<span class="fc" id="L19">        this.walletService = walletService;</span>
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L20">    public WalletController(WalletService walletService) {</span>
+<span class="fc" id="L21">        this.walletService = walletService;</span>
+<span class="fc" id="L22">    }</span>
 
     @GetMapping(&quot;/balance/{userId}&quot;)
     public ResponseEntity&lt;WalletResponse&gt; getBalance(@PathVariable UUID userId) {
-<span class="fc" id="L24">        WalletResponse response = walletService.getBalance(userId);</span>
-<span class="fc" id="L25">        return ResponseEntity.ok(response);</span>
+<span class="fc" id="L26">        WalletResponse response = walletService.getBalance(userId);</span>
+<span class="fc" id="L27">        return ResponseEntity.ok(response);</span>
     }
 
     @PostMapping(&quot;/top-up/{userId}&quot;)
     public ResponseEntity&lt;TransactionResponse&gt; topUp(
             @PathVariable UUID userId,
             @RequestBody TopUpRequest request) {
-<span class="fc" id="L32">        TransactionResponse response = walletService.topUp(userId, request);</span>
-<span class="fc" id="L33">        return ResponseEntity.ok(response);</span>
+<span class="fc" id="L34">        TransactionResponse response = walletService.topUp(userId, request);</span>
+<span class="fc" id="L35">        return ResponseEntity.ok(response);</span>
+    }
+
+    @PostMapping(&quot;/withdraw/{userId}&quot;)
+    public ResponseEntity&lt;TransactionResponse&gt; withdraw(
+            @PathVariable UUID userId,
+            @RequestBody WithdrawalRequest request) {
+<span class="fc" id="L42">        TransactionResponse response = walletService.withdrawBalance(</span>
+                userId,
+<span class="fc" id="L44">                request.getAmount(),</span>
+<span class="fc" id="L45">                request.getDestination());</span>
+<span class="fc" id="L46">        return ResponseEntity.ok(response);</span>
+    }
+
+    @GetMapping(&quot;/history/{userId}&quot;)
+    public ResponseEntity&lt;List&lt;TransactionResponse&gt;&gt; getTransactionHistory(@PathVariable UUID userId) {
+<span class="fc" id="L51">        List&lt;TransactionResponse&gt; response = walletService.getTransactionHistory(userId);</span>
+<span class="fc" id="L52">        return ResponseEntity.ok(response);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
