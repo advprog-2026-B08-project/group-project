@@ -37,6 +37,30 @@
     object-fit: cover;
 }
 
+.balance-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.balance-chip .balance-label {
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 10px;
+}
+
+.balance-chip .balance-value {
+    font-size: 13px;
+}
+
 .unauthorized {
     position: fixed;
     bottom: 0;
