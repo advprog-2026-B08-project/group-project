@@ -43,3 +43,46 @@
     left: 0;
     width: 100%;
 }
+
+.containerRowGray {
+    display: flex;
+    gap: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    font-family: "Arial Black";
+}
+
+.containerRowWhite {
+    display: flex;
+    gap: 20px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px 20px 0px 20px;
+    font-family: "Arial";
+    font-weight: bold;
+    justify-content: space-between;
+}
+
+
+.contents {
+    flex: 1;
+    padding: 20px 20px 0px 20px;
+    border-radius: 10px;
+    background: white;
+}
+
+.bigNum {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-family: 'Arial Black';
+}
+
+.card {
+    transition: transform 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+}

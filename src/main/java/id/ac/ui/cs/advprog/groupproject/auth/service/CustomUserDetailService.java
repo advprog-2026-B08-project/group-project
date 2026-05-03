@@ -11,6 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
@@ -60,6 +64,22 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public String getDefaultUsername(String email) {
         return email.split("@")[0];
+    }
+
+    public Map<String, Long> getUserCountByRole() {
+        List<Object[]> results = userRepository.countUsersByRole();
+        Map<String, Long> map = new HashMap<>();
+
+        for (Object[] row : results) {
+            String role = (String) row[0];
+            Long count = (Long) row[1];
+            map.put(role, count);
+        }
+        return map;
+    }
+
+    public List<User> getUserList() {
+        return userRepository.findAll();
     }
 }
 

@@ -7,6 +7,10 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.KycRequestRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class KycRequestService {
     KycRequestRepository kycRequestRepository;
@@ -45,5 +49,18 @@ public class KycRequestService {
         kycRequestRepository.save(request);
         user.setStatus(Status.PENDING.toString());
         return request;
+    }
+
+    public Map<String, Long> getRequestCountByStatus() {
+        List<Object[]> result = kycRequestRepository.countRequestByStatus();
+        Map<String, Long> map = new HashMap<>();
+
+        for (Object[] row: result) {
+            String status = row[0].toString();
+            Long count = (Long) row[1];
+            map.put(status, count);
+        }
+
+        return map;
     }
 }

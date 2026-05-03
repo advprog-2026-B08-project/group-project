@@ -1,9 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
-import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +34,7 @@ public class PageController {
 
     @GetMapping("/admin")
     public String admin() {
-        return "auth/admin";
+        return "auth/admin/admin";
     }
 
     @GetMapping("/order")
@@ -53,5 +50,15 @@ public class PageController {
     @GetMapping("/kycRequestAdmin")
     public String kycRequestAdmin() {
         return "auth/kyc/kyc-admin";
+    }
+
+    @GetMapping("/admin/userList")
+    public String userList() {
+        return "auth/admin/userList";
+    }
+
+    @GetMapping("/admin/kycRequestList")
+    public String kycRequestList() {
+        return "auth/admin/approve-kyc";
     }
 }
