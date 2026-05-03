@@ -14,4 +14,7 @@ public interface KycRequestRepository extends JpaRepository<KycRequest, UUID> {
 
     @Query("SELECT r.status, COUNT(r) from KycRequest r GROUP BY r.status")
     List<Object[]> countRequestByStatus();
+
+    @Query("select r from KycRequest r where r.status='PENDING'")
+    List<KycRequest> getPendingRequests();
 }

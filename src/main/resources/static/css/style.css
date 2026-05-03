@@ -85,6 +85,7 @@
 }
 .card:hover {
     transform: translateY(-5px);
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 .pin {
@@ -104,4 +105,55 @@
     font-weight: bold;
     justify-content: space-between;
     align-items: center;
+}
+
+.kyc-box {
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    height: 360px;
+    width: 800px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.kyc-left {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    justify-content: center;
+    align-items: center;
+}
+
+.kyc-right {
+    width: 70%;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.request-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 15px;
+    margin-bottom: 10px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background-color: #f9f9f9;
+    transition: transform 0.2s ease;
+}
+
+.request-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
 }

@@ -24,9 +24,9 @@
     <div th:if="${user.role == 'ROLE_TITIPER'}">
         <p>Want to be a Jastiper?</p><a th:href="@{/kycRequestJastiper}">Click here</a>
     </div>
-    <div th:if="${user.role == 'ROLE_JASTIPER'}">
-        <p>Want to be an admin?</p><a th:href="@{/kycRequestAdmin}">Click here</a>
-    </div>
+<!--    <div th:if="${user.role == 'ROLE_JASTIPER'}">-->
+<!--        <p>Want to be an admin?</p><a th:href="@{/kycRequestAdmin}">Click here</a>-->
+<!--    </div>-->
 
     <div style="height:20px"></div>
     <div id="unauthorizedAlert" th:if="${unauthorized}" class="alert alert-danger unauthorized">

@@ -7,10 +7,48 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<div th:replace="fragments/navbar :: navbar"></div>
-<h1>I said Hey! What's going on?</h1>
-<!-- TODO: For admin to approve kyc-->
+    <div th:replace="fragments/navbar :: navbar"></div>
+    <!-- TODO: For admin to approve kyc-->
+    <div class="container mt-4 justify-content-center">
 
+        <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">KYC Requests</h1>
+        <div class="kyc-box">
+
+            <div class="kyc-left" style="background: #cceeff">
+                <div style="background: aqua; font-family: 'Arial Black'">
+                    <p style="font-weight: bold; background: #225577 ">Select to see details</p>
+                </div>
+                <div style="background: aqua; margin: auto">
+                    <p style="background: #225577; text-align: center; font-weight: bold">Pending requests</p>
+                    <p class="bigNum" th:text="${requestCount.get('PENDING') ?: 0}"></p>
+                </div>
+            </div>
+
+            <div class="kyc-right">
+                <!-- Cards go here -->
+                <div th:each="req : ${requestList}" class="request-card">
+
+                    <!-- LEFT: username -->
+                    <span class="username"
+                          th:text="${req.user.username}">Username</span>
+
+                    <!-- RIGHT: buttons -->
+                    <div class="actions">
+                        <form th:action="@{/admin/kyc/accept}" method="post">
+                            <input type="hidden" name="id" th:value="${req.id}" />
+                            <button class="btn btn-success btn-sm">Accept</button>
+                        </form>
+
+                        <form th:action="@{/admin/kyc/reject}" method="post">
+                            <input type="hidden" name="id" th:value="${req.id}" />
+                            <button class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

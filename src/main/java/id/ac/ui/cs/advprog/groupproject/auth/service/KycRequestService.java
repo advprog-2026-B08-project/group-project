@@ -63,4 +63,9 @@ public class KycRequestService {
 
         return map;
     }
+
+    public List<KycRequest> getRequestList() {
+        List<KycRequest> requestList = kycRequestRepository.getPendingRequests();
+        return requestList;
+    }
 }

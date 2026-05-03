@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
@@ -21,12 +22,6 @@ public class AdminDataController {
 
     @ModelAttribute("roleCount")
     public Map<String, Long> roleCount() {
-        System.out.println();
-        System.out.println("roleCount called");
-        System.out.println("Map : ");
-        System.out.println(userDetailsService.getUserCountByRole());
-        System.out.println();
-
         return userDetailsService.getUserCountByRole();
     }
 
@@ -40,4 +35,13 @@ public class AdminDataController {
         return userDetailsService.getUserList();
     }
 
+    @ModelAttribute("requestList")
+    public List<KycRequest> getRequestList() {
+        System.out.println();
+        System.out.println("getRequestList called");
+        System.out.println("List : ");
+        System.out.println(requestService.getRequestList());
+        System.out.println();
+        return requestService.getRequestList();
+    }
 }
