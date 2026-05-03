@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {
@@ -80,6 +81,27 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public List<User> getUserList() {
         return userRepository.findAll();
+    }
+
+    public void demote(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        if (!user.getRole().equals("ROLE_JASTIPER")) {
+            throw new RuntimeException("Invalid role for demotion!");
+        }
+
+        user.setRole(Role.ROLE_TITIPER.toString());
+        userRepository.save(user);
+
+    }
+
+    public void ban(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        if (user.getRole().equals("ROLE_ADMIN")) {
+            throw new RuntimeException("Invalid role for banning!");
+        }
+
+        user.setStatus(Status.BANNED.toString());
+        userRepository.save(user);
     }
 }
 

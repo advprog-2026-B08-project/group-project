@@ -21,6 +21,12 @@ public class AdminDataController {
 
     @ModelAttribute("roleCount")
     public Map<String, Long> roleCount() {
+        System.out.println();
+        System.out.println("roleCount called");
+        System.out.println("Map : ");
+        System.out.println(userDetailsService.getUserCountByRole());
+        System.out.println();
+
         return userDetailsService.getUserCountByRole();
     }
 
