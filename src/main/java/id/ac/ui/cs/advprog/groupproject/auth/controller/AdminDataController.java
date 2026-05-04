@@ -27,6 +27,7 @@ public class AdminDataController {
 
     @ModelAttribute("requestCount")
     public Map<String, Long> requestCount() {
+        System.out.println(requestService.getRequestCountByStatus());
         return requestService.getRequestCountByStatus();
     }
 

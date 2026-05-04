@@ -1,12 +1,22 @@
 package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
+import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.UUID;
 
 @Controller
 public class PageController {
+    public final KycRequestService requestService;
+
+    public PageController(KycRequestService requestService) {
+        this.requestService = requestService;
+    }
 
     @GetMapping("/login")
     public String login() {
@@ -58,7 +68,13 @@ public class PageController {
     }
 
     @GetMapping("/admin/kycRequestList")
-    public String kycRequestList() {
+    public String kycRequestList(Model model,
+                                 @RequestParam(required = false) UUID selectedId) {
+
+        if (selectedId != null) {
+            KycRequest selected = requestService.getById(selectedId);
+            model.addAttribute("selectedRequest", selected);
+        }
         return "auth/admin/approve-kyc";
     }
 }

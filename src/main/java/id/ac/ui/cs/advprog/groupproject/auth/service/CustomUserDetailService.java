@@ -54,7 +54,7 @@ public class CustomUserDetailService implements UserDetailsService {
         user.setUsername(usernameInput);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(Role.ROLE_TITIPER.toString());
-        user.setStatus(Status.AKTIF.toString());
+        user.setStatus(Status.ACTIVE.toString());
         user.setEmail(email);
         if (fullName != null) user.setFullName(fullName);
 
@@ -81,6 +81,20 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public List<User> getUserList() {
         return userRepository.findAll();
+    }
+
+    public void makeStatusPending(User user) {
+        User repoUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+        if (!repoUser.getRole().equals("ROLE_TITIPER")) {
+            throw new RuntimeException("Invalid user role!");
+        }
+        if (!repoUser.getStatus().equals("ACTIVE")) {
+            throw new RuntimeException("Invalid user status!");
+        }
+
+        repoUser.setStatus(Status.PENDING.toString());
+        userRepository.save(repoUser);
     }
 
     public void demote(UUID id) {

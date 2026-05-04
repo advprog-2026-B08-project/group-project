@@ -14,37 +14,47 @@
         <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">KYC Requests</h1>
         <div class="kyc-box">
 
-            <div class="kyc-left" style="background: #cceeff">
-                <div style="background: aqua; font-family: 'Arial Black'">
-                    <p style="font-weight: bold; background: #225577 ">Select to see details</p>
+            <div class="kyc-left">
+                <div style="font-family: 'Arial Black'">
+                    <p style="font-weight: bold">Select to see details</p>
                 </div>
-                <div style="background: aqua; margin: auto">
-                    <p style="background: #225577; text-align: center; font-weight: bold">Pending requests</p>
-                    <p class="bigNum" th:text="${requestCount.get('PENDING') ?: 0}"></p>
+                <div style="margin: auto">
+                    <p style="text-align: center; font-weight: bold">Pending requests</p>
+                    <p class="bigNum" th:text="${requestCount.get('ACTIVE') ?: 0}"></p>
                 </div>
             </div>
 
-            <div class="kyc-right">
-                <!-- Cards go here -->
+            <div class="kyc-mid">
                 <div th:each="req : ${requestList}" class="request-card">
-
-                    <!-- LEFT: username -->
-                    <span class="username"
-                          th:text="${req.user.username}">Username</span>
-
-                    <!-- RIGHT: buttons -->
+                    <a th:href="@{/admin/kycRequestList(selectedId = ${req.getId()})}">
+                        <span class="username" th:text="${req.user.username}">Username</span>
+                    </a>
                     <div class="actions">
-                        <form th:action="@{/admin/kyc/accept}" method="post">
-                            <input type="hidden" name="id" th:value="${req.id}" />
+                        <form th:action="@{/admin/kyc/accept}" method="post"
+                        onsubmit="return confirm('Are you sure you want to accept this users application?')">
+                            <input type="hidden" name="requestId" th:value="${req.getId()}" />
                             <button class="btn btn-success btn-sm">Accept</button>
                         </form>
 
-                        <form th:action="@{/admin/kyc/reject}" method="post">
-                            <input type="hidden" name="id" th:value="${req.id}" />
+                        <form th:action="@{/admin/kyc/reject}" method="post"
+                        onsubmit="return confirm('Are you sure you want to reject this users application?')">
+                            <input type="hidden" name="requestId" th:value="${req.getId()}" />
                             <button class="btn btn-danger btn-sm">Reject</button>
                         </form>
                     </div>
 
+                </div>
+            </div>
+
+            <div class="kyc-right">
+                <div class="flex flexDown justifyBetween alignCenter" th:if="${selectedRequest != null}">
+                    <div>
+                        <p style="font-family: 'Arial Black'; font-size: 20px" th:text="${selectedRequest.getFullName()}"></p>
+                        <p style="color: #606060; font-weight: bold; margin-bottom: 120px" th:text="${selectedRequest.getEmail()}"></p>
+                    </div>
+                    <div>
+                        <p style="font-weight: bold" th:text="${selectedRequest.getSocials()}"></p>
+                    </div>
                 </div>
             </div>
         </div>

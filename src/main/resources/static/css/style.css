@@ -85,7 +85,6 @@
 }
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 .pin {
@@ -112,7 +111,7 @@
     border: 1px solid #ccc;
     border-radius: 10px;
     height: 360px;
-    width: 800px;
+    width: 1000px;
     overflow: hidden;
     margin: 0 auto;
 }
@@ -120,17 +119,28 @@
 .kyc-left {
     display: flex;
     flex-direction: column;
-    width: 30%;
+    width: 25%;
     padding: 20px;
     border-right: 1px solid #ddd;
     justify-content: center;
     align-items: center;
+    background: #ccf6ff;
+}
+
+.kyc-mid {
+    width: 50%;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 .kyc-right {
-    width: 70%;
+    width: 25%;
     padding: 10px;
-    overflow-y: auto;
+    background: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .request-card {
@@ -150,10 +160,24 @@
 
 .request-card:hover {
     transform: translateY(-5px);
-    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
 }
 
 .actions {
     display: flex;
     gap: 5px;
+}
+
+.flex {
+    display: flex;
+}
+
+.flexDown {
+    flex-direction: column;
+}
+
+.center {
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
 }
