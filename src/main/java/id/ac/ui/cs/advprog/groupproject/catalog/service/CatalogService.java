@@ -70,6 +70,13 @@ public class CatalogService {
     return catalog;
   }
 
+  public Catalog getCatalogByIdForAdmin(UUID catalogId) {
+    return catalogRepository
+        .findById(catalogId)
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+  }
+
   public Catalog updateCatalog(UUID catalogId, UpdateCatalogCommand command, User currentUser) {
     Catalog catalog =
         catalogRepository
@@ -80,6 +87,17 @@ public class CatalogService {
     if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
     }
+
+    catalogFactory.applyUpdate(catalog, command);
+    return catalogRepository.save(catalog);
+  }
+
+  public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogCommand command) {
+    Catalog catalog =
+        catalogRepository
+            .findById(catalogId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
 
     catalogFactory.applyUpdate(catalog, command);
     return catalogRepository.save(catalog);
@@ -96,6 +114,13 @@ public class CatalogService {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
     }
 
+    catalogRepository.deleteById(catalogId);
+  }
+
+  public void deleteCatalogByAdmin(UUID catalogId) {
+    if (!catalogRepository.existsById(catalogId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+    }
     catalogRepository.deleteById(catalogId);
   }
 

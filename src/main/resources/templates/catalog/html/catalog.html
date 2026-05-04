@@ -12,7 +12,8 @@
 <div class="container my-2">
     <h2>Catalog List</h2>
     <a th:href="@{/homepage}" class="btn btn-secondary btn-sm mb-3">Back to Home</a>
-    <a th:href="@{/catalog/my}" class="btn btn-primary btn-sm mb-3">My Catalog</a>
+    <a th:if="${user != null and user.role == 'ROLE_JASTIPER'}"
+       th:href="@{/catalog/my}" class="btn btn-primary btn-sm mb-3">My Catalog</a>
 
     <div class="card mb-3">
         <div class="card-body">
