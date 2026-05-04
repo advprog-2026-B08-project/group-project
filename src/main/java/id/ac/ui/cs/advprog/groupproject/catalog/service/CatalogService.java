@@ -2,13 +2,22 @@ package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.UUID;
 import java.util.List;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,13 +26,22 @@ import org.springframework.web.server.ResponseStatusException;
 public class CatalogService {
   private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found";
   private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogService.class);
 
   private final CatalogRepository catalogRepository;
+  private final CatalogRatingEventRepository catalogRatingEventRepository;
   private final CatalogFactory catalogFactory;
+  private final MeterRegistry meterRegistry;
 
-  public CatalogService(CatalogRepository catalogRepository, CatalogFactory catalogFactory) {
+  public CatalogService(
+      CatalogRepository catalogRepository,
+      CatalogRatingEventRepository catalogRatingEventRepository,
+      CatalogFactory catalogFactory,
+      MeterRegistry meterRegistry) {
     this.catalogRepository = catalogRepository;
+    this.catalogRatingEventRepository = catalogRatingEventRepository;
     this.catalogFactory = catalogFactory;
+    this.meterRegistry = meterRegistry;
   }
 
   public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
@@ -144,6 +162,68 @@ public class CatalogService {
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
   }
 
+  @Transactional
+  public ProductRatingUpdateResponse applyProductRating(
+      UUID catalogId, ProductRatingUpdateRequest request, User currentUser) {
+    if (!isTitiper(currentUser)) {
+      meterRegistry.counter("catalog.rating.rejected", "reason", "role_forbidden").increment();
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "Only Titiper can submit product rating");
+    }
+
+    if (!currentUser.getId().equals(request.getBuyerId())) {
+      meterRegistry.counter("catalog.rating.rejected", "reason", "buyer_mismatch").increment();
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Buyer mismatch");
+    }
+
+    if (catalogRatingEventRepository.existsByOrderId(request.getOrderId())) {
+      meterRegistry.counter("catalog.rating.duplicate").increment();
+      LOGGER.info("catalog_rating_duplicate orderId={} catalogId={}", request.getOrderId(), catalogId);
+      Catalog catalog = getCatalogByIdForAdmin(catalogId);
+      return new ProductRatingUpdateResponse(false, catalog.getRatingAverage(), catalog.getRatingCount());
+    }
+
+    if (!catalogRepository.existsById(catalogId)) {
+      meterRegistry.counter("catalog.rating.rejected", "reason", "catalog_not_found").increment();
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+    }
+
+    CatalogRatingEvent event = new CatalogRatingEvent();
+    event.setOrderId(request.getOrderId());
+    event.setCatalogId(catalogId);
+    event.setBuyerId(request.getBuyerId());
+    event.setProductRating(request.getProductRating());
+    event.setCreatedAt(Instant.now());
+
+    try {
+      catalogRatingEventRepository.save(event);
+    } catch (DataIntegrityViolationException ex) {
+      meterRegistry.counter("catalog.rating.duplicate").increment();
+      LOGGER.info(
+          "catalog_rating_duplicate_race orderId={} catalogId={}", request.getOrderId(), catalogId);
+      Catalog catalog = getCatalogByIdForAdmin(catalogId);
+      return new ProductRatingUpdateResponse(false, catalog.getRatingAverage(), catalog.getRatingCount());
+    }
+
+    int updatedRows = catalogRepository.applyProductRating(catalogId, request.getProductRating());
+    if (updatedRows == 0) {
+      meterRegistry.counter("catalog.rating.failed", "reason", "aggregate_update").increment();
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+    }
+
+    Catalog catalog = getCatalogByIdForAdmin(catalogId);
+    meterRegistry.counter("catalog.rating.applied").increment();
+    LOGGER.info(
+        "catalog_rating_applied orderId={} catalogId={} rating={} ratingAverage={} ratingCount={}",
+        request.getOrderId(),
+        catalogId,
+        request.getProductRating(),
+        catalog.getRatingAverage(),
+        catalog.getRatingCount());
+
+    return new ProductRatingUpdateResponse(true, catalog.getRatingAverage(), catalog.getRatingCount());
+  }
+
   private String normalizeSearchTerm(String value) {
     if (value == null) {
       return null;
@@ -156,5 +236,10 @@ public class CatalogService {
   private boolean isJastiper(User user) {
     String role = user.getRole();
     return "JASTIPER".equalsIgnoreCase(role) || "ROLE_JASTIPER".equalsIgnoreCase(role);
+  }
+
+  private boolean isTitiper(User user) {
+    String role = user.getRole();
+    return "TITIPER".equalsIgnoreCase(role) || "ROLE_TITIPER".equalsIgnoreCase(role);
   }
 }

@@ -128,4 +128,24 @@ class CatalogRepositoryTest {
         assertEquals(0, updatedRows);
         assertEquals(1, updatedCatalog.getStock());
     }
+
+    @Test
+    void testApplyProductRating_UpdatesAggregateRating() {
+        Catalog catalog = new Catalog();
+        catalog.setName("Rating Product");
+        catalog.setPrice(90.0);
+        catalog.setStock(4);
+        catalog.setOriginLocation("Jakarta");
+        catalog.setTravelDate(LocalDate.now().plusDays(3));
+        catalog.setJastiper(testUser);
+        catalog = catalogRepository.save(catalog);
+
+        int updatedRows = catalogRepository.applyProductRating(catalog.getId(), 5);
+        Catalog updatedCatalog = catalogRepository.findById(catalog.getId()).orElseThrow();
+
+        assertEquals(1, updatedRows);
+        assertEquals(1, updatedCatalog.getRatingCount());
+        assertEquals(5, updatedCatalog.getRatingSum());
+        assertEquals(5.0, updatedCatalog.getRatingAverage());
+    }
 }

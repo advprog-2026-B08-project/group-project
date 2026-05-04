@@ -49,4 +49,15 @@ WHERE (:name IS NULL OR :name = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name
       WHERE c.id = :catalogId
       """)
   int increaseStock(@Param("catalogId") UUID catalogId, @Param("quantity") int quantity);
+
+  @Modifying
+  @Query(
+      """
+      UPDATE Catalog c
+      SET c.ratingSum = c.ratingSum + :productRating,
+          c.ratingCount = c.ratingCount + 1,
+          c.ratingAverage = (c.ratingSum + :productRating) * 1.0 / (c.ratingCount + 1)
+      WHERE c.id = :catalogId
+      """)
+  int applyProductRating(@Param("catalogId") UUID catalogId, @Param("productRating") int productRating);
 }

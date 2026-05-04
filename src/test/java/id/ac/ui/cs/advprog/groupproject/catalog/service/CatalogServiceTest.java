@@ -2,10 +2,15 @@ package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,17 +39,30 @@ class CatalogServiceTest {
     @Mock
     private CatalogFactory catalogFactory;
 
+    @Mock
+    private CatalogRatingEventRepository catalogRatingEventRepository;
+
+    @Mock
+    private MeterRegistry meterRegistry;
+
+    @Mock
+    private Counter counter;
+
     @InjectMocks
     private CatalogService catalogService;
 
     private User testUser;
     private User anotherUser;
+    private User titiperUser;
     private Catalog testCatalog;
     private UUID catalogId;
     private UUID userId;
 
     @BeforeEach
     void setUp() {
+        when(meterRegistry.counter(anyString())).thenReturn(counter);
+        when(meterRegistry.counter(anyString(), any(String[].class))).thenReturn(counter);
+
         userId = UUID.randomUUID();
         testUser = new User();
         testUser.setId(userId);
@@ -55,6 +73,11 @@ class CatalogServiceTest {
         anotherUser.setId(UUID.randomUUID());
         anotherUser.setUsername("anotheruser");
         anotherUser.setRole("JASTIPER");
+
+        titiperUser = new User();
+        titiperUser.setId(UUID.randomUUID());
+        titiperUser.setUsername("titiper");
+        titiperUser.setRole("ROLE_TITIPER");
 
         catalogId = UUID.randomUUID();
         testCatalog = new Catalog();
@@ -397,5 +420,63 @@ class CatalogServiceTest {
         verify(catalogRepository, times(1)).existsById(catalogId);
         verify(catalogRepository, never()).findById(catalogId);
         verify(catalogRepository, never()).save(any(Catalog.class));
+    }
+
+    @Test
+    void testApplyProductRatingSuccess() {
+        ProductRatingUpdateRequest request = new ProductRatingUpdateRequest();
+        request.setOrderId(UUID.randomUUID());
+        request.setBuyerId(titiperUser.getId());
+        request.setProductRating(5);
+
+        when(catalogRatingEventRepository.existsByOrderId(request.getOrderId())).thenReturn(false);
+        when(catalogRepository.existsById(catalogId)).thenReturn(true);
+        when(catalogRatingEventRepository.save(any(CatalogRatingEvent.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(catalogRepository.applyProductRating(catalogId, 5)).thenReturn(1);
+        testCatalog.setRatingAverage(5.0);
+        testCatalog.setRatingCount(1);
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+
+        var response = catalogService.applyProductRating(catalogId, request, titiperUser);
+
+        assertTrue(response.isApplied());
+        assertEquals(5.0, response.getRatingAverage());
+        assertEquals(1, response.getRatingCount());
+        verify(catalogRepository, times(1)).applyProductRating(catalogId, 5);
+    }
+
+    @Test
+    void testApplyProductRatingDuplicateOrderId() {
+        ProductRatingUpdateRequest request = new ProductRatingUpdateRequest();
+        request.setOrderId(UUID.randomUUID());
+        request.setBuyerId(titiperUser.getId());
+        request.setProductRating(4);
+
+        when(catalogRatingEventRepository.existsByOrderId(request.getOrderId())).thenReturn(true);
+        testCatalog.setRatingAverage(4.2);
+        testCatalog.setRatingCount(10);
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+
+        var response = catalogService.applyProductRating(catalogId, request, titiperUser);
+
+        assertFalse(response.isApplied());
+        assertEquals(4.2, response.getRatingAverage());
+        assertEquals(10, response.getRatingCount());
+        verify(catalogRepository, never()).applyProductRating(any(UUID.class), anyInt());
+    }
+
+    @Test
+    void testApplyProductRatingForbiddenWhenRoleNotTitiper() {
+        ProductRatingUpdateRequest request = new ProductRatingUpdateRequest();
+        request.setOrderId(UUID.randomUUID());
+        request.setBuyerId(testUser.getId());
+        request.setProductRating(5);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogService.applyProductRating(catalogId, request, testUser);
+        });
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
     }
 }
