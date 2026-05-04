@@ -343,15 +343,16 @@ class CatalogServiceTest {
 
     @Test
     void testDecreaseStockSuccess() {
+        when(catalogRepository.decreaseStockIfAvailable(catalogId, 3)).thenReturn(1);
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
-        when(catalogRepository.save(any(Catalog.class))).thenReturn(testCatalog);
 
         Catalog result = catalogService.decreaseStock(catalogId, 3);
 
         assertNotNull(result);
-        assertEquals(7, result.getStock());
+        assertEquals(10, result.getStock());
+        verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 3);
         verify(catalogRepository, times(1)).findById(catalogId);
-        verify(catalogRepository, times(1)).save(testCatalog);
+        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test
@@ -361,33 +362,40 @@ class CatalogServiceTest {
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(catalogRepository, never()).decreaseStockIfAvailable(any(UUID.class), anyInt());
         verify(catalogRepository, never()).findById(any(UUID.class));
         verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test
     void testDecreaseStockNotFound() {
-        when(catalogRepository.findById(catalogId)).thenReturn(Optional.empty());
+        when(catalogRepository.decreaseStockIfAvailable(catalogId, 2)).thenReturn(0);
+        when(catalogRepository.existsById(catalogId)).thenReturn(false);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             catalogService.decreaseStock(catalogId, 2);
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 2);
+        verify(catalogRepository, times(1)).existsById(catalogId);
+        verify(catalogRepository, never()).findById(catalogId);
         verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test
     void testDecreaseStockConflictWhenInsufficientStock() {
-        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+        when(catalogRepository.decreaseStockIfAvailable(catalogId, 999)).thenReturn(0);
+        when(catalogRepository.existsById(catalogId)).thenReturn(true);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             catalogService.decreaseStock(catalogId, 999);
         });
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
-        verify(catalogRepository, times(1)).findById(catalogId);
+        verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 999);
+        verify(catalogRepository, times(1)).existsById(catalogId);
+        verify(catalogRepository, never()).findById(catalogId);
         verify(catalogRepository, never()).save(any(Catalog.class));
     }
 }

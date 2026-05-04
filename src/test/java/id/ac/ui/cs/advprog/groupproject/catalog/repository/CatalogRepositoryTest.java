@@ -92,4 +92,40 @@ class CatalogRepositoryTest {
         assertNotNull(catalogs);
         assertTrue(catalogs.isEmpty());
     }
+
+    @Test
+    void testDecreaseStockIfAvailable_Success() {
+        Catalog catalog = new Catalog();
+        catalog.setName("Product Atomic");
+        catalog.setPrice(120.0);
+        catalog.setStock(5);
+        catalog.setOriginLocation("Jakarta");
+        catalog.setTravelDate(LocalDate.now().plusDays(4));
+        catalog.setJastiper(testUser);
+        catalog = catalogRepository.save(catalog);
+
+        int updatedRows = catalogRepository.decreaseStockIfAvailable(catalog.getId(), 3);
+        Catalog updatedCatalog = catalogRepository.findById(catalog.getId()).orElseThrow();
+
+        assertEquals(1, updatedRows);
+        assertEquals(2, updatedCatalog.getStock());
+    }
+
+    @Test
+    void testDecreaseStockIfAvailable_FailsWhenInsufficientStock() {
+        Catalog catalog = new Catalog();
+        catalog.setName("Product Low Stock");
+        catalog.setPrice(150.0);
+        catalog.setStock(1);
+        catalog.setOriginLocation("Bandung");
+        catalog.setTravelDate(LocalDate.now().plusDays(6));
+        catalog.setJastiper(testUser);
+        catalog = catalogRepository.save(catalog);
+
+        int updatedRows = catalogRepository.decreaseStockIfAvailable(catalog.getId(), 2);
+        Catalog updatedCatalog = catalogRepository.findById(catalog.getId()).orElseThrow();
+
+        assertEquals(0, updatedRows);
+        assertEquals(1, updatedCatalog.getStock());
+    }
 }

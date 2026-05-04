@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,4 +31,22 @@ WHERE (:name IS NULL OR :name = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name
   AND (:jastiper IS NULL OR :jastiper = '' OR LOWER(j.username) LIKE LOWER(CONCAT('%', :jastiper, '%')))
 """)
   List<Catalog> searchCatalogs(@Param("name") String name, @Param("jastiper") String jastiper);
+
+  @Modifying
+  @Query(
+      """
+      UPDATE Catalog c
+      SET c.stock = c.stock - :quantity
+      WHERE c.id = :catalogId AND c.stock >= :quantity
+      """)
+  int decreaseStockIfAvailable(@Param("catalogId") UUID catalogId, @Param("quantity") int quantity);
+
+  @Modifying
+  @Query(
+      """
+      UPDATE Catalog c
+      SET c.stock = c.stock + :quantity
+      WHERE c.id = :catalogId
+      """)
+  int increaseStock(@Param("catalogId") UUID catalogId, @Param("quantity") int quantity);
 }

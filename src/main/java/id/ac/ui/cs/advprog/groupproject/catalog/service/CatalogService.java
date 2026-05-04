@@ -8,6 +8,7 @@ import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 import java.util.UUID;
 import java.util.List;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -98,23 +99,24 @@ public class CatalogService {
     catalogRepository.deleteById(catalogId);
   }
 
+  @Transactional
   public Catalog decreaseStock(UUID catalogId, int quantity) {
     if (quantity <= 0) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
     }
 
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-
-    if (catalog.getStock() < quantity) {
+    int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);
+    if (updatedRows == 0) {
+      if (!catalogRepository.existsById(catalogId)) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+      }
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
     }
 
-    catalog.setStock(catalog.getStock() - quantity);
-    return catalogRepository.save(catalog);
+    return catalogRepository
+        .findById(catalogId)
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
   }
 
   private String normalizeSearchTerm(String value) {
