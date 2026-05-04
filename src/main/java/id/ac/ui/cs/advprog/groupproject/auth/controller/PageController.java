@@ -77,4 +77,9 @@ public class PageController {
         }
         return "auth/admin/approve-kyc";
     }
+
+    @GetMapping("/admin/logs")
+    public String adminLogs() {
+        return "auth/admin/auditLog";
+    }
 }
