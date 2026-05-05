@@ -8,7 +8,32 @@
 </head>
 <body>
     <div th:replace="fragments/navbar :: navbar"></div>
-    <h1>Chop, chop, chop, chop away at my heart</h1>
+    <div class="container mt-4 justify-content-center">
+    <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">Audit logs</h1>
+    <div class="log-list" style="background: #cceeff">
+        <div class="log-card" th:each="log : ${logs}">
+            <div class="log-left">
+                <p class="action" th:text="${log.action}"></p>
+                <p class="timestamp"
+                   th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm')}"></p>
+            </div>
+
+            <div class="log-right">
+                <p>
+                    <b th:text="${log.actor}"></b>
+
+                    <span th:if="${log.actorRole} == 'ROLE_TITIPER'"><b>(Titiper)</b></span>
+                    <span th:if="${log.actorRole} == 'ROLE_JASTIPER'"><b>(Jastiper)</b></span>
+                    <span th:if="${log.actorRole} == 'ROLE_ADMIN'"><b>(Admin)</b></span>
+                    →
+                    <span th:text="${log.target} ?: '-'"></span>
+                </p>
+                <p class="details" th:text="${log.description}"></p>
+            </div>
+
+        </div>
+    </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

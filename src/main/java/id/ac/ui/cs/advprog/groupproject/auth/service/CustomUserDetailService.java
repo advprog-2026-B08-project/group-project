@@ -21,12 +21,16 @@ public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final ActionLogService logService;
 
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                                   ApplicationEventPublisher eventPublisher) {
+    public CustomUserDetailService(UserRepository userRepository,
+                                   PasswordEncoder passwordEncoder,
+                                   ApplicationEventPublisher eventPublisher,
+                                   ActionLogService logService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
+        this.logService = logService;
     }
 
     @Override
@@ -60,6 +64,11 @@ public class CustomUserDetailService implements UserDetailsService {
 
         userRepository.save(user);
         eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));
+
+        String description = user.getUsername()
+                + " created a new account!";
+        logService.log("Registered a new user", user.getUsername(),
+                user.getRole(), null, description);
         return user;
     }
 
@@ -83,22 +92,15 @@ public class CustomUserDetailService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public void makeStatusPending(User user) {
-        User repoUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new RuntimeException("User not found!"));
-        if (!repoUser.getRole().equals("ROLE_TITIPER")) {
-            throw new RuntimeException("Invalid user role!");
-        }
-        if (!repoUser.getStatus().equals("ACTIVE")) {
-            throw new RuntimeException("Invalid user status!");
-        }
-
-        repoUser.setStatus(Status.PENDING.toString());
-        userRepository.save(repoUser);
-    }
-
-    public void demote(UUID id) {
+    public void demote(User admin, UUID id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        if(!admin.getRole().equals("ROLE_ADMIN")) {
+            String description = admin.getUsername()
+                    + "tried to perform an unauthorized action of demoting another user";
+            logService.log("Unauthorized action", admin.getUsername(),
+                    admin.getRole(), null, description);
+            return;
+        }
         if (!user.getRole().equals("ROLE_JASTIPER")) {
             throw new RuntimeException("Invalid role for demotion!");
         }
@@ -106,16 +108,38 @@ public class CustomUserDetailService implements UserDetailsService {
         user.setRole(Role.ROLE_TITIPER.toString());
         userRepository.save(user);
 
+        String description = admin.getUsername()
+                + " banned "
+                + user.getUsername()
+                + "'s account";
+
+        logService.log("Demoted a user", admin.getUsername(),
+                admin.getRole(), user.getUsername(), description);
     }
 
-    public void ban(UUID id) {
+    public void ban(User admin, UUID id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        if (!admin.getRole().equals("ROLE_ADMIN")) {
+            String description = admin.getUsername()
+                    + "tried to perform an unauthorized action of banning another user";
+            logService.log("Unauthorized action", admin.getUsername(),
+                    admin.getRole(), null, description);
+            return;
+        }
         if (user.getRole().equals("ROLE_ADMIN")) {
             throw new RuntimeException("Invalid role for banning!");
         }
 
         user.setStatus(Status.BANNED.toString());
         userRepository.save(user);
+
+        String description = admin.getUsername()
+                + " banned "
+                + user.getUsername()
+                + "'s account";
+
+        logService.log("Banned a user", admin.getUsername(),
+                admin.getRole(), user.getUsername(), description);
     }
 }
 
