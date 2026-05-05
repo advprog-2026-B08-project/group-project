@@ -59,6 +59,11 @@ public class CatalogWebController {
     return "JASTIPER".equalsIgnoreCase(role) || "ROLE_JASTIPER".equalsIgnoreCase(role);
   }
 
+  private boolean isAdmin(User user) {
+    String role = user.getRole();
+    return "ADMIN".equalsIgnoreCase(role) || "ROLE_ADMIN".equalsIgnoreCase(role);
+  }
+
   @GetMapping
   public String catalog(Model model, Principal principal) {
     model.addAttribute(
@@ -156,5 +161,63 @@ public class CatalogWebController {
 
     catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);
     return "redirect:/catalog/my";
+  }
+
+  @GetMapping("/admin/monitoring")
+  public String adminCatalogMonitoring(Model model, Principal principal) {
+    User currentUser = getCurrentUser(principal);
+    if (!isAdmin(currentUser)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin can access monitoring");
+    }
+
+    model.addAttribute(
+        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
+    return "catalog/html/adminCatalogMonitoring";
+  }
+
+  @GetMapping("/admin/edit/{id}")
+  public String adminEditCatalog(@PathVariable UUID id, Model model, Principal principal) {
+    User currentUser = getCurrentUser(principal);
+    if (!isAdmin(currentUser)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin can edit catalog");
+    }
+
+    Catalog catalog = catalogService.getCatalogByIdForAdmin(id);
+    model.addAttribute("catalog", catalogMapper.toDto(catalog));
+    return "catalog/html/editCatalog";
+  }
+
+  @PostMapping("/admin/edit")
+  public String adminUpdateCatalog(
+      @Valid @ModelAttribute("catalog") CatalogDto catalogDto,
+      org.springframework.validation.BindingResult result,
+      @RequestParam(name = "file", required = false) MultipartFile file,
+      Principal principal) {
+    if (result.hasErrors()) {
+      return "catalog/html/editCatalog";
+    }
+
+    User currentUser = getCurrentUser(principal);
+    if (!isAdmin(currentUser)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin can edit catalog");
+    }
+
+    if (file != null && !file.isEmpty()) {
+      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
+    }
+
+    catalogService.updateCatalogByAdmin(catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto));
+    return "redirect:/catalog/admin/monitoring";
+  }
+
+  @PostMapping("/admin/delete/{id}")
+  public String adminDeleteCatalog(@PathVariable UUID id, Principal principal) {
+    User currentUser = getCurrentUser(principal);
+    if (!isAdmin(currentUser)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admin can delete catalog");
+    }
+
+    catalogService.deleteCatalogByAdmin(id);
+    return "redirect:/catalog/admin/monitoring";
   }
 }
