@@ -59,48 +59,53 @@ public class CatalogWebController {
 <span class="pc bpc" id="L59" title="2 of 4 branches missed.">    return &quot;JASTIPER&quot;.equalsIgnoreCase(role) || &quot;ROLE_JASTIPER&quot;.equalsIgnoreCase(role);</span>
   }
 
+  private boolean isAdmin(User user) {
+<span class="fc" id="L63">    String role = user.getRole();</span>
+<span class="pc bpc" id="L64" title="2 of 4 branches missed.">    return &quot;ADMIN&quot;.equalsIgnoreCase(role) || &quot;ROLE_ADMIN&quot;.equalsIgnoreCase(role);</span>
+  }
+
   @GetMapping
   public String catalog(Model model, Principal principal) {
-<span class="fc" id="L64">    model.addAttribute(</span>
-<span class="fc" id="L65">        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">    if (principal != null) {</span>
-<span class="fc" id="L67">      userRepository</span>
-<span class="fc" id="L68">          .findByUsername(principal.getName())</span>
-<span class="pc" id="L69">          .ifPresent(user -&gt; model.addAttribute(&quot;currentUserId&quot;, user.getId().toString()));</span>
+<span class="fc" id="L69">    model.addAttribute(</span>
+<span class="fc" id="L70">        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">    if (principal != null) {</span>
+<span class="fc" id="L72">      userRepository</span>
+<span class="fc" id="L73">          .findByUsername(principal.getName())</span>
+<span class="pc" id="L74">          .ifPresent(user -&gt; model.addAttribute(&quot;currentUserId&quot;, user.getId().toString()));</span>
     }
-<span class="fc" id="L71">    return &quot;catalog/html/catalog&quot;;</span>
+<span class="fc" id="L76">    return &quot;catalog/html/catalog&quot;;</span>
   }
 
   @GetMapping(&quot;/{userId}&quot;)
   public String userCatalog(@PathVariable UUID userId, Model model) {
-<span class="fc" id="L76">    User user =</span>
+<span class="fc" id="L81">    User user =</span>
         userRepository
-<span class="fc" id="L78">            .findById(userId)</span>
-<span class="fc" id="L79">            .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;User not found&quot;));</span>
+<span class="fc" id="L83">            .findById(userId)</span>
+<span class="fc" id="L84">            .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;User not found&quot;));</span>
 
-<span class="fc" id="L81">    model.addAttribute(</span>
-<span class="fc" id="L82">        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId)));</span>
-<span class="fc" id="L83">    model.addAttribute(&quot;username&quot;, user.getUsername());</span>
-<span class="fc" id="L84">    return &quot;catalog/html/userCatalog&quot;;</span>
+<span class="fc" id="L86">    model.addAttribute(</span>
+<span class="fc" id="L87">        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId)));</span>
+<span class="fc" id="L88">    model.addAttribute(&quot;username&quot;, user.getUsername());</span>
+<span class="fc" id="L89">    return &quot;catalog/html/userCatalog&quot;;</span>
   }
 
   @GetMapping(&quot;/my&quot;)
   public String myCatalog(Model model, Principal principal) {
-<span class="fc" id="L89">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L94">    User currentUser = getCurrentUser(principal);</span>
 
-<span class="fc" id="L91">    model.addAttribute(</span>
-<span class="fc" id="L92">        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.findAllCatalogs(currentUser)));</span>
-<span class="fc" id="L93">    model.addAttribute(&quot;username&quot;, currentUser.getUsername());</span>
-<span class="fc" id="L94">    return &quot;catalog/html/myCatalog&quot;;</span>
+<span class="fc" id="L96">    model.addAttribute(</span>
+<span class="fc" id="L97">        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.findAllCatalogs(currentUser)));</span>
+<span class="fc" id="L98">    model.addAttribute(&quot;username&quot;, currentUser.getUsername());</span>
+<span class="fc" id="L99">    return &quot;catalog/html/myCatalog&quot;;</span>
   }
 
   @GetMapping(&quot;/edit/{id}&quot;)
   public String editCatalog(@PathVariable UUID id, Model model, Principal principal) {
-<span class="fc" id="L99">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L104">    User currentUser = getCurrentUser(principal);</span>
 
-<span class="fc" id="L101">    Catalog catalog = catalogService.getCatalogById(id, currentUser);</span>
-<span class="fc" id="L102">    model.addAttribute(&quot;catalog&quot;, catalogMapper.toDto(catalog));</span>
-<span class="fc" id="L103">    return &quot;catalog/html/editCatalog&quot;;</span>
+<span class="fc" id="L106">    Catalog catalog = catalogService.getCatalogById(id, currentUser);</span>
+<span class="fc" id="L107">    model.addAttribute(&quot;catalog&quot;, catalogMapper.toDto(catalog));</span>
+<span class="fc" id="L108">    return &quot;catalog/html/editCatalog&quot;;</span>
   }
 
   @PostMapping(&quot;/edit&quot;)
@@ -109,30 +114,30 @@ public class CatalogWebController {
       org.springframework.validation.BindingResult result,
       @RequestParam(name = &quot;file&quot;, required = false) MultipartFile file,
       Principal principal) {
-<span class="pc bpc" id="L112" title="1 of 2 branches missed.">    if (result.hasErrors()) {</span>
-<span class="nc" id="L113">      return &quot;catalog/html/editCatalog&quot;;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">    if (result.hasErrors()) {</span>
+<span class="nc" id="L118">      return &quot;catalog/html/editCatalog&quot;;</span>
     }
-<span class="fc" id="L115">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L120">    User currentUser = getCurrentUser(principal);</span>
 
-<span class="pc bpc" id="L117" title="3 of 4 branches missed.">    if (file != null &amp;&amp; !file.isEmpty()) {</span>
-<span class="nc" id="L118">      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));</span>
+<span class="pc bpc" id="L122" title="3 of 4 branches missed.">    if (file != null &amp;&amp; !file.isEmpty()) {</span>
+<span class="nc" id="L123">      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));</span>
     }
 
-<span class="fc" id="L121">    catalogService.updateCatalog(</span>
-<span class="fc" id="L122">        catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto), currentUser);</span>
-<span class="fc" id="L123">    return &quot;redirect:/catalog/my&quot;;</span>
+<span class="fc" id="L126">    catalogService.updateCatalog(</span>
+<span class="fc" id="L127">        catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto), currentUser);</span>
+<span class="fc" id="L128">    return &quot;redirect:/catalog/my&quot;;</span>
   }
 
   @GetMapping(&quot;/add&quot;)
   public String addCatalogPage(Model model, Principal principal) {
-<span class="fc" id="L128">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L133">    User currentUser = getCurrentUser(principal);</span>
 
-<span class="pc bpc" id="L130" title="1 of 2 branches missed.">    if (!isJastiper(currentUser)) {</span>
-<span class="nc" id="L131">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only Jastiper can create catalog&quot;);</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">    if (!isJastiper(currentUser)) {</span>
+<span class="nc" id="L136">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only Jastiper can create catalog&quot;);</span>
     }
 
-<span class="fc" id="L134">    model.addAttribute(&quot;catalog&quot;, new CatalogDto());</span>
-<span class="fc" id="L135">    return &quot;catalog/html/addCatalog&quot;;</span>
+<span class="fc" id="L139">    model.addAttribute(&quot;catalog&quot;, new CatalogDto());</span>
+<span class="fc" id="L140">    return &quot;catalog/html/addCatalog&quot;;</span>
   }
 
   @PostMapping(&quot;/add&quot;)
@@ -141,21 +146,79 @@ public class CatalogWebController {
       org.springframework.validation.BindingResult result,
       @RequestParam(name = &quot;file&quot;, required = false) MultipartFile file,
       Principal principal) {
-<span class="pc bpc" id="L144" title="1 of 2 branches missed.">    if (result.hasErrors()) {</span>
-<span class="nc" id="L145">      return &quot;catalog/html/addCatalog&quot;;</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">    if (result.hasErrors()) {</span>
+<span class="nc" id="L150">      return &quot;catalog/html/addCatalog&quot;;</span>
     }
-<span class="fc" id="L147">    User currentUser = getCurrentUser(principal);</span>
+<span class="fc" id="L152">    User currentUser = getCurrentUser(principal);</span>
 
-<span class="pc bpc" id="L149" title="1 of 2 branches missed.">    if (!isJastiper(currentUser)) {</span>
-<span class="nc" id="L150">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only Jastiper can create catalog&quot;);</span>
-    }
-
-<span class="pc bpc" id="L153" title="3 of 4 branches missed.">    if (file != null &amp;&amp; !file.isEmpty()) {</span>
-<span class="nc" id="L154">      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">    if (!isJastiper(currentUser)) {</span>
+<span class="nc" id="L155">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only Jastiper can create catalog&quot;);</span>
     }
 
-<span class="fc" id="L157">    catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);</span>
-<span class="fc" id="L158">    return &quot;redirect:/catalog/my&quot;;</span>
+<span class="pc bpc" id="L158" title="3 of 4 branches missed.">    if (file != null &amp;&amp; !file.isEmpty()) {</span>
+<span class="nc" id="L159">      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));</span>
+    }
+
+<span class="fc" id="L162">    catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);</span>
+<span class="fc" id="L163">    return &quot;redirect:/catalog/my&quot;;</span>
+  }
+
+  @GetMapping(&quot;/admin/monitoring&quot;)
+  public String adminCatalogMonitoring(Model model, Principal principal) {
+<span class="fc" id="L168">    User currentUser = getCurrentUser(principal);</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">    if (!isAdmin(currentUser)) {</span>
+<span class="nc" id="L170">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only admin can access monitoring&quot;);</span>
+    }
+
+<span class="fc" id="L173">    model.addAttribute(</span>
+<span class="fc" id="L174">        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));</span>
+<span class="fc" id="L175">    return &quot;catalog/html/adminCatalogMonitoring&quot;;</span>
+  }
+
+  @GetMapping(&quot;/admin/edit/{id}&quot;)
+  public String adminEditCatalog(@PathVariable UUID id, Model model, Principal principal) {
+<span class="fc" id="L180">    User currentUser = getCurrentUser(principal);</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">    if (!isAdmin(currentUser)) {</span>
+<span class="nc" id="L182">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only admin can edit catalog&quot;);</span>
+    }
+
+<span class="fc" id="L185">    Catalog catalog = catalogService.getCatalogByIdForAdmin(id);</span>
+<span class="fc" id="L186">    model.addAttribute(&quot;catalog&quot;, catalogMapper.toDto(catalog));</span>
+<span class="fc" id="L187">    return &quot;catalog/html/editCatalog&quot;;</span>
+  }
+
+  @PostMapping(&quot;/admin/edit&quot;)
+  public String adminUpdateCatalog(
+      @Valid @ModelAttribute(&quot;catalog&quot;) CatalogDto catalogDto,
+      org.springframework.validation.BindingResult result,
+      @RequestParam(name = &quot;file&quot;, required = false) MultipartFile file,
+      Principal principal) {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">    if (result.hasErrors()) {</span>
+<span class="nc" id="L197">      return &quot;catalog/html/editCatalog&quot;;</span>
+    }
+
+<span class="nc" id="L200">    User currentUser = getCurrentUser(principal);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">    if (!isAdmin(currentUser)) {</span>
+<span class="nc" id="L202">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only admin can edit catalog&quot;);</span>
+    }
+
+<span class="nc bnc" id="L205" title="All 4 branches missed.">    if (file != null &amp;&amp; !file.isEmpty()) {</span>
+<span class="nc" id="L206">      catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));</span>
+    }
+
+<span class="nc" id="L209">    catalogService.updateCatalogByAdmin(catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto));</span>
+<span class="nc" id="L210">    return &quot;redirect:/catalog/admin/monitoring&quot;;</span>
+  }
+
+  @PostMapping(&quot;/admin/delete/{id}&quot;)
+  public String adminDeleteCatalog(@PathVariable UUID id, Principal principal) {
+<span class="fc" id="L215">    User currentUser = getCurrentUser(principal);</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">    if (!isAdmin(currentUser)) {</span>
+<span class="nc" id="L217">      throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;Only admin can delete catalog&quot;);</span>
+    }
+
+<span class="fc" id="L220">    catalogService.deleteCatalogByAdmin(id);</span>
+<span class="fc" id="L221">    return &quot;redirect:/catalog/admin/monitoring&quot;;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

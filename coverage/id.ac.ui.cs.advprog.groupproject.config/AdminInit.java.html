@@ -51,7 +51,7 @@ public class AdminInit implements CommandLineRunner {
 <span class="nc" id="L51">            admin.setUsername(&quot;admin&quot;);</span>
 <span class="nc" id="L52">            admin.setPassword(encoder.encode(adminPassword));</span>
 <span class="nc" id="L53">            admin.setRole(Role.ROLE_ADMIN.toString());</span>
-<span class="nc" id="L54">            admin.setStatus(Status.AKTIF.toString());</span>
+<span class="nc" id="L54">            admin.setStatus(Status.ACTIVE.toString());</span>
 <span class="nc" id="L55">            userRepository.save(admin);</span>
         }
 
@@ -61,7 +61,7 @@ public class AdminInit implements CommandLineRunner {
 <span class="nc" id="L61">            admin.setUsername(&quot;jastiper&quot;);</span>
 <span class="nc" id="L62">            admin.setPassword(encoder.encode(jastiperPassword));</span>
 <span class="nc" id="L63">            admin.setRole(Role.ROLE_JASTIPER.toString());</span>
-<span class="nc" id="L64">            admin.setStatus(Status.AKTIF.toString());</span>
+<span class="nc" id="L64">            admin.setStatus(Status.ACTIVE.toString());</span>
 <span class="nc" id="L65">            userRepository.save(admin);</span>
         }
 
@@ -71,7 +71,7 @@ public class AdminInit implements CommandLineRunner {
 <span class="nc" id="L71">            admin.setUsername(&quot;titiper&quot;);</span>
 <span class="nc" id="L72">            admin.setPassword(encoder.encode(titiperPassword));</span>
 <span class="nc" id="L73">            admin.setRole(Role.ROLE_TITIPER.toString());</span>
-<span class="nc" id="L74">            admin.setStatus(Status.AKTIF.toString());</span>
+<span class="nc" id="L74">            admin.setStatus(Status.ACTIVE.toString());</span>
 <span class="nc" id="L75">            userRepository.save(admin);</span>
         }
 <span class="nc" id="L77">    }</span>

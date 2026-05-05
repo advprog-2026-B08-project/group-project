@@ -1,58 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PageController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.auth.controller</a> &gt; <span class="el_source">PageController.java</span></div><h1>PageController.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.UUID;
 
 @Controller
-<span class="fc" id="L12">public class PageController {</span>
+public class PageController {
+    public final KycRequestService requestService;
+
+<span class="fc" id="L17">    public PageController(KycRequestService requestService) {</span>
+<span class="fc" id="L18">        this.requestService = requestService;</span>
+<span class="fc" id="L19">    }</span>
 
     @GetMapping(&quot;/login&quot;)
     public String login() {
-<span class="nc" id="L16">        return &quot;auth/login&quot;;</span>
+<span class="nc" id="L23">        return &quot;auth/login&quot;;</span>
     }
 
     @GetMapping(&quot;/homepage&quot;)
     public String homepage(HttpSession session, Model model) {
-<span class="nc bnc" id="L21" title="All 2 branches missed.">        if (session.getAttribute(&quot;unauthorized&quot;) != null) {</span>
-<span class="nc" id="L22">            model.addAttribute(&quot;unauthorized&quot;, true);</span>
-<span class="nc" id="L23">            session.removeAttribute(&quot;unauthorized&quot;);</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        if (session.getAttribute(&quot;unauthorized&quot;) != null) {</span>
+<span class="nc" id="L29">            model.addAttribute(&quot;unauthorized&quot;, true);</span>
+<span class="nc" id="L30">            session.removeAttribute(&quot;unauthorized&quot;);</span>
         }
-<span class="nc" id="L25">        return &quot;homepage&quot;;</span>
+<span class="nc" id="L32">        return &quot;homepage&quot;;</span>
     }
 
     @GetMapping(&quot;/register&quot;)
     public String register() {
-<span class="nc" id="L30">        return &quot;auth/register&quot;;</span>
+<span class="nc" id="L37">        return &quot;auth/register&quot;;</span>
     }
 
     @GetMapping(&quot;/profile&quot;)
     public String profile() {
-<span class="nc" id="L35">        return &quot;auth/profile&quot;;</span>
+<span class="nc" id="L42">        return &quot;auth/profile&quot;;</span>
     }
 
     @GetMapping(&quot;/admin&quot;)
     public String admin() {
-<span class="nc" id="L40">        return &quot;auth/admin&quot;;</span>
+<span class="nc" id="L47">        return &quot;auth/admin/admin&quot;;</span>
     }
 
     @GetMapping(&quot;/order&quot;)
     public String order() {
-<span class="nc" id="L45">        return &quot;order/list&quot;;</span>
+<span class="nc" id="L52">        return &quot;order/list&quot;;</span>
     }
 
     @GetMapping(&quot;/kycRequestJastiper&quot;)
     public String kycRequestJastiper() {
-<span class="nc" id="L50">        return &quot;auth/kyc/kyc-jastiper&quot;;</span>
+<span class="nc" id="L57">        return &quot;auth/kyc/kyc-jastiper&quot;;</span>
     }
 
     @GetMapping(&quot;/kycRequestAdmin&quot;)
     public String kycRequestAdmin() {
-<span class="nc" id="L55">        return &quot;auth/kyc/kyc-admin&quot;;</span>
+<span class="nc" id="L62">        return &quot;auth/kyc/kyc-admin&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/userList&quot;)
+    public String userList() {
+<span class="nc" id="L67">        return &quot;auth/admin/userList&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/kycRequestList&quot;)
+    public String kycRequestList(Model model,
+                                 @RequestParam(required = false) UUID selectedId) {
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (selectedId != null) {</span>
+<span class="nc" id="L75">            KycRequest selected = requestService.getById(selectedId);</span>
+<span class="nc" id="L76">            model.addAttribute(&quot;selectedRequest&quot;, selected);</span>
+        }
+<span class="nc" id="L78">        return &quot;auth/admin/approve-kyc&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/logs&quot;)
+    public String adminLogs() {
+<span class="nc" id="L83">        return &quot;auth/admin/auditLog&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

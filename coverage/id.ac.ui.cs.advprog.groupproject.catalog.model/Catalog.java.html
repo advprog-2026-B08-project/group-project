@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Entity 
 @Getter @Setter
 @Table(name = &quot;Catalog&quot;)
-<span class="fc" id="L23">public class Catalog {</span>
+<span class="fc" id="L24">public class Catalog {</span>
     @Id
     @GeneratedValue
     @UuidGenerator
@@ -42,6 +43,21 @@ import java.util.UUID;
   @Min(value = 0, message = &quot;Stock cannot be negative&quot;)
   private Integer stock;
 
+<span class="fc" id="L46">  @NotNull(message = &quot;Rating count is required&quot;)</span>
+  @Min(value = 0, message = &quot;Rating count cannot be negative&quot;)
+  @Column(name = &quot;rating_count&quot;)
+<span class="fc" id="L49">  private Integer ratingCount = 0;</span>
+
+<span class="fc" id="L51">  @NotNull(message = &quot;Rating sum is required&quot;)</span>
+  @Min(value = 0, message = &quot;Rating sum cannot be negative&quot;)
+  @Column(name = &quot;rating_sum&quot;)
+<span class="fc" id="L54">  private Integer ratingSum = 0;</span>
+
+<span class="fc" id="L56">  @NotNull(message = &quot;Rating average is required&quot;)</span>
+  @Min(value = 0, message = &quot;Rating average cannot be negative&quot;)
+  @Column(name = &quot;rating_average&quot;)
+<span class="fc" id="L59">  private Double ratingAverage = 0.0;</span>
+
   @NotNull(message = &quot;originLocation is required&quot;)
   @Column(name = &quot;origin_location&quot;)
   private String originLocation;
@@ -53,5 +69,8 @@ import java.util.UUID;
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = &quot;user_id&quot;, nullable = false)
   private User jastiper;
+
+  @Version
+  private Long version;
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

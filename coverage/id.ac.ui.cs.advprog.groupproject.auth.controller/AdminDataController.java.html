@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminDataController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.auth.controller</a> &gt; <span class="el_source">AdminDataController.java</span></div><h1>AdminDataController.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.auth.controller;
+
+import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
+import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
+import java.util.List;
+import java.util.Map;
+
+@ControllerAdvice
+public class AdminDataController {
+    private final CustomUserDetailService userDetailsService;
+    private final KycRequestService requestService;
+
+<span class="fc" id="L18">    public AdminDataController (CustomUserDetailService userDetailsService, KycRequestService requestService) {</span>
+<span class="fc" id="L19">        this.userDetailsService = userDetailsService;</span>
+<span class="fc" id="L20">        this.requestService = requestService;</span>
+<span class="fc" id="L21">    }</span>
+
+    @ModelAttribute(&quot;roleCount&quot;)
+    public Map&lt;String, Long&gt; roleCount() {
+<span class="fc" id="L25">        return userDetailsService.getUserCountByRole();</span>
+    }
+
+    @ModelAttribute(&quot;requestCount&quot;)
+    public Map&lt;String, Long&gt; requestCount() {
+<span class="fc" id="L30">        System.out.println(requestService.getRequestCountByStatus());</span>
+<span class="fc" id="L31">        return requestService.getRequestCountByStatus();</span>
+    }
+
+    @ModelAttribute(&quot;userList&quot;)
+    public List&lt;User&gt; getUserList() {
+<span class="fc" id="L36">        return userDetailsService.getUserList();</span>
+    }
+
+    @ModelAttribute(&quot;requestList&quot;)
+    public List&lt;KycRequest&gt; getRequestList() {
+<span class="fc" id="L41">        System.out.println();</span>
+<span class="fc" id="L42">        System.out.println(&quot;getRequestList called&quot;);</span>
+<span class="fc" id="L43">        System.out.println(&quot;List : &quot;);</span>
+<span class="fc" id="L44">        System.out.println(requestService.getRequestList());</span>
+<span class="fc" id="L45">        System.out.println();</span>
+<span class="fc" id="L46">        return requestService.getRequestList();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

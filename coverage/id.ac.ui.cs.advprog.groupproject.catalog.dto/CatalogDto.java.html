@@ -29,6 +29,8 @@ import lombok.Setter;
   @NotNull(message = &quot;Stock is required&quot;)
   @Min(value = 0, message = &quot;Stock cannot be negative&quot;)
   private Integer stock;
+  private Double ratingAverage;
+  private Integer ratingCount;
 
   @NotNull(message = &quot;originLocation is required&quot;)
   private String originLocation;

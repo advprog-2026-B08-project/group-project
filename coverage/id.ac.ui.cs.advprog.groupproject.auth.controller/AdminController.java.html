@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.auth.controller</a> &gt; <span class="el_source">AdminController.java</span></div><h1>AdminController.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.auth.controller;
+
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.UUID;
+import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
+
+@Controller
+public class AdminController {
+    private final CustomUserDetailService userDetailService;
+    private final KycRequestService requestService;
+
+<span class="fc" id="L17">    public AdminController(CustomUserDetailService userDetailService, KycRequestService requestService) {</span>
+<span class="fc" id="L18">        this.userDetailService = userDetailService;</span>
+<span class="fc" id="L19">        this.requestService = requestService;</span>
+<span class="fc" id="L20">    }</span>
+
+    @PostMapping(&quot;/admin/demote&quot;)
+    public String demote(@RequestParam UUID userId) {
+<span class="nc" id="L24">        userDetailService.demote(userId);</span>
+<span class="nc" id="L25">        return &quot;redirect:/admin/userList&quot;;</span>
+    }
+
+    @PostMapping(&quot;/admin/ban&quot;)
+    public String ban(@RequestParam UUID userId) {
+<span class="nc" id="L30">        userDetailService.ban(userId);</span>
+<span class="nc" id="L31">        return &quot;redirect:/admin/userList&quot;;</span>
+    }
+
+    @PostMapping(&quot;/admin/kyc/accept&quot;)
+    public String acceptRequest(@RequestParam UUID requestId) {
+<span class="nc" id="L36">        requestService.closeAcceptedRequest(requestId);</span>
+<span class="nc" id="L37">        return &quot;redirect:/admin/kycRequestList&quot;;</span>
+    }
+
+    @PostMapping(&quot;/admin/kyc/reject&quot;)
+    public String rejectRequest(@RequestParam UUID requestId) {
+<span class="nc" id="L42">        requestService.closeRejectedRequest(requestId);</span>
+<span class="nc" id="L43">        return &quot;redirect:/admin/kycRequestList&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

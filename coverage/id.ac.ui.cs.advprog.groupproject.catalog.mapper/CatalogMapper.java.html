@@ -22,35 +22,37 @@ import org.springframework.stereotype.Component;
 <span class="fc" id="L22">    dto.setImageUrl(catalog.getImageUrl());</span>
 <span class="fc" id="L23">    dto.setPrice(catalog.getPrice());</span>
 <span class="fc" id="L24">    dto.setStock(catalog.getStock());</span>
-<span class="fc" id="L25">    dto.setOriginLocation(catalog.getOriginLocation());</span>
-<span class="fc" id="L26">    dto.setTravelDate(catalog.getTravelDate());</span>
-<span class="fc" id="L27">    return dto;</span>
+<span class="fc" id="L25">    dto.setRatingAverage(catalog.getRatingAverage());</span>
+<span class="fc" id="L26">    dto.setRatingCount(catalog.getRatingCount());</span>
+<span class="fc" id="L27">    dto.setOriginLocation(catalog.getOriginLocation());</span>
+<span class="fc" id="L28">    dto.setTravelDate(catalog.getTravelDate());</span>
+<span class="fc" id="L29">    return dto;</span>
   }
 
   public List&lt;CatalogDto&gt; toDtoList(List&lt;Catalog&gt; catalogs) {
-<span class="fc" id="L31">    return catalogs.stream().map(this::toDto).toList();</span>
+<span class="fc" id="L33">    return catalogs.stream().map(this::toDto).toList();</span>
   }
 
   public CreateCatalogCommand toCreateCommand(CatalogDto dto) {
-<span class="fc" id="L35">    return new CreateCatalogCommand(</span>
-<span class="fc" id="L36">        dto.getName(),</span>
-<span class="fc" id="L37">        dto.getDescription(),</span>
-<span class="fc" id="L38">        dto.getImageUrl(),</span>
-<span class="fc" id="L39">        dto.getPrice(),</span>
-<span class="fc" id="L40">        dto.getStock(),</span>
-<span class="fc" id="L41">        dto.getOriginLocation(),</span>
-<span class="fc" id="L42">        dto.getTravelDate());</span>
+<span class="fc" id="L37">    return new CreateCatalogCommand(</span>
+<span class="fc" id="L38">        dto.getName(),</span>
+<span class="fc" id="L39">        dto.getDescription(),</span>
+<span class="fc" id="L40">        dto.getImageUrl(),</span>
+<span class="fc" id="L41">        dto.getPrice(),</span>
+<span class="fc" id="L42">        dto.getStock(),</span>
+<span class="fc" id="L43">        dto.getOriginLocation(),</span>
+<span class="fc" id="L44">        dto.getTravelDate());</span>
   }
 
   public UpdateCatalogCommand toUpdateCommand(CatalogDto dto) {
-<span class="fc" id="L46">    return new UpdateCatalogCommand(</span>
-<span class="fc" id="L47">        dto.getName(),</span>
-<span class="fc" id="L48">        dto.getDescription(),</span>
-<span class="fc" id="L49">        dto.getImageUrl(),</span>
-<span class="fc" id="L50">        dto.getPrice(),</span>
-<span class="fc" id="L51">        dto.getStock(),</span>
-<span class="fc" id="L52">        dto.getOriginLocation(),</span>
-<span class="fc" id="L53">        dto.getTravelDate());</span>
+<span class="fc" id="L48">    return new UpdateCatalogCommand(</span>
+<span class="fc" id="L49">        dto.getName(),</span>
+<span class="fc" id="L50">        dto.getDescription(),</span>
+<span class="fc" id="L51">        dto.getImageUrl(),</span>
+<span class="fc" id="L52">        dto.getPrice(),</span>
+<span class="fc" id="L53">        dto.getStock(),</span>
+<span class="fc" id="L54">        dto.getOriginLocation(),</span>
+<span class="fc" id="L55">        dto.getTravelDate());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
