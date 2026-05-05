@@ -32,7 +32,7 @@ WHERE (:name IS NULL OR :name = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name
 """)
   List<Catalog> searchCatalogs(@Param("name") String name, @Param("jastiper") String jastiper);
 
-  @Modifying
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query(
       """
       UPDATE Catalog c
@@ -41,7 +41,7 @@ WHERE (:name IS NULL OR :name = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name
       """)
   int decreaseStockIfAvailable(@Param("catalogId") UUID catalogId, @Param("quantity") int quantity);
 
-  @Modifying
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query(
       """
       UPDATE Catalog c
@@ -50,7 +50,7 @@ WHERE (:name IS NULL OR :name = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name
       """)
   int increaseStock(@Param("catalogId") UUID catalogId, @Param("quantity") int quantity);
 
-  @Modifying
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query(
       """
       UPDATE Catalog c
@@ -61,3 +61,4 @@ WHERE (:name IS NULL OR :name = '' OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name
       """)
   int applyProductRating(@Param("catalogId") UUID catalogId, @Param("productRating") int productRating);
 }
+

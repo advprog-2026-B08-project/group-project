@@ -60,8 +60,8 @@ class CatalogServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(meterRegistry.counter(anyString())).thenReturn(counter);
-        when(meterRegistry.counter(anyString(), any(String[].class))).thenReturn(counter);
+        lenient().when(meterRegistry.counter(anyString())).thenReturn(counter);
+        lenient().when(meterRegistry.counter(anyString(), any(String[].class))).thenReturn(counter);
 
         userId = UUID.randomUUID();
         testUser = new User();
