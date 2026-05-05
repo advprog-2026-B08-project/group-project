@@ -11,6 +11,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 @Service
 public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
@@ -49,7 +54,7 @@ public class CustomUserDetailService implements UserDetailsService {
         user.setUsername(usernameInput);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(Role.ROLE_TITIPER.toString());
-        user.setStatus(Status.AKTIF.toString());
+        user.setStatus(Status.ACTIVE.toString());
         user.setEmail(email);
         if (fullName != null) user.setFullName(fullName);
 
@@ -60,6 +65,57 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public String getDefaultUsername(String email) {
         return email.split("@")[0];
+    }
+
+    public Map<String, Long> getUserCountByRole() {
+        List<Object[]> results = userRepository.countUsersByRole();
+        Map<String, Long> map = new HashMap<>();
+
+        for (Object[] row : results) {
+            String role = (String) row[0];
+            Long count = (Long) row[1];
+            map.put(role, count);
+        }
+        return map;
+    }
+
+    public List<User> getUserList() {
+        return userRepository.findAll();
+    }
+
+    public void makeStatusPending(User user) {
+        User repoUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+        if (!repoUser.getRole().equals("ROLE_TITIPER")) {
+            throw new RuntimeException("Invalid user role!");
+        }
+        if (!repoUser.getStatus().equals("ACTIVE")) {
+            throw new RuntimeException("Invalid user status!");
+        }
+
+        repoUser.setStatus(Status.PENDING.toString());
+        userRepository.save(repoUser);
+    }
+
+    public void demote(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        if (!user.getRole().equals("ROLE_JASTIPER")) {
+            throw new RuntimeException("Invalid role for demotion!");
+        }
+
+        user.setRole(Role.ROLE_TITIPER.toString());
+        userRepository.save(user);
+
+    }
+
+    public void ban(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        if (user.getRole().equals("ROLE_ADMIN")) {
+            throw new RuntimeException("Invalid role for banning!");
+        }
+
+        user.setStatus(Status.BANNED.toString());
+        userRepository.save(user);
     }
 }
 

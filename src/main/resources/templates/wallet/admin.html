@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/wallet.css}">
+</head>
+<body class="wallet-body">
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="wallet-shell wallet-admin-shell">
+    <header class="admin-header">
+        <span class="eyebrow">Admin</span>
+        <h1>Monitoring Payment</h1>
+        <p class="hero-subtitle">
+            Verifikasi transaksi pending dan pantau arus dana secara real time.
+        </p>
+        <div class="admin-actions">
+            <button id="refresh-admin" class="ghost">Refresh</button>
+        </div>
+    </header>
+
+    <section class="admin-table">
+        <div class="table-row table-head">
+            <span>ID</span>
+            <span>User</span>
+            <span>Type</span>
+            <span>Amount</span>
+            <span>Status</span>
+            <span>Action</span>
+        </div>
+        <div id="admin-table-body" class="table-body">
+            <div class="history-empty">Belum ada transaksi.</div>
+        </div>
+    </section>
+</main>
+
+<script>
+(() => {
+    const tableBody = document.getElementById("admin-table-body");
+    const refreshButton = document.getElementById("refresh-admin");
+
+    const formatIdr = (value) => {
+        const numeric = Number(value);
+        if (Number.isNaN(numeric)) {
+            return "Rp 0";
+        }
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0
+        }).format(numeric);
+    };
+
+    const renderRows = (items) => {
+        tableBody.innerHTML = "";
+        if (!items || items.length === 0) {
+            tableBody.innerHTML = '<div class="history-empty">Belum ada transaksi.</div>';
+            return;
+        }
+
+        items.forEach((item) => {
+            const row = document.createElement("div");
+            row.className = "table-row";
+
+            const status = String(item.status || "-");
+            const statusClass = `status-${status.toLowerCase()}`;
+
+            const actionButtons = status === "PENDING"
+                ? `
+                    <button class="mini success" data-id="${item.id}" data-status="SUCCESS">Success</button>
+                    <button class="mini danger" data-id="${item.id}" data-status="FAILED">Failed</button>
+                  `
+                : `<span class="status-label ${statusClass}">${status}</span>`;
+
+            row.innerHTML = `
+                <span class="truncate">${item.id}</span>
+                <span class="truncate">${item.userId}</span>
+                <span>${item.type}</span>
+                <span>${formatIdr(item.amount)}</span>
+                <span class="status-label ${statusClass}">${status}</span>
+                <span class="action-cell">${actionButtons}</span>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    };
+
+    const loadTransactions = async () => {
+        try {
+            const response = await fetch("/api/admin/wallet/transactions");
+            if (!response.ok) {
+                throw new Error("Failed to load admin data");
+            }
+            const data = await response.json();
+            renderRows(data);
+        } catch (error) {
+            tableBody.innerHTML = '<div class="history-empty">Gagal memuat transaksi.</div>';
+        }
+    };
+
+    const updateStatus = async (transactionId, status) => {
+        try {
+            const response = await fetch(`/api/admin/wallet/transactions/${transactionId}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status })
+            });
+            if (!response.ok) {
+                throw new Error("Failed to update status");
+            }
+            await loadTransactions();
+        } catch (error) {
+            alert("Update status gagal.");
+        }
+    };
+
+    tableBody.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) {
+            return;
+        }
+        const transactionId = button.getAttribute("data-id");
+        const status = button.getAttribute("data-status");
+        updateStatus(transactionId, status);
+    });
+
+    refreshButton.addEventListener("click", loadTransactions);
+    loadTransactions();
+})();
+</script>
+</body>
+</html>
