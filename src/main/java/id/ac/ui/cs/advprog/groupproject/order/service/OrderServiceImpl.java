@@ -1,5 +1,13 @@
 package id.ac.ui.cs.advprog.groupproject.order.service;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import id.ac.ui.cs.advprog.groupproject.order.dto.CheckoutRequest;
 import id.ac.ui.cs.advprog.groupproject.order.dto.ProductSnapshot;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
@@ -9,13 +17,6 @@ import id.ac.ui.cs.advprog.groupproject.order.port.PaymentPort;
 import id.ac.ui.cs.advprog.groupproject.order.port.StockPort;
 import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -126,7 +127,8 @@ public class OrderServiceImpl implements OrderService {
         paymentPort.refund(
                 cancelled.getBuyerId(),
                 cancelled.getTotalPrice(),
-                "Refund for cancelled order: " + cancelled.getId()
+            "Refund for cancelled order: " + cancelled.getId(),
+            cancelled.getId()
         );
         return cancelled;
     }
