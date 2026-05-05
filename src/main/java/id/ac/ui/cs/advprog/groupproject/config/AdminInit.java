@@ -51,7 +51,7 @@ public class AdminInit implements CommandLineRunner {
             admin.setUsername("admin");
             admin.setPassword(encoder.encode(adminPassword));
             admin.setRole(Role.ROLE_ADMIN.toString());
-            admin.setStatus(Status.AKTIF.toString());
+            admin.setStatus(Status.ACTIVE.toString());
             userRepository.save(admin);
         }
 
@@ -61,7 +61,7 @@ public class AdminInit implements CommandLineRunner {
             admin.setUsername("jastiper");
             admin.setPassword(encoder.encode(jastiperPassword));
             admin.setRole(Role.ROLE_JASTIPER.toString());
-            admin.setStatus(Status.AKTIF.toString());
+            admin.setStatus(Status.ACTIVE.toString());
             userRepository.save(admin);
         }
 
@@ -71,7 +71,7 @@ public class AdminInit implements CommandLineRunner {
             admin.setUsername("titiper");
             admin.setPassword(encoder.encode(titiperPassword));
             admin.setRole(Role.ROLE_TITIPER.toString());
-            admin.setStatus(Status.AKTIF.toString());
+            admin.setStatus(Status.ACTIVE.toString());
             userRepository.save(admin);
         }
     }

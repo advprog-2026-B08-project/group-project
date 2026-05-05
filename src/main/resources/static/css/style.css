@@ -43,3 +43,141 @@
     left: 0;
     width: 100%;
 }
+
+.containerRowGray {
+    display: flex;
+    gap: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    font-family: "Arial Black";
+}
+
+.containerRowWhite {
+    display: flex;
+    gap: 20px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px 20px 0px 20px;
+    font-family: "Arial";
+    font-weight: bold;
+    justify-content: space-between;
+}
+
+
+.contents {
+    flex: 1;
+    padding: 20px 20px 0px 20px;
+    border-radius: 10px;
+    background: white;
+}
+
+.bigNum {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-family: 'Arial Black';
+}
+
+.card {
+    transition: transform 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.pin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px 12px 4px 12px;
+    border-radius: 10px;
+}
+
+.containerBadge {
+    display: flex;
+    gap: 20px;
+    border-radius: 10px;
+    padding:20px;
+    font-family: "Arial";
+    font-weight: bold;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kyc-box {
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    height: 360px;
+    width: 1000px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.kyc-left {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    justify-content: center;
+    align-items: center;
+    background: #ccf6ff;
+}
+
+.kyc-mid {
+    width: 50%;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.kyc-right {
+    width: 25%;
+    padding: 10px;
+    background: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.request-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 15px;
+    margin-bottom: 10px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+
+    background-color: #f9f9f9;
+    transition: transform 0.2s ease;
+}
+
+.request-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+}
+
+.flex {
+    display: flex;
+}
+
+.flexDown {
+    flex-direction: column;
+}
+
+.center {
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
