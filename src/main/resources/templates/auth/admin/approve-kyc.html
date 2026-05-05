@@ -22,6 +22,10 @@
             </div>
 
             <div class="kyc-mid">
+                <div class="flex flexDown justifyBetween alignCenter" style="text-align: center; justify-content: center; align-items: center; margin-top: 60px" th:if="${#lists.isEmpty(requestList)}">
+                    <img src="/images/empty.png" style="height: 160px; width: 120px">
+                    <div style="font-weight: bold; margin-top: 20px">No requests available</div>
+                </div>
                 <div th:each="req : ${requestList}" class="request-card">
                     <a th:href="@{/admin/kycRequestList(selectedId = ${req.getId()})}">
                         <span class="username" th:text="${req.user.username}">Username</span>

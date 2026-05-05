@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.auth.service;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
 import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
 import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
@@ -7,6 +8,8 @@ import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 import id.ac.ui.cs.advprog.groupproject.event.UserRegisteredEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -68,7 +71,7 @@ public class CustomUserDetailService implements UserDetailsService {
         String description = user.getUsername()
                 + " created a new account!";
         logService.log("Registered a new user", user.getUsername(),
-                user.getRole(), null, description);
+                user.getRole(), null, description, LogType.INFO);
         return user;
     }
 
@@ -98,7 +101,7 @@ public class CustomUserDetailService implements UserDetailsService {
             String description = admin.getUsername()
                     + "tried to perform an unauthorized action of demoting another user";
             logService.log("Unauthorized action", admin.getUsername(),
-                    admin.getRole(), null, description);
+                    admin.getRole(), null, description, LogType.DANGER);
             return;
         }
         if (!user.getRole().equals("ROLE_JASTIPER")) {
@@ -114,7 +117,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 + "'s account";
 
         logService.log("Demoted a user", admin.getUsername(),
-                admin.getRole(), user.getUsername(), description);
+                admin.getRole(), user.getUsername(), description, LogType.WARN);
     }
 
     public void ban(User admin, UUID id) {
@@ -123,7 +126,7 @@ public class CustomUserDetailService implements UserDetailsService {
             String description = admin.getUsername()
                     + "tried to perform an unauthorized action of banning another user";
             logService.log("Unauthorized action", admin.getUsername(),
-                    admin.getRole(), null, description);
+                    admin.getRole(), null, description, LogType.DANGER);
             return;
         }
         if (user.getRole().equals("ROLE_ADMIN")) {
@@ -139,7 +142,35 @@ public class CustomUserDetailService implements UserDetailsService {
                 + "'s account";
 
         logService.log("Banned a user", admin.getUsername(),
-                admin.getRole(), user.getUsername(), description);
+                admin.getRole(), user.getUsername(), description, LogType.WARN);
+    }
+
+    public void updateProfile(UUID id, String username, String socials, String fullName) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+
+
+        user.setUsername(username);
+        if (socials != null) {
+            if (!socials.isBlank()) {
+                user.setSocials(socials);
+            }
+        }
+        if (fullName != null) {
+            if (!fullName.isBlank()) {
+                user.setFullName(fullName);
+            }
+        }
+        userRepository.save(user);
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(
+                        user,
+                        null,
+                        user.getAuthorities()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }
 

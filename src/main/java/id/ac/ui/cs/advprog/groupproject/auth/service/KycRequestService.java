@@ -1,9 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.auth.service;
 
-import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
-import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
-import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.model.*;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.KycRequestRepository;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -46,7 +43,7 @@ public class KycRequestService {
         String description = user.getUsername()
                 + " submitted an application to be a jastiper";
         logService.log("Submitted an application", user.getUsername(),
-                user.getRole(), null, description);
+                user.getRole(), null, description, LogType.INFO);
 
         return request;
     }
@@ -98,7 +95,7 @@ public class KycRequestService {
             String description = admin.getUsername()
                     + "tried to perform an unauthorized action of accepting a kyc request";
             logService.log("Unauthorized action", admin.getUsername(),
-                    admin.getRole(), null, description);
+                    admin.getRole(), null, description, LogType.DANGER);
             return;
         }
         if (!request.getUser().getRole().equals("ROLE_TITIPER")) {
@@ -128,7 +125,7 @@ public class KycRequestService {
                 + "'s application to be a jastiper";
 
         logService.log("Accept kyc application", admin.getUsername(),
-                admin.getRole(), user.getRole(), description);
+                admin.getRole(), user.getRole(), description, LogType.INFO);
     }
 
     public void closeRejectedRequest(User admin, UUID requestId) {
@@ -141,7 +138,7 @@ public class KycRequestService {
             String description = admin.getUsername()
                     + "tried to perform an unauthorized action of rejecting a kyc request";
             logService.log("Unauthorized action", admin.getUsername(),
-                    admin.getRole(), null, description);
+                    admin.getRole(), null, description, LogType.DANGER);
             return;
         }
         if (!request.getUser().getRole().equals("ROLE_TITIPER")) {
@@ -169,7 +166,7 @@ public class KycRequestService {
                 + user.getUsername()
                 + "'s application to be a jastiper";
         logService.log("Rejected kyc application", admin.getUsername(),
-                admin.getRole(), user.getUsername(), description);
+                admin.getRole(), user.getUsername(), description, LogType.WARN);
     }
 
     public KycRequest getById(UUID id) {

@@ -11,7 +11,11 @@
     <div class="container mt-4 justify-content-center">
     <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">Audit logs</h1>
     <div class="log-list" style="background: #cceeff">
-        <div class="log-card" th:each="log : ${logs}">
+        <div class="flex flexDown justifyBetween alignCenter" style="text-align: center; justify-content: center; align-items: center; margin-top: 60px" th:if="${#lists.isEmpty(logs)}">
+            <img src="/images/empty.png" style="height: 160px; width: 120px">
+            <div style="font-weight: bold; margin-top: 20px">No logs at the moment</div>
+        </div>
+        <div class="log-card" th:each="log : ${logs}" th:classappend="${log.logType.toString() == 'INFO' ? 'log-info' : (log.logType.toString() == 'WARN' ? 'log-warn' : 'log-danger')}">
             <div class="log-left">
                 <p class="action" th:text="${log.action}"></p>
                 <p class="timestamp"

@@ -1,10 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.auth.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,5 +25,7 @@ public class ActionLog {
     private String description;
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
-
+    @Column(name = "log_type")
+    @Enumerated(EnumType.STRING)
+    private LogType logType;
 }

@@ -37,11 +37,6 @@ public class PageController {
         return "auth/register";
     }
 
-    @GetMapping("/profile")
-    public String profile() {
-        return "auth/profile";
-    }
-
     @GetMapping("/order")
     public String order() {
         return "order/list";

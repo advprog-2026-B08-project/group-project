@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.auth.service;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.ActionLog;
+import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.ActionLogRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,8 @@ public class ActionLogService {
         return logRepository.findAllByOrderByTimestampDesc();
     }
 
-    public void log(String action, String actor, String actorRole, String target, String description) {
+    public void log(String action, String actor, String actorRole,
+                    String target, String description, LogType type) {
         ActionLog log = new ActionLog();
         log.setAction(action);
         log.setActor(actor);
@@ -27,6 +29,7 @@ public class ActionLogService {
         log.setTarget(target);
         log.setDescription(description);
         log.setTimestamp(LocalDateTime.now());
+        log.setLogType(type);
 
         logRepository.save(log);
     }

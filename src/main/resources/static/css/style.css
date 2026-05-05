@@ -234,7 +234,7 @@
 
     padding: 15px;
     border-radius: 10px;
-    border: 1px solid #ccc;
+    border: 5px solid #ccc;
 
     background-color: #f9f9f9;
 }
@@ -259,4 +259,54 @@
 .details {
     font-size: 14px;
     color: #444;
+}
+
+.log-info {
+    border: 5px solid #55aa88;
+}
+
+.log-warn {
+    border: 5px solid #f4b545;
+}
+
+.log-danger {
+    border: 5px solid #dc3545;
+}
+
+.profile-container {
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    height: 360px;
+    width: 800px;
+    overflow: hidden;
+    margin: 0 auto;
+    background: white;
+}
+
+.profile-left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-pic {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%; /* PERFECT CIRCLE */
+    object-fit: cover;
+}
+
+.profile-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.center2 {
+    justify-content: space-between;
+    align-items: center;
 }
