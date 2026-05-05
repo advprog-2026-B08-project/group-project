@@ -22,6 +22,8 @@ public class CatalogMapper {
     dto.setImageUrl(catalog.getImageUrl());
     dto.setPrice(catalog.getPrice());
     dto.setStock(catalog.getStock());
+    dto.setRatingAverage(catalog.getRatingAverage());
+    dto.setRatingCount(catalog.getRatingCount());
     dto.setOriginLocation(catalog.getOriginLocation());
     dto.setTravelDate(catalog.getTravelDate());
     return dto;

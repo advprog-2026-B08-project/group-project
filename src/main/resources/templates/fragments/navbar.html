@@ -5,7 +5,10 @@
             <a th:href="@{/admin}">Admin</a>
             <a th:href="@{/admin/wallet}">Wallet Admin</a>
         </div>
-        <div th:if="${user.role == 'ROLE_JASTIPER' or user.role =='ROLE_ADMIN'}">
+        <div th:if="${user.role == 'ROLE_ADMIN'}">
+            <a th:href="@{/catalog/admin/monitoring}">Monitoring Katalog</a>
+        </div>
+        <div th:if="${user.role == 'ROLE_JASTIPER' or user.role == 'ROLE_TITIPER' or user.role =='ROLE_ADMIN'}">
             <a th:href="@{/catalog}">Catalog</a>
         </div>
         <a th:href="@{/order}">Order</a>

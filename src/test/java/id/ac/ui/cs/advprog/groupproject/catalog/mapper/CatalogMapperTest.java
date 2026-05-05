@@ -41,6 +41,8 @@ class CatalogMapperTest {
         catalog.setImageUrl("https://example.com/watch.jpg");
         catalog.setPrice(2_000_000.0);
         catalog.setStock(6);
+        catalog.setRatingAverage(4.6);
+        catalog.setRatingCount(11);
         catalog.setOriginLocation("Busan");
         catalog.setTravelDate(travelDate);
 
@@ -54,6 +56,8 @@ class CatalogMapperTest {
         assertEquals("https://example.com/watch.jpg", dto.getImageUrl());
         assertEquals(2_000_000.0, dto.getPrice());
         assertEquals(6, dto.getStock());
+        assertEquals(4.6, dto.getRatingAverage());
+        assertEquals(11, dto.getRatingCount());
         assertEquals("Busan", dto.getOriginLocation());
         assertEquals(travelDate, dto.getTravelDate());
     }

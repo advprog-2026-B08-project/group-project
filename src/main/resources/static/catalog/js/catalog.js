@@ -32,6 +32,19 @@ function formatPrice(value) {
     }).format(amount);
 }
 
+function buildRatingHtml(catalog) {
+    const average = Number(catalog.ratingAverage ?? 0);
+    const ratingCount = Number(catalog.ratingCount ?? 0);
+    let stars = '';
+
+    for (let i = 1; i <= 5; i += 1) {
+        const color = average >= (i - 0.5) ? '#f5b301' : '#d0d0d0';
+        stars += `<span style="color: ${color};">&#9733;</span>`;
+    }
+
+    return `${stars}<span class="text-muted"> (${ratingCount})</span>`;
+}
+
 function buildCatalogRow(catalog) {
     const imageHtml = catalog.imageUrl
         ? `<img src="${escapeHtml(catalog.imageUrl)}" alt="Product Image" style="width: 80px; height: 80px; object-fit: cover;">`
@@ -49,6 +62,7 @@ function buildCatalogRow(catalog) {
             <td>${escapeHtml(catalog.name || '')}</td>
             <td>${escapeHtml(catalog.description || '')}</td>
             <td>Rp ${formatPrice(catalog.price)}</td>
+            <td>${buildRatingHtml(catalog)}</td>
             <td id="${stockId}">${escapeHtml(catalog.stock)}</td>
             <td>${escapeHtml(catalog.originLocation || '')}</td>
             <td>${travelDate}</td>
@@ -76,7 +90,7 @@ function renderCatalogTable(catalogs) {
     if (!catalogs || catalogs.length === 0) {
         tableBody.innerHTML = `
             <tr id="catalog-empty-row">
-                <td colspan="9" class="text-center text-muted">
+                <td colspan="10" class="text-center text-muted">
                     <em>No products found</em>
                 </td>
             </tr>

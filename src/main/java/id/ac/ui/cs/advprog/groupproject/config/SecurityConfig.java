@@ -15,6 +15,7 @@ public class SecurityConfig {
                 auth -> auth
                         .requestMatchers("/login", "/register").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/catalog/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/catalog/add", "/catalog/edit", "/catalog/edit/**" , "/catalog/my")
                         .hasAuthority("ROLE_JASTIPER")
                         .requestMatchers("/catalog/**").authenticated()
