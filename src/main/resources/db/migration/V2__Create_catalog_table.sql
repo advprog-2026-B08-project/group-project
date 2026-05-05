@@ -11,8 +11,6 @@ CREATE TABLE IF NOT EXISTS catalog (
     CONSTRAINT fk_catalog_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Create index on user_id for faster queries
 CREATE INDEX IF NOT EXISTS idx_catalog_user_id ON catalog(user_id);
 
--- Create index on travel_date for filtering
 CREATE INDEX IF NOT EXISTS idx_catalog_travel_date ON catalog(travel_date);

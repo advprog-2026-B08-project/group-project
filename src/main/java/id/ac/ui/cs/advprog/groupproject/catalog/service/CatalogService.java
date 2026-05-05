@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
@@ -26,22 +27,28 @@ import org.springframework.web.server.ResponseStatusException;
 public class CatalogService {
   private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found";
   private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
+  private static final String CREATE_CATALOG_ACTION = "CREATE_CATALOG";
+  private static final String UPDATE_CATALOG_ACTION = "UPDATE_CATALOG";
+  private static final String DELETE_CATALOG_ACTION = "DELETE_CATALOG";
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogService.class);
 
   private final CatalogRepository catalogRepository;
   private final CatalogRatingEventRepository catalogRatingEventRepository;
   private final CatalogFactory catalogFactory;
   private final MeterRegistry meterRegistry;
+  private final ActionLogService actionLogService;
 
   public CatalogService(
       CatalogRepository catalogRepository,
       CatalogRatingEventRepository catalogRatingEventRepository,
       CatalogFactory catalogFactory,
-      MeterRegistry meterRegistry) {
+      MeterRegistry meterRegistry,
+      ActionLogService actionLogService) {
     this.catalogRepository = catalogRepository;
     this.catalogRatingEventRepository = catalogRatingEventRepository;
     this.catalogFactory = catalogFactory;
     this.meterRegistry = meterRegistry;
+    this.actionLogService = actionLogService;
   }
 
   public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
@@ -50,7 +57,14 @@ public class CatalogService {
     }
 
     Catalog catalog = catalogFactory.create(command, currentUser);
-    return catalogRepository.save(catalog);
+    Catalog savedCatalog = catalogRepository.save(catalog);
+    actionLogService.log(
+        CREATE_CATALOG_ACTION,
+        currentUser.getUsername(),
+        currentUser.getRole(),
+        getCatalogTarget(savedCatalog),
+        "Created catalog '" + savedCatalog.getName() + "'");
+    return savedCatalog;
   }
 
   public List<Catalog> findAllCatalogs(User currentUser) {
@@ -107,7 +121,14 @@ public class CatalogService {
     }
 
     catalogFactory.applyUpdate(catalog, command);
-    return catalogRepository.save(catalog);
+    Catalog updatedCatalog = catalogRepository.save(catalog);
+    actionLogService.log(
+        UPDATE_CATALOG_ACTION,
+        currentUser.getUsername(),
+        currentUser.getRole(),
+        getCatalogTarget(updatedCatalog),
+        "Updated catalog '" + updatedCatalog.getName() + "'");
+    return updatedCatalog;
   }
 
   public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogCommand command) {
@@ -118,7 +139,14 @@ public class CatalogService {
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
 
     catalogFactory.applyUpdate(catalog, command);
-    return catalogRepository.save(catalog);
+    Catalog updatedCatalog = catalogRepository.save(catalog);
+    actionLogService.log(
+        UPDATE_CATALOG_ACTION,
+        "SYSTEM_ADMIN",
+        "ADMIN",
+        getCatalogTarget(updatedCatalog),
+        "Admin updated catalog '" + updatedCatalog.getName() + "'");
+    return updatedCatalog;
   }
 
   public void deleteCatalog(UUID catalogId, User currentUser) {
@@ -133,13 +161,27 @@ public class CatalogService {
     }
 
     catalogRepository.deleteById(catalogId);
+    actionLogService.log(
+        DELETE_CATALOG_ACTION,
+        currentUser.getUsername(),
+        currentUser.getRole(),
+        catalogId.toString(),
+        "Deleted catalog '" + catalog.getName() + "'");
   }
 
   public void deleteCatalogByAdmin(UUID catalogId) {
-    if (!catalogRepository.existsById(catalogId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
-    }
+    Catalog catalog =
+        catalogRepository
+            .findById(catalogId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
     catalogRepository.deleteById(catalogId);
+    actionLogService.log(
+        DELETE_CATALOG_ACTION,
+        "SYSTEM_ADMIN",
+        "ADMIN",
+        catalogId.toString(),
+        "Admin deleted catalog '" + catalog.getName() + "'");
   }
 
   @Transactional
@@ -241,5 +283,10 @@ public class CatalogService {
   private boolean isTitiper(User user) {
     String role = user.getRole();
     return "TITIPER".equalsIgnoreCase(role) || "ROLE_TITIPER".equalsIgnoreCase(role);
+  }
+
+  private String getCatalogTarget(Catalog catalog) {
+    UUID catalogId = catalog.getId();
+    return catalogId == null ? "UNKNOWN_CATALOG_ID" : catalogId.toString();
   }
 }

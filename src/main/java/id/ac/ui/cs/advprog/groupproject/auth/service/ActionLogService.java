@@ -4,7 +4,9 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.ActionLog;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.ActionLogRepository;
 
 import java.time.LocalDateTime;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ActionLogService {
     ActionLogRepository logRepository;
 

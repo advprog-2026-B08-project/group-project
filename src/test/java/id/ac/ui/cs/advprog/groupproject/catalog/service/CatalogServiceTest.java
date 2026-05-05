@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.groupproject.catalog.service;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
+import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
@@ -47,6 +48,9 @@ class CatalogServiceTest {
 
     @Mock
     private Counter counter;
+
+    @Mock
+    private ActionLogService actionLogService;
 
     @InjectMocks
     private CatalogService catalogService;
