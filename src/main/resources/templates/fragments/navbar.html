@@ -28,10 +28,12 @@
         </form>
         <a th:href="@{/profile}" class="profile">
             <img th:if="${user != null and user.profilePictureURL != null}"
-                 th:src="${user.profilePictureURL}" />
+                 th:src="${user.profilePictureURL}"
+                 onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"/>
 
             <img th:if="${user == null or user.profilePictureURL == null}"
-                 th:src="@{/images/defaultProfilePicture.png}" />
+                 th:src="@{/images/defaultProfilePicture.png}"
+                 onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"/>
             <span th:text="${user.username}"></span>
         </a>
     </div>

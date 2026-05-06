@@ -145,12 +145,12 @@ public class CustomUserDetailService implements UserDetailsService {
                 admin.getRole(), user.getUsername(), description, LogType.WARN);
     }
 
-    public void updateProfile(UUID id, String username, String socials, String fullName) {
+    public void updateProfile(UUID id, String username, String socials, String fullName, String profilePictureURL) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
 
-
         user.setUsername(username);
+
         if (socials != null) {
             if (!socials.isBlank()) {
                 user.setSocials(socials);
@@ -159,6 +159,11 @@ public class CustomUserDetailService implements UserDetailsService {
         if (fullName != null) {
             if (!fullName.isBlank()) {
                 user.setFullName(fullName);
+            }
+        }
+        if (profilePictureURL != null) {
+            if (!profilePictureURL.isBlank()) {
+                user.setProfilePictureURL(profilePictureURL);
             }
         }
         userRepository.save(user);

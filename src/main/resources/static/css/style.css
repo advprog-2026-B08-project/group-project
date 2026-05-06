@@ -296,6 +296,7 @@
     width: 180px;
     height: 180px;
     border-radius: 50%; /* PERFECT CIRCLE */
+    border: 5px solid #7fd7ff;
     object-fit: cover;
 }
 

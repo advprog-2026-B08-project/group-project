@@ -6,31 +6,50 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
+<body style="background: #f0f0f0;">
 <div th:replace="fragments/navbar :: navbar"></div>
-<h1>It's a me ~</h1>
-<h1>You thought it was gonna be Mario, but it was me! Dio!</h1>
+<h1 style="font-family: 'Arial Black'; margin-bottom: 40px; margin-left: 100px; margin-top: 20px">Edit your profile</h1>
 <div class="profile-container">
 
     <div class="profile-left">
         <img th:src="${user.profilePictureURL != null} ? ${user.profilePictureURL} : '/images/defaultProfilePicture.png'"
+             onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
              class="profile-pic">
     </div>
 
     <div class="profile-right">
-        <form th:action="@{/profile/update}" method="post">
+        <div class="center2 col-md-12" style="margin-left: 20px; margin-top: 30px">
+            <form th:action="@{/profile/update}" method="post">
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="username">Username</label>
+                    <input class="col-sm-8" id="username" type="text" name="username" th:value="${user.username}" />
+                    <br>
+                </div>
 
-            <label>Username</label>
-            <input type="text" name="username" th:value="${user.username}" />
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="socials">Socials</label>
+                    <input class="col-sm-8" id="socials" type="url" name="socials" th:value="${user.socials}" />
+                    <br>
+                </div>
 
-            <label>Socials</label>
-            <input type="url" name="socials" th:value="${user.socials}" />
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="fullName">Full Name</label>
+                    <input class="col-sm-8" id="fullName" type="text" name="fullName" th:value="${user.fullName}" />
+                    <br>
+                </div>
 
-            <label>Full Name</label>
-            <input type="text" name="fullName" th:value="${user.fullName}" />
+                <div class="form-group row" style="margin-bottom: 30px">
+                    <label class="col-sm-3 col-form-label" for="ppURL">Profile picture</label>
+                    <input class="col-sm-8" id="ppURL" type="url" name="profilePictureURL" th:value="${user.profilePictureURL}" />
+                    <br>
+                </div>
 
-            <button type="submit">Save</button>
-        </form>
+                <div>
+                    <button class="btn btn-danger" style="margin-right: 335px" th:href="@{/profile}">Cancel</button>
+                    <button class="btn btn-info" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>

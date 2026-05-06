@@ -8,17 +8,17 @@
 </head>
 <body style="background: #f0f0f0">
   <div th:replace="fragments/navbar :: navbar"></div>
-  <h1>It's a me ~</h1>
-  <h1>You thought it was gonna be Mario, but it was me! Dio!</h1>
+  <h1 style="font-family: 'Arial Black'; margin-bottom: 40px; margin-left: 100px; margin-top: 20px">Profile</h1>
   <div class="profile-container">
 
       <div class="profile-left">
           <img th:src="${user.profilePictureURL != null} ? ${user.profilePictureURL} : '/images/defaultProfilePicture.png'"
+               onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
                class="profile-pic" style="margin-left: 40px">
       </div>
 
       <div class="profile-right">
-          <div class="center2" style="margin-left: 50px">
+          <div class="center2" style="margin-left: 50px; margin-top: 30px">
               <div style="margin-bottom: 50px">
                   <span style="font-family: 'Arial Black'; font-size: 32px"
                      th:text="${user.username}"></span>
@@ -27,8 +27,15 @@
                   <span style="color: #606060">  |  </span>
                   <span style="color: #606060" th:text="${user.fullName}"></span>
               </div>
+              <div style="margin-bottom: 30px" th:if="${user.socials.isBlank() == false}">
+                  <b style="color: #606060"><span>Socials : </span><span th:text="${user.socials} ?: '-'"></span></b>
+              </div>
               <div>
-                  <p style="color: #606060" th:text="${user.socials} ?: '-'">
+                  <a th:href="@{/profile/edit}">
+                      <button class="btn btn-info">
+                          Edit
+                      </button>
+                  </a>
               </div>
           </div>
       </div>

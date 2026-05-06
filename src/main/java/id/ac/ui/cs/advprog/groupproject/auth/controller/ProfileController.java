@@ -33,9 +33,10 @@ public class ProfileController {
     public String updateProfile(@AuthenticationPrincipal User user,
                                 @RequestParam String username,
                                 @RequestParam (required = false) String socials,
-                                @RequestParam (required = false) String fullName) {
+                                @RequestParam (required = false) String fullName,
+                                @RequestParam (required = false) String profilePictureURL) {
 
-        userService.updateProfile(user.getId(), username, socials, fullName);
+        userService.updateProfile(user.getId(), username, socials, fullName, profilePictureURL);
 
         return "redirect:/profile";
     }
