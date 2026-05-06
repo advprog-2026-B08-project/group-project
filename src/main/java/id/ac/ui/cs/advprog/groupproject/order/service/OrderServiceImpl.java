@@ -184,6 +184,34 @@ public class OrderServiceImpl implements OrderService {
         return savedOrder;
     }
 
+    // Titiper: active orders (in progress)
+    @Override
+    public List<Order> findBuyerActiveOrders(UUID buyerId) {
+        return orderRepository.findByBuyerIdAndStatusIn(buyerId,
+                List.of(OrderStatus.PAID, OrderStatus.PURCHASED, OrderStatus.SHIPPED));
+    }
+
+    // Titiper: completed/cancelled orders
+    @Override
+    public List<Order> findBuyerCompletedOrders(UUID buyerId) {
+        return orderRepository.findByBuyerIdAndStatusIn(buyerId,
+                List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));
+    }
+
+    // Jastiper: to-do list (orders that need action)
+    @Override
+    public List<Order> findJastiperTodoOrders(UUID jastiperId) {
+        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,
+                List.of(OrderStatus.PAID, OrderStatus.PURCHASED));
+    }
+
+    // Jastiper: completed/shipped/cancelled orders
+    @Override
+    public List<Order> findJastiperCompletedOrders(UUID jastiperId) {
+        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,
+                List.of(OrderStatus.SHIPPED, OrderStatus.COMPLETED, OrderStatus.CANCELLED));
+    }
+
     private void validateCheckoutRequest(CheckoutRequest request) {
         if (request.getBuyerId() == null) throw new IllegalArgumentException("Buyer ID is required");
         if (request.getProductId() == null) throw new IllegalArgumentException("Product ID is required");
@@ -191,4 +219,3 @@ public class OrderServiceImpl implements OrderService {
         if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException("Address required");
     }
 }
-

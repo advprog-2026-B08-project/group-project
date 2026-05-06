@@ -89,4 +89,28 @@ public class OrderApiController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
+
+    // Titiper: riwayat pesanan aktif
+    @GetMapping("/buyer/{buyerId}/active")
+    public ResponseEntity<List<Order>> getBuyerActiveOrders(@PathVariable UUID buyerId) {
+        return ResponseEntity.ok(orderService.findBuyerActiveOrders(buyerId));
+    }
+
+    // Titiper: riwayat pesanan selesai
+    @GetMapping("/buyer/{buyerId}/completed")
+    public ResponseEntity<List<Order>> getBuyerCompletedOrders(@PathVariable UUID buyerId) {
+        return ResponseEntity.ok(orderService.findBuyerCompletedOrders(buyerId));
+    }
+
+    // Jastiper: to-do list
+    @GetMapping("/jastiper/{jastiperId}/todo")
+    public ResponseEntity<List<Order>> getJastiperTodoOrders(@PathVariable UUID jastiperId) {
+        return ResponseEntity.ok(orderService.findJastiperTodoOrders(jastiperId));
+    }
+
+    // Jastiper: pesanan selesai
+    @GetMapping("/jastiper/{jastiperId}/done")
+    public ResponseEntity<List<Order>> getJastiperDoneOrders(@PathVariable UUID jastiperId) {
+        return ResponseEntity.ok(orderService.findJastiperCompletedOrders(jastiperId));
+    }
 }

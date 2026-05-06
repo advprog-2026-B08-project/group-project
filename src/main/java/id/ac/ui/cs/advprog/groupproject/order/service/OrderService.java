@@ -17,4 +17,12 @@ public interface OrderService {
     Order updateStatus(UUID orderId, OrderStatus newStatus);
     Order cancelOrder(UUID orderId);
     Order submitRating(UUID orderId, int ratingProduk);
+
+    // Titiper: riwayat pesanan
+    List<Order> findBuyerActiveOrders(UUID buyerId);
+    List<Order> findBuyerCompletedOrders(UUID buyerId);
+
+    // Jastiper: to-do list
+    List<Order> findJastiperTodoOrders(UUID jastiperId);
+    List<Order> findJastiperCompletedOrders(UUID jastiperId);
 }
