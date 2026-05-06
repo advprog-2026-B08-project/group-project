@@ -55,27 +55,35 @@ public class OrderWebController {
 
         UUID userId = currentUser.getId();
         boolean isAdmin = "ROLE_ADMIN".equalsIgnoreCase(currentUser.getRole());
+        boolean isJastiper = "ROLE_JASTIPER".equalsIgnoreCase(currentUser.getRole());
 
         List<Order> orders;
         if (isAdmin) {
-            // Admin sees all orders
             orders = orderService.findAll();
         } else {
-            // Regular users see orders where they are buyer OR jastiper
             LinkedHashSet<Order> userOrders = new LinkedHashSet<>();
             userOrders.addAll(orderService.findByBuyerId(userId));
             userOrders.addAll(orderService.findByJastiperId(userId));
             orders = new ArrayList<>(userOrders);
         }
 
-        List<OrderDisplayDto> displayOrders = new ArrayList<>();
-        for (Order order : orders) {
-            displayOrders.add(enrichOrder(order));
+        List<OrderDisplayDto> displayOrders = enrichOrders(orders);
+
+        // Role-specific tabs
+        if (isJastiper) {
+            model.addAttribute("todoOrders", enrichOrders(orderService.findJastiperTodoOrders(userId)));
+            model.addAttribute("doneOrders", enrichOrders(orderService.findJastiperCompletedOrders(userId)));
+        } else if (!isAdmin) {
+            // Titiper
+            model.addAttribute("activeOrders", enrichOrders(orderService.findBuyerActiveOrders(userId)));
+            model.addAttribute("completedOrders", enrichOrders(orderService.findBuyerCompletedOrders(userId)));
         }
 
         model.addAttribute("orders", displayOrders);
         model.addAttribute("currentUserId", userId.toString());
         model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("isJastiper", isJastiper);
+        model.addAttribute("userRole", currentUser.getRole());
         return "order/list";
     }
 
@@ -118,6 +126,14 @@ public class OrderWebController {
         model.addAttribute("walletBalance", wallet.getBalance());
 
         return "order/checkout";
+    }
+
+    private List<OrderDisplayDto> enrichOrders(List<Order> orders) {
+        List<OrderDisplayDto> result = new ArrayList<>();
+        for (Order order : orders) {
+            result.add(enrichOrder(order));
+        }
+        return result;
     }
 
     private OrderDisplayDto enrichOrder(Order order) {

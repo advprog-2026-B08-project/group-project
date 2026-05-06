@@ -544,6 +544,68 @@
     color: var(--order-blue);
 }
 
+/* ── Order Tabs ──────────────────────────── */
+
+.order-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 22px;
+    animation: floatIn 0.5s ease both;
+    animation-delay: 0.1s;
+}
+
+.order-tab {
+    background: var(--order-card);
+    border: 1px solid var(--order-line);
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    color: var(--order-ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-tab:hover {
+    background: rgba(31, 111, 229, 0.06);
+    border-color: var(--order-blue);
+    color: var(--order-blue);
+}
+
+.order-tab.active {
+    background: linear-gradient(135deg, var(--order-blue) 0%, var(--order-purple) 100%);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(31, 111, 229, 0.3);
+}
+
+.order-tab.active:hover {
+    background: linear-gradient(135deg, var(--order-blue) 0%, var(--order-purple) 100%);
+    color: #ffffff;
+}
+
+.tab-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+}
+
+.order-tab:not(.active) .tab-count {
+    background: rgba(32, 36, 48, 0.08);
+}
+
+.order-tab-panel {
+    animation: floatIn 0.4s ease both;
+}
+
 /* Order Cards (List) */
 .order-cards {
     display: grid;

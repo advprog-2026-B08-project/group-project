@@ -21,105 +21,114 @@
     <div class="order-list-hero">
         <div>
             <span class="eyebrow">Order Management</span>
-            <h1>Daftar Pesanan</h1>
-            <p class="hero-subtitle">Kelola dan lacak semua pesanan di sini.</p>
+            <h1 th:if="${isJastiper}">To-Do Pesanan</h1>
+            <h1 th:if="${!isJastiper and !isAdmin}">Riwayat Pesanan</h1>
+            <h1 th:if="${isAdmin}">Semua Pesanan</h1>
+            <p class="hero-subtitle" th:if="${isJastiper}">Kelola pesanan yang perlu kamu proses.</p>
+            <p class="hero-subtitle" th:if="${!isJastiper and !isAdmin}">Lacak pesanan aktif dan riwayat belanja kamu.</p>
+            <p class="hero-subtitle" th:if="${isAdmin}">Kelola semua pesanan di platform.</p>
         </div>
         <div class="hero-actions">
             <a href="/catalog" class="btn-ghost">← Kembali ke Katalog</a>
         </div>
     </div>
 
-    <!-- Order Cards -->
-    <div class="order-cards" id="orderCards">
-        <div th:each="order, iter : ${orders}"
-             class="order-card order-card-rich"
-             th:data-order-id="${order.id}"
-             th:data-jastiper-id="${order.jastiperId}"
-             th:data-buyer-id="${order.buyerId}"
-             th:data-status="${order.status}"
-             th:style="'animation-delay: ' + ${iter.index * 0.04} + 's'">
+    <!-- Tabs (Titiper or Jastiper) -->
+    <div class="order-tabs" th:if="${!isAdmin}">
+        <!-- Jastiper Tabs -->
+        <th:block th:if="${isJastiper}">
+            <button class="order-tab active" data-tab="todo">
+                📋 To-Do
+                <span class="tab-count" th:text="${todoOrders != null ? #lists.size(todoOrders) : 0}">0</span>
+            </button>
+            <button class="order-tab" data-tab="done">
+                ✅ Selesai
+                <span class="tab-count" th:text="${doneOrders != null ? #lists.size(doneOrders) : 0}">0</span>
+            </button>
+        </th:block>
 
-            <!-- Product Image -->
-            <div class="order-card-image">
-                <img th:if="${order.productImageUrl != null and !order.productImageUrl.isEmpty()}"
-                     th:src="${order.productImageUrl}"
-                     alt="Product" class="order-product-img">
-                <div th:if="${order.productImageUrl == null or order.productImageUrl.isEmpty()}"
-                     class="order-product-img-placeholder">📦</div>
-            </div>
+        <!-- Titiper Tabs -->
+        <th:block th:if="${!isJastiper}">
+            <button class="order-tab active" data-tab="active">
+                🚀 Aktif
+                <span class="tab-count" th:text="${activeOrders != null ? #lists.size(activeOrders) : 0}">0</span>
+            </button>
+            <button class="order-tab" data-tab="completed">
+                📦 Selesai
+                <span class="tab-count" th:text="${completedOrders != null ? #lists.size(completedOrders) : 0}">0</span>
+            </button>
+        </th:block>
 
-            <!-- Product & Order Info -->
-            <div class="order-card-info">
-                <div class="order-card-product-name"
-                     th:text="${order.productName != null ? order.productName : 'Produk'}">Produk</div>
-                <div class="order-card-meta">
-                    <span th:text="${order.quantity + ' pcs'}">1 pcs</span>
-                    <span>•</span>
-                    <span th:text="${'Jastiper: ' + (order.jastiperUsername != null ? order.jastiperUsername : '-')}">Jastiper: -</span>
-                </div>
-            </div>
+        <button class="order-tab" data-tab="all">
+            📑 Semua
+            <span class="tab-count" th:text="${#lists.size(orders)}">0</span>
+        </button>
+    </div>
 
-            <!-- Price -->
-            <div class="order-card-price"
-                 th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</div>
-
-            <!-- Status Badge -->
-            <div>
-                <span class="status-badge"
-                      th:classappend="${
-                          order.status.name() == 'PAID' ? 'status-paid' :
-                          (order.status.name() == 'PURCHASED' ? 'status-purchased' :
-                          (order.status.name() == 'SHIPPED' ? 'status-shipped' :
-                          (order.status.name() == 'COMPLETED' ? 'status-completed' : 'status-cancelled')))
-                      }"
-                      th:text="${order.status}">PAID</span>
-            </div>
-
-            <!-- Date -->
-            <div class="order-card-date"
-                 th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
-
-            <!-- Actions -->
-            <div class="order-actions" onclick="event.stopPropagation()">
-                <!-- Jastiper: Buy -->
-                <button th:if="${order.status.name() == 'PAID'}"
-                        class="action-btn-sm buy jastiper-only"
-                        th:data-id="${order.id}"
-                        th:data-jastiper-id="${order.jastiperId}"
-                        data-action="PURCHASED">🛒 Beli</button>
-
-                <!-- Jastiper: Ship -->
-                <button th:if="${order.status.name() == 'PURCHASED'}"
-                        class="action-btn-sm ship jastiper-only"
-                        th:data-id="${order.id}"
-                        th:data-jastiper-id="${order.jastiperId}"
-                        data-action="SHIPPED">✈️ Kirim</button>
-
-                <!-- Buyer: Complete -->
-                <button th:if="${order.status.name() == 'SHIPPED'}"
-                        class="action-btn-sm complete buyer-only"
-                        th:data-id="${order.id}"
-                        th:data-buyer-id="${order.buyerId}"
-                        data-action="COMPLETED">✅ Terima</button>
-
-                <!-- Cancel (Buyer, Jastiper, or Admin) -->
-                <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}"
-                        class="action-btn-sm cancel cancel-btn"
-                        th:data-id="${order.id}"
-                        th:data-buyer-id="${order.buyerId}"
-                        th:data-jastiper-id="${order.jastiperId}">❌ Batal</button>
-
-                <!-- Completed/Cancelled: no actions -->
-                <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}"
-                      class="order-card-date">—</span>
+    <!-- Jastiper: To-Do Tab -->
+    <div class="order-tab-panel" data-panel="todo" th:if="${isJastiper}" style="display: block;">
+        <div class="order-cards">
+            <th:block th:each="order, iter : ${todoOrders}">
+                <div th:replace="~{order/fragments/orderCard :: orderCard(${order}, ${iter})}"></div>
+            </th:block>
+            <div th:if="${todoOrders == null or #lists.isEmpty(todoOrders)}" class="order-empty">
+                <span class="order-empty-icon">🎉</span>
+                <p>Tidak ada pesanan yang perlu diproses!</p>
             </div>
         </div>
+    </div>
 
-        <!-- Empty state -->
-        <div th:if="${#lists.isEmpty(orders)}" class="order-empty">
-            <span class="order-empty-icon">📦</span>
-            <p>Belum ada pesanan.</p>
-            <a href="/catalog" class="btn-ghost" style="margin-top: 12px; display: inline-block;">Belanja Sekarang</a>
+    <!-- Jastiper: Done Tab -->
+    <div class="order-tab-panel" data-panel="done" th:if="${isJastiper}" style="display: none;">
+        <div class="order-cards">
+            <th:block th:each="order, iter : ${doneOrders}">
+                <div th:replace="~{order/fragments/orderCard :: orderCard(${order}, ${iter})}"></div>
+            </th:block>
+            <div th:if="${doneOrders == null or #lists.isEmpty(doneOrders)}" class="order-empty">
+                <span class="order-empty-icon">📦</span>
+                <p>Belum ada pesanan selesai.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Titiper: Active Tab -->
+    <div class="order-tab-panel" data-panel="active" th:if="${!isJastiper and !isAdmin}" style="display: block;">
+        <div class="order-cards">
+            <th:block th:each="order, iter : ${activeOrders}">
+                <div th:replace="~{order/fragments/orderCard :: orderCard(${order}, ${iter})}"></div>
+            </th:block>
+            <div th:if="${activeOrders == null or #lists.isEmpty(activeOrders)}" class="order-empty">
+                <span class="order-empty-icon">✨</span>
+                <p>Tidak ada pesanan aktif.</p>
+                <a href="/catalog" class="btn-ghost" style="margin-top: 12px; display: inline-block;">Belanja Sekarang</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Titiper: Completed Tab -->
+    <div class="order-tab-panel" data-panel="completed" th:if="${!isJastiper and !isAdmin}" style="display: none;">
+        <div class="order-cards">
+            <th:block th:each="order, iter : ${completedOrders}">
+                <div th:replace="~{order/fragments/orderCard :: orderCard(${order}, ${iter})}"></div>
+            </th:block>
+            <div th:if="${completedOrders == null or #lists.isEmpty(completedOrders)}" class="order-empty">
+                <span class="order-empty-icon">📦</span>
+                <p>Belum ada pesanan selesai.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Tab (or Admin full list) -->
+    <div class="order-tab-panel" data-panel="all" th:style="${isAdmin ? 'display: block;' : 'display: none;'}">
+        <div class="order-cards" id="orderCards">
+            <th:block th:each="order, iter : ${orders}">
+                <div th:replace="~{order/fragments/orderCard :: orderCard(${order}, ${iter})}"></div>
+            </th:block>
+            <div th:if="${#lists.isEmpty(orders)}" class="order-empty">
+                <span class="order-empty-icon">📦</span>
+                <p>Belum ada pesanan.</p>
+                <a href="/catalog" class="btn-ghost" style="margin-top: 12px; display: inline-block;">Belanja Sekarang</a>
+            </div>
         </div>
     </div>
 </main>
@@ -128,6 +137,19 @@
 document.addEventListener('DOMContentLoaded', function() {
     const currentUserId = document.getElementById('currentUserId').value;
     const isAdmin = document.getElementById('isAdmin').value === 'true';
+
+    // Tab switching
+    document.querySelectorAll('.order-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            const targetPanel = this.dataset.tab;
+            document.querySelectorAll('.order-tab-panel').forEach(panel => {
+                panel.style.display = panel.dataset.panel === targetPanel ? 'block' : 'none';
+            });
+        });
+    });
 
     // Click row to go to detail
     document.querySelectorAll('.order-card[data-order-id]').forEach(function(card) {
