@@ -54,7 +54,6 @@ function buildCatalogRow(catalog) {
     const sellerId = catalog.jastiperId ? escapeHtml(catalog.jastiperId) : '';
     const travelDate = formatDate(catalog.travelDate);
     const stockId = `stock-${escapeHtml(catalog.id)}`;
-    const quantityId = `qty-${escapeHtml(catalog.id)}`;
 
     return `
         <tr data-catalog-id="${escapeHtml(catalog.id)}">
@@ -70,12 +69,9 @@ function buildCatalogRow(catalog) {
                 <a href="/catalog/${sellerId}" class="text-primary font-weight-bold">${sellerName}</a>
             </td>
             <td>
-                <div class="d-flex" style="gap: 0.5rem;">
-                    <input type="number" min="1" value="1" class="form-control form-control-sm" style="width: 85px;" id="${quantityId}">
-                    <button class="btn btn-success btn-sm" data-catalog-id="${escapeHtml(catalog.id)}" onclick="submitOrderTest(this.dataset.catalogId)">
-                        Order Test
-                    </button>
-                </div>
+                <a href="/order/checkout/${escapeHtml(catalog.id)}" class="btn btn-success btn-sm">
+                    🛒 Order
+                </a>
             </td>
         </tr>
     `;
@@ -141,66 +137,6 @@ async function resetSearch() {
         renderCatalogTable(catalogs);
     } catch (error) {
         alert('Failed to reset catalog search.');
-    }
-}
-
-async function submitOrderTest(catalogId) {
-    const quantityInput = document.getElementById('qty-' + catalogId);
-    const quantity = Number(quantityInput ? quantityInput.value : 0);
-
-    if (!Number.isInteger(quantity) || quantity <= 0) {
-        alert('Quantity must be a positive integer.');
-        return;
-    }
-
-    const buyerId = document.querySelector('meta[name="current-user-id"]')?.content;
-    if (!buyerId) {
-        alert('You must be logged in to place an order.');
-        return;
-    }
-
-    const shippingAddress = prompt('Enter your shipping address:', 'Jl. Contoh No. 1, Jakarta');
-    if (!shippingAddress || shippingAddress.trim() === '') {
-        alert('Shipping address is required.');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/orders/checkout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                buyerId: buyerId,
-                productId: catalogId,
-                quantity: quantity,
-                shippingAddress: shippingAddress.trim()
-            })
-        });
-
-        if (response.ok) {
-            const order = await response.json();
-            const stockCell = document.getElementById('stock-' + catalogId);
-            if (stockCell) {
-                stockCell.textContent = Math.max(0, Number(stockCell.textContent) - quantity);
-            }
-            alert(`Order placed! Status: ${order.status}. View it in Order List.`);
-            return;
-        }
-
-        let message = 'Failed to create order.';
-        try {
-            const text = await response.text();
-            if (text) {
-                message = text;
-            }
-        } catch (e) {
-        }
-
-        alert(message);
-    } catch (error) {
-        alert('Failed to call order endpoint.');
     }
 }
 

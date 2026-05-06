@@ -73,25 +73,21 @@
                 </div>
             </div>
 
-            <!-- User Info Card -->
+            <!-- Jastiper Info Card -->
             <div class="checkout-card">
-                <h3>👤 Informasi Pembeli</h3>
+                <h3>👤 Informasi Jastiper</h3>
                 <div class="user-info-grid">
                     <div class="user-info-row">
                         <span class="info-label">Username</span>
-                        <span class="info-value" th:text="${currentUser.username}">username</span>
+                        <span class="info-value" th:text="${product.jastiper.username}">username</span>
                     </div>
                     <div class="user-info-row">
                         <span class="info-label">Full Name</span>
-                        <span class="info-value" th:text="${currentUser.fullName != null ? currentUser.fullName : '-'}">Full Name</span>
+                        <span class="info-value" th:text="${product.jastiper.fullName != null ? product.jastiper.fullName : '-'}">Full Name</span>
                     </div>
                     <div class="user-info-row">
                         <span class="info-label">Email</span>
-                        <span class="info-value" th:text="${currentUser.email}">email@example.com</span>
-                    </div>
-                    <div class="user-info-row">
-                        <span class="info-label">Role</span>
-                        <span class="role-badge" th:text="${currentUser.role}">ROLE_TITIPER</span>
+                        <span class="info-value" th:text="${product.jastiper.email}">email@example.com</span>
                     </div>
                 </div>
             </div>
