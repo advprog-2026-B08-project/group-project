@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderApiController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.order.controller</a> &gt; <span class="el_source">OrderApiController.java</span></div><h1>OrderApiController.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.order.controller;
 
 import id.ac.ui.cs.advprog.groupproject.order.dto.CheckoutRequest;
+import id.ac.ui.cs.advprog.groupproject.order.dto.RatingRequest;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
 import id.ac.ui.cs.advprog.groupproject.order.model.OrderStatus;
 import id.ac.ui.cs.advprog.groupproject.order.service.OrderService;
@@ -18,32 +19,32 @@ public class OrderApiController {
 
     private final OrderService orderService;
 
-<span class="fc" id="L21">    public OrderApiController(OrderService orderService) {</span>
-<span class="fc" id="L22">        this.orderService = orderService;</span>
-<span class="fc" id="L23">    }</span>
+<span class="fc" id="L22">    public OrderApiController(OrderService orderService) {</span>
+<span class="fc" id="L23">        this.orderService = orderService;</span>
+<span class="fc" id="L24">    }</span>
 
     @PostMapping(&quot;/checkout&quot;)
     public ResponseEntity&lt;?&gt; checkout(@Valid @RequestBody CheckoutRequest request) {
         try {
-<span class="fc" id="L28">            Order order = orderService.checkout(request);</span>
-<span class="fc" id="L29">            return ResponseEntity.status(HttpStatus.CREATED).body(order);</span>
-<span class="fc" id="L30">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L31">            return ResponseEntity.badRequest().body(e.getMessage());</span>
-<span class="nc" id="L32">        } catch (IllegalStateException e) {</span>
-<span class="nc" id="L33">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
+<span class="fc" id="L29">            Order order = orderService.checkout(request);</span>
+<span class="fc" id="L30">            return ResponseEntity.status(HttpStatus.CREATED).body(order);</span>
+<span class="fc" id="L31">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L32">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+<span class="nc" id="L33">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L34">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
         }
     }
 
     @GetMapping
     public ResponseEntity&lt;List&lt;Order&gt;&gt; getAllOrders() {
-<span class="fc" id="L39">        return ResponseEntity.ok(orderService.findAll());</span>
+<span class="fc" id="L40">        return ResponseEntity.ok(orderService.findAll());</span>
     }
 
     @GetMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Order&gt; getOrderById(@PathVariable UUID id) {
-<span class="fc" id="L44">        return orderService.findById(id)</span>
-<span class="fc" id="L45">                .map(ResponseEntity::ok)</span>
-<span class="fc" id="L46">                .orElse(ResponseEntity.notFound().build());</span>
+<span class="fc" id="L45">        return orderService.findById(id)</span>
+<span class="fc" id="L46">                .map(ResponseEntity::ok)</span>
+<span class="fc" id="L47">                .orElse(ResponseEntity.notFound().build());</span>
     }
 
     @PatchMapping(&quot;/{id}/status&quot;)
@@ -51,24 +52,41 @@ public class OrderApiController {
             @PathVariable UUID id,
             @RequestParam OrderStatus status) {
         try {
-<span class="fc" id="L54">            Order order = orderService.updateStatus(id, status);</span>
-<span class="fc" id="L55">            return ResponseEntity.ok(order);</span>
-<span class="fc" id="L56">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L57">            return ResponseEntity.badRequest().body(e.getMessage());</span>
-<span class="fc" id="L58">        } catch (IllegalStateException e) {</span>
-<span class="fc" id="L59">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
+<span class="fc" id="L55">            Order order = orderService.updateStatus(id, status);</span>
+<span class="fc" id="L56">            return ResponseEntity.ok(order);</span>
+<span class="fc" id="L57">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L58">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+<span class="fc" id="L59">        } catch (IllegalStateException e) {</span>
+<span class="fc" id="L60">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
         }
     }
 
     @PostMapping(&quot;/{id}/cancel&quot;)
     public ResponseEntity&lt;?&gt; cancelOrder(@PathVariable UUID id) {
         try {
-<span class="fc" id="L66">            Order order = orderService.cancelOrder(id);</span>
-<span class="fc" id="L67">            return ResponseEntity.ok(order);</span>
-<span class="fc" id="L68">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L69">            return ResponseEntity.badRequest().body(e.getMessage());</span>
-<span class="nc" id="L70">        } catch (IllegalStateException e) {</span>
-<span class="nc" id="L71">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
+<span class="fc" id="L67">            Order order = orderService.cancelOrder(id);</span>
+<span class="fc" id="L68">            return ResponseEntity.ok(order);</span>
+<span class="fc" id="L69">        } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L70">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+<span class="nc" id="L71">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L72">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
+        }
+    }
+
+    @PostMapping(&quot;/{id}/rating&quot;)
+    public ResponseEntity&lt;?&gt; submitRating(
+            @PathVariable UUID id,
+            @Valid @RequestBody RatingRequest request) {
+        try {
+<span class="nc" id="L81">            Order order = orderService.submitRating(</span>
+                    id,
+<span class="nc" id="L83">                    request.getRatingProduk()</span>
+            );
+<span class="nc" id="L85">            return ResponseEntity.ok(order);</span>
+<span class="nc" id="L86">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L87">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+<span class="nc" id="L88">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L89">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
         }
     }
 }

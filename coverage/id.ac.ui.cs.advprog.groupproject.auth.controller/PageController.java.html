@@ -37,19 +37,50 @@ public class PageController {
 <span class="nc" id="L37">        return &quot;auth/register&quot;;</span>
     }
 
+    @GetMapping(&quot;/profile&quot;)
+    public String profile() {
+<span class="nc" id="L42">        return &quot;auth/profile&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin&quot;)
+    public String admin() {
+<span class="nc" id="L47">        return &quot;auth/admin/admin&quot;;</span>
+    }
+
     @GetMapping(&quot;/order&quot;)
     public String order() {
-<span class="nc" id="L42">        return &quot;order/list&quot;;</span>
+<span class="nc" id="L52">        return &quot;order/list&quot;;</span>
     }
 
     @GetMapping(&quot;/kycRequestJastiper&quot;)
     public String kycRequestJastiper() {
-<span class="nc" id="L47">        return &quot;auth/kyc/kyc-jastiper&quot;;</span>
+<span class="nc" id="L57">        return &quot;auth/kyc/kyc-jastiper&quot;;</span>
     }
 
     @GetMapping(&quot;/kycRequestAdmin&quot;)
     public String kycRequestAdmin() {
-<span class="nc" id="L52">        return &quot;auth/kyc/kyc-admin&quot;;</span>
+<span class="nc" id="L62">        return &quot;auth/kyc/kyc-admin&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/userList&quot;)
+    public String userList() {
+<span class="nc" id="L67">        return &quot;auth/admin/userList&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/kycRequestList&quot;)
+    public String kycRequestList(Model model,
+                                 @RequestParam(required = false) UUID selectedId) {
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (selectedId != null) {</span>
+<span class="nc" id="L75">            KycRequest selected = requestService.getById(selectedId);</span>
+<span class="nc" id="L76">            model.addAttribute(&quot;selectedRequest&quot;, selected);</span>
+        }
+<span class="nc" id="L78">        return &quot;auth/admin/approve-kyc&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/logs&quot;)
+    public String adminLogs() {
+<span class="nc" id="L83">        return &quot;auth/admin/auditLog&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

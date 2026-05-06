@@ -1,37 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ActionLogService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.auth.service</a> &gt; <span class="el_source">ActionLogService.java</span></div><h1>ActionLogService.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.auth.service;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.ActionLog;
-import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.ActionLogRepository;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ActionLogService {
     ActionLogRepository logRepository;
 
-<span class="fc" id="L15">    public ActionLogService(ActionLogRepository logRepository) {</span>
-<span class="fc" id="L16">        this.logRepository = logRepository;</span>
-<span class="fc" id="L17">    }</span>
+<span class="fc" id="L13">    public ActionLogService(ActionLogRepository logRepository) {</span>
+<span class="fc" id="L14">        this.logRepository = logRepository;</span>
+<span class="fc" id="L15">    }</span>
 
-    public List&lt;ActionLog&gt; getAllLogs() {
-<span class="nc" id="L20">        return logRepository.findAllByOrderByTimestampDesc();</span>
-    }
+    public void log(String action, String actor, String actorRole, String target, String description) {
+<span class="nc" id="L18">        ActionLog log = new ActionLog();</span>
+<span class="nc" id="L19">        log.setAction(action);</span>
+<span class="nc" id="L20">        log.setActor(actor);</span>
+<span class="nc" id="L21">        log.setActorRole(actorRole);</span>
+<span class="nc" id="L22">        log.setTarget(target);</span>
+<span class="nc" id="L23">        log.setDescription(description);</span>
+<span class="nc" id="L24">        log.setTimestamp(LocalDateTime.now());</span>
 
-    public void log(String action, String actor, String actorRole,
-                    String target, String description, LogType type) {
-<span class="nc" id="L25">        ActionLog log = new ActionLog();</span>
-<span class="nc" id="L26">        log.setAction(action);</span>
-<span class="nc" id="L27">        log.setActor(actor);</span>
-<span class="nc" id="L28">        log.setActorRole(actorRole);</span>
-<span class="nc" id="L29">        log.setTarget(target);</span>
-<span class="nc" id="L30">        log.setDescription(description);</span>
-<span class="nc" id="L31">        log.setTimestamp(LocalDateTime.now());</span>
-<span class="nc" id="L32">        log.setLogType(type);</span>
-
-<span class="nc" id="L34">        logRepository.save(log);</span>
-<span class="nc" id="L35">    }</span>
+<span class="nc" id="L26">        logRepository.save(log);</span>
+<span class="nc" id="L27">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

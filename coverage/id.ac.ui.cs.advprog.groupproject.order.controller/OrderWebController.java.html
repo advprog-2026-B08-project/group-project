@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderWebController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.order.controller</a> &gt; <span class="el_source">OrderWebController.java</span></div><h1>OrderWebController.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.order.controller;
 
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import id.ac.ui.cs.advprog.groupproject.order.dto.OrderDisplayDto;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
 import id.ac.ui.cs.advprog.groupproject.order.service.OrderService;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -14,11 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.UUID;
 
 @Controller
 @RequestMapping(&quot;/order&quot;)
-<span class="fc" id="L21">public class OrderWebController {</span>
+<span class="fc" id="L30">public class OrderWebController {</span>
 
     @Autowired
     private OrderService orderService;
@@ -29,27 +38,104 @@ import java.util.UUID;
     @Autowired
     private StatusHistoryRepository statusHistoryRepository;
 
+    @Autowired
+    private CatalogRepository catalogRepository;
+
+    @Autowired
+    private WalletService walletService;
+
     @GetMapping(&quot;/list&quot;)
     public String getAllOrders(Model model, Principal principal) {
-<span class="nc" id="L34">        model.addAttribute(&quot;orders&quot;, orderService.findAll());</span>
-<span class="nc bnc" id="L35" title="All 2 branches missed.">        if (principal != null) {</span>
-<span class="nc" id="L36">            userRepository.findByUsername(principal.getName())</span>
-<span class="nc" id="L37">                .ifPresent(user -&gt; model.addAttribute(&quot;currentUserId&quot;, user.getId().toString()));</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L50">            return &quot;redirect:/login&quot;;</span>
         }
-<span class="nc" id="L39">        return &quot;order/list&quot;;</span>
+
+<span class="nc" id="L53">        User currentUser = userRepository.findByUsername(principal.getName())</span>
+<span class="nc" id="L54">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not found&quot;));</span>
+
+<span class="nc" id="L56">        UUID userId = currentUser.getId();</span>
+<span class="nc" id="L57">        boolean isAdmin = &quot;ROLE_ADMIN&quot;.equalsIgnoreCase(currentUser.getRole());</span>
+
+        List&lt;Order&gt; orders;
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (isAdmin) {</span>
+            // Admin sees all orders
+<span class="nc" id="L62">            orders = orderService.findAll();</span>
+        } else {
+            // Regular users see orders where they are buyer OR jastiper
+<span class="nc" id="L65">            LinkedHashSet&lt;Order&gt; userOrders = new LinkedHashSet&lt;&gt;();</span>
+<span class="nc" id="L66">            userOrders.addAll(orderService.findByBuyerId(userId));</span>
+<span class="nc" id="L67">            userOrders.addAll(orderService.findByJastiperId(userId));</span>
+<span class="nc" id="L68">            orders = new ArrayList&lt;&gt;(userOrders);</span>
+        }
+
+<span class="nc" id="L71">        List&lt;OrderDisplayDto&gt; displayOrders = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        for (Order order : orders) {</span>
+<span class="nc" id="L73">            displayOrders.add(enrichOrder(order));</span>
+<span class="nc" id="L74">        }</span>
+
+<span class="nc" id="L76">        model.addAttribute(&quot;orders&quot;, displayOrders);</span>
+<span class="nc" id="L77">        model.addAttribute(&quot;currentUserId&quot;, userId.toString());</span>
+<span class="nc" id="L78">        model.addAttribute(&quot;isAdmin&quot;, isAdmin);</span>
+<span class="nc" id="L79">        return &quot;order/list&quot;;</span>
     }
 
     @GetMapping(&quot;/{id}&quot;)
     public String getOrderDetail(@PathVariable UUID id, Model model, Principal principal) {
-<span class="nc" id="L44">        Order order = orderService.findById(id)</span>
-<span class="nc" id="L45">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Order not found&quot;));</span>
-<span class="nc" id="L46">        model.addAttribute(&quot;order&quot;, order);</span>
-<span class="nc" id="L47">        model.addAttribute(&quot;statusHistory&quot;, statusHistoryRepository.findByOrderIdOrderByTimestampAsc(id));</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">        if (principal != null) {</span>
-<span class="nc" id="L49">            userRepository.findByUsername(principal.getName())</span>
-<span class="nc" id="L50">                .ifPresent(user -&gt; model.addAttribute(&quot;currentUserId&quot;, user.getId().toString()));</span>
+<span class="nc" id="L84">        Order order = orderService.findById(id)</span>
+<span class="nc" id="L85">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Order not found&quot;));</span>
+
+<span class="nc" id="L87">        OrderDisplayDto displayOrder = enrichOrder(order);</span>
+
+<span class="nc" id="L89">        model.addAttribute(&quot;order&quot;, displayOrder);</span>
+<span class="nc" id="L90">        model.addAttribute(&quot;statusHistory&quot;, statusHistoryRepository.findByOrderIdOrderByTimestampAsc(id));</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (principal != null) {</span>
+<span class="nc" id="L92">            userRepository.findByUsername(principal.getName())</span>
+<span class="nc" id="L93">                .ifPresent(user -&gt; {</span>
+<span class="nc" id="L94">                    model.addAttribute(&quot;currentUserId&quot;, user.getId().toString());</span>
+<span class="nc" id="L95">                    model.addAttribute(&quot;isAdmin&quot;, &quot;ROLE_ADMIN&quot;.equalsIgnoreCase(user.getRole()));</span>
+<span class="nc" id="L96">                });</span>
         }
-<span class="nc" id="L52">        return &quot;order/detail&quot;;</span>
+<span class="nc" id="L98">        return &quot;order/detail&quot;;</span>
+    }
+
+    @GetMapping(&quot;/checkout/{productId}&quot;)
+    public String checkoutForm(@PathVariable UUID productId, Model model, Principal principal) {
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L104">            return &quot;redirect:/login&quot;;</span>
+        }
+
+<span class="nc" id="L107">        User currentUser = userRepository.findByUsername(principal.getName())</span>
+<span class="nc" id="L108">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User not found&quot;));</span>
+
+<span class="nc" id="L110">        Catalog product = catalogRepository.findById(productId)</span>
+<span class="nc" id="L111">                .orElseThrow(() -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Product not found&quot;));</span>
+
+        // Get wallet balance
+<span class="nc" id="L114">        WalletResponse wallet = walletService.getBalance(currentUser.getId());</span>
+
+<span class="nc" id="L116">        model.addAttribute(&quot;currentUser&quot;, currentUser);</span>
+<span class="nc" id="L117">        model.addAttribute(&quot;product&quot;, product);</span>
+<span class="nc" id="L118">        model.addAttribute(&quot;walletBalance&quot;, wallet.getBalance());</span>
+
+<span class="nc" id="L120">        return &quot;order/checkout&quot;;</span>
+    }
+
+    private OrderDisplayDto enrichOrder(Order order) {
+<span class="nc" id="L124">        OrderDisplayDto dto = OrderDisplayDto.from(order);</span>
+
+        // Enrich with product info
+<span class="nc" id="L127">        catalogRepository.findById(order.getProductId()).ifPresent(catalog -&gt; {</span>
+<span class="nc" id="L128">            dto.setProductName(catalog.getName());</span>
+<span class="nc" id="L129">            dto.setProductImageUrl(catalog.getImageUrl());</span>
+<span class="nc" id="L130">        });</span>
+
+        // Enrich with user info
+<span class="nc" id="L133">        userRepository.findById(order.getBuyerId()).ifPresent(user -&gt;</span>
+<span class="nc" id="L134">            dto.setBuyerUsername(user.getUsername()));</span>
+<span class="nc" id="L135">        userRepository.findById(order.getJastiperId()).ifPresent(user -&gt;</span>
+<span class="nc" id="L136">            dto.setJastiperUsername(user.getUsername()));</span>
+
+<span class="nc" id="L138">        return dto;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
