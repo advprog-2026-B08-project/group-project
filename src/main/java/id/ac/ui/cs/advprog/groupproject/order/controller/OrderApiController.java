@@ -80,7 +80,6 @@ public class OrderApiController {
         try {
             Order order = orderService.submitRating(
                     id,
-                    request.getRatingJastiper(),
                     request.getRatingProduk()
             );
             return ResponseEntity.ok(order);

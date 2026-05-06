@@ -17,10 +17,5 @@ public class RatingRequest {
     @NotNull
     @Min(1)
     @Max(5)
-    private Integer ratingJastiper;
-
-    @NotNull
-    @Min(1)
-    @Max(5)
     private Integer ratingProduk;
 }

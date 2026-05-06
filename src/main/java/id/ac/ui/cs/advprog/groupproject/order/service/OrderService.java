@@ -16,5 +16,5 @@ public interface OrderService {
     List<Order> findByJastiperId(UUID jastiperId);
     Order updateStatus(UUID orderId, OrderStatus newStatus);
     Order cancelOrder(UUID orderId);
-    Order submitRating(UUID orderId, int ratingJastiper, int ratingProduk);
+    Order submitRating(UUID orderId, int ratingProduk);
 }
