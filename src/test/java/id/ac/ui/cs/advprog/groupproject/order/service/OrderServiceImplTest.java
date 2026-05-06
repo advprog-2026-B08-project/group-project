@@ -361,4 +361,48 @@ class OrderServiceImplTest {
     assertEquals(5, result.getRatingProduk());
     verify(orderRepository).save(order);
   }
+
+  @Test
+  void findBuyerActiveOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByBuyerIdAndStatusIn(buyerId,
+            List.of(OrderStatus.PAID, OrderStatus.PURCHASED, OrderStatus.SHIPPED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findBuyerActiveOrders(buyerId);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void findBuyerCompletedOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByBuyerIdAndStatusIn(buyerId,
+            List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findBuyerCompletedOrders(buyerId);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void findJastiperTodoOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByJastiperIdAndStatusIn(jastiperId,
+            List.of(OrderStatus.PAID, OrderStatus.PURCHASED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findJastiperTodoOrders(jastiperId);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void findJastiperCompletedOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByJastiperIdAndStatusIn(jastiperId,
+            List.of(OrderStatus.SHIPPED, OrderStatus.COMPLETED, OrderStatus.CANCELLED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findJastiperCompletedOrders(jastiperId);
+    assertEquals(expected, result);
+  }
 }
