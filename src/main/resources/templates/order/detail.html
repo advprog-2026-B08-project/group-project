@@ -1,191 +1,285 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Detail</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .card { border-radius: 15px; border: none; }
-        .badge-status { font-size: 1rem; padding: 0.5rem 1rem; }
-        .timeline { position: relative; padding-left: 2rem; }
-        .timeline::before { content: ''; position: absolute; left: 0.6rem; top: 0; bottom: 0; width: 2px; background: #dee2e6; }
-        .timeline-item { position: relative; margin-bottom: 1.2rem; }
-        .timeline-dot { position: absolute; left: -1.9rem; width: 1rem; height: 1rem; border-radius: 50%; background: #0d6efd; top: 0.25rem; }
-        .timeline-dot.completed { background: #198754; }
-        .timeline-dot.cancelled { background: #dc3545; }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/order.css}">
 </head>
-<body>
+<body class="order-body">
 <div th:replace="fragments/navbar :: navbar"></div>
-<div class="container mt-5 mb-5">
 
-    <div class="d-flex align-items-center mb-4 gap-3">
-        <a href="/order/list" class="btn btn-outline-secondary">← Back</a>
-        <h2 class="mb-0 fw-bold">📋 Order Detail</h2>
+<main class="order-shell">
+    <!-- Header -->
+    <div class="detail-header">
+        <a href="/order/list" class="btn-ghost">← Kembali</a>
+        <h1>Detail Pesanan</h1>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-4">Informasi Order</h5>
+    <div class="detail-grid">
+        <!-- LEFT: Order Information -->
+        <div>
+            <div class="detail-card">
+                <div class="detail-status-row">
+                    <h3 style="margin: 0;">📋 Informasi Order</h3>
+                    <span class="status-badge-lg"
+                          th:classappend="${
+                              order.status.name() == 'PAID' ? 'status-paid' :
+                              (order.status.name() == 'PURCHASED' ? 'status-purchased' :
+                              (order.status.name() == 'SHIPPED' ? 'status-shipped' :
+                              (order.status.name() == 'COMPLETED' ? 'status-completed' : 'status-cancelled')))
+                          }"
+                          th:text="${order.status}">PAID</span>
+                </div>
 
-                    <div class="mb-3 d-flex justify-content-between align-items-center">
-                        <span class="text-muted">Status</span>
-                        <span class="badge badge-status"
-                              th:classappend="${order.status.name() == 'COMPLETED' ? 'bg-success' :
-                                              (order.status.name() == 'CANCELLED' ? 'bg-danger' :
-                                              (order.status.name() == 'SHIPPED' ? 'bg-info' :
-                                              (order.status.name() == 'PURCHASED' ? 'bg-primary' : 'bg-warning text-dark')))}"
-                              th:text="${order.status}">PAID</span>
+                <div class="detail-info-grid">
+                    <div class="detail-info-item full-width">
+                        <span class="detail-info-label">Order ID</span>
+                        <span class="detail-info-value mono" th:text="${order.id}">-</span>
                     </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Buyer ID</span>
+                        <span class="detail-info-value mono" th:text="${#strings.abbreviate(order.buyerId.toString(), 18)}">-</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Jastiper ID</span>
+                        <span class="detail-info-value mono" th:text="${#strings.abbreviate(order.jastiperId.toString(), 18)}">-</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Product ID</span>
+                        <span class="detail-info-value mono" th:text="${#strings.abbreviate(order.productId.toString(), 18)}">-</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Jumlah</span>
+                        <span class="detail-info-value" th:text="${order.quantity + ' pcs'}">-</span>
+                    </div>
+                    <div class="detail-info-item full-width">
+                        <span class="detail-info-label">Total Harga</span>
+                        <span class="detail-info-value price"
+                              th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">-</span>
+                    </div>
+                    <div class="detail-info-item full-width">
+                        <span class="detail-info-label">Alamat Pengiriman</span>
+                        <span class="detail-info-value" th:text="${order.shippingAddress}">-</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Dibuat</span>
+                        <span class="detail-info-value" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">-</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label">Diperbarui</span>
+                        <span class="detail-info-value" th:text="${#temporals.format(order.updatedAt, 'dd MMM yyyy HH:mm')}">-</span>
+                    </div>
+                </div>
 
-                    <hr>
-
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <small class="text-muted d-block">Order ID</small>
-                            <span class="font-monospace" th:text="${order.id}">-</span>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted d-block">Buyer ID</small>
-                            <span class="font-monospace" th:text="${order.buyerId}">-</span>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted d-block">Jastiper ID</small>
-                            <span class="font-monospace" th:text="${order.jastiperId}">-</span>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted d-block">Product ID</small>
-                            <span class="font-monospace" th:text="${order.productId}">-</span>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted d-block">Jumlah</small>
-                            <span th:text="${order.quantity} + ' pcs'">-</span>
-                        </div>
-                        <div class="col-12">
-                            <small class="text-muted d-block">Total Harga</small>
-                            <span class="fw-bold fs-5 text-success"
-                                  th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">-</span>
-                        </div>
-                        <div class="col-12">
-                            <small class="text-muted d-block">Alamat Pengiriman</small>
-                            <span th:text="${order.shippingAddress}">-</span>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted d-block">Dibuat</small>
-                            <span th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">-</span>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted d-block">Diperbarui</small>
-                            <span th:text="${#temporals.format(order.updatedAt, 'dd MMM yyyy HH:mm')}">-</span>
-                        </div>
+                <!-- Rating Display (if already rated) -->
+                <div class="rating-display" th:if="${order.ratingJastiper != null}">
+                    <h4>⭐ Rating</h4>
+                    <div class="rating-row">
+                        <span class="rating-label">Rating Jastiper</span>
+                        <span class="stars">
+                            <span th:each="i : ${#numbers.sequence(1,5)}"
+                                  th:classappend="${i <= order.ratingJastiper ? 'star-filled' : 'star-empty'}"
+                                  class="star">&#9733;</span>
+                        </span>
+                    </div>
+                    <div class="rating-row">
+                        <span class="rating-label">Rating Produk</span>
+                        <span class="stars">
+                            <span th:each="i : ${#numbers.sequence(1,5)}"
+                                  th:classappend="${i <= order.ratingProduk ? 'star-filled' : 'star-empty'}"
+                                  class="star">&#9733;</span>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-5">
-            <div class="card shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-4">Riwayat Status</h5>
-                    <div class="timeline">
-                        <div class="timeline-item" th:each="history : ${statusHistory}">
-                            <div class="timeline-dot"
-                                 th:classappend="${history.status.name() == 'COMPLETED' ? ' completed' :
-                                                 (history.status.name() == 'CANCELLED' ? ' cancelled' : '')}"></div>
-                            <div class="ps-1">
-                                <span class="badge"
-                                      th:classappend="${history.status.name() == 'COMPLETED' ? 'bg-success' :
-                                                      (history.status.name() == 'CANCELLED' ? 'bg-danger' :
-                                                      (history.status.name() == 'SHIPPED' ? 'bg-info' :
-                                                      (history.status.name() == 'PURCHASED' ? 'bg-primary' : 'bg-warning text-dark')))}"
-                                      th:text="${history.status}">STATUS</span>
-                                <small class="text-muted d-block mt-1"
-                                       th:text="${#temporals.format(history.timestamp, 'dd MMM yyyy HH:mm:ss')}">-</small>
+        <!-- RIGHT: Timeline + Actions + Rating -->
+        <div>
+            <div class="detail-card">
+                <h3>🕐 Riwayat Status</h3>
+                <div class="timeline">
+                    <div class="timeline-item" th:each="history : ${statusHistory}">
+                        <div class="timeline-dot"
+                             th:classappend="${history.status.name() == 'COMPLETED' ? 'dot-completed' :
+                                             (history.status.name() == 'CANCELLED' ? 'dot-cancelled' : '')}"></div>
+                        <div class="timeline-content">
+                            <span class="status-badge"
+                                  th:classappend="${
+                                      history.status.name() == 'PAID' ? 'status-paid' :
+                                      (history.status.name() == 'PURCHASED' ? 'status-purchased' :
+                                      (history.status.name() == 'SHIPPED' ? 'status-shipped' :
+                                      (history.status.name() == 'COMPLETED' ? 'status-completed' : 'status-cancelled')))
+                                  }"
+                                  th:text="${history.status}">STATUS</span>
+                            <div class="timeline-time"
+                                 th:text="${#temporals.format(history.timestamp, 'dd MMM yyyy HH:mm:ss')}">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="detail-actions">
+                    <input type="hidden" id="currentUserId" th:value="${currentUserId}">
+                    <input type="hidden" id="orderId" th:value="${order.id}">
+                    <input type="hidden" id="jastiperId" th:value="${order.jastiperId}">
+                    <input type="hidden" id="buyerId" th:value="${order.buyerId}">
+                    <input type="hidden" id="orderStatus" th:value="${order.status}">
+                    <input type="hidden" id="hasRating" th:value="${order.ratingJastiper != null ? 'true' : 'false'}">
+
+                    <button id="btnBuy" class="btn-buy" style="display:none">🛒 Konfirmasi Dibeli</button>
+                    <button id="btnShip" class="btn-ship" style="display:none">✈️ Konfirmasi Dikirim</button>
+                    <button id="btnComplete" class="btn-complete" style="display:none">✅ Konfirmasi Diterima</button>
+                    <button id="btnCancel" class="btn-cancel" style="display:none">❌ Batalkan Order</button>
+                </div>
+
+                <!-- Rating Form (only for COMPLETED + not yet rated + buyer) -->
+                <div class="rating-form" id="ratingSection" style="display:none">
+                    <h4>⭐ Beri Rating</h4>
+                    <form id="ratingForm">
+                        <div class="rating-group">
+                            <label>Rating Jastiper</label>
+                            <div class="star-input" id="starJastiper">
+                                <input type="radio" name="ratingJastiper" value="5" id="j5"><label for="j5">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="4" id="j4"><label for="j4">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="3" id="j3"><label for="j3">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="2" id="j2"><label for="j2">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="1" id="j1"><label for="j1">&#9733;</label>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-4 d-grid gap-2">
-                        <input type="hidden" id="currentUserId" th:value="${currentUserId}">
-                        <input type="hidden" id="orderId" th:value="${order.id}">
-                        <input type="hidden" id="jastiperId" th:value="${order.jastiperId}">
-                        <input type="hidden" id="buyerId" th:value="${order.buyerId}">
-                        <input type="hidden" id="orderStatus" th:value="${order.status}">
-
-                        <button id="btnBuy" class="btn btn-primary" style="display:none">🛒 Konfirmasi Dibeli</button>
-                        <button id="btnShip" class="btn btn-info text-white" style="display:none">✈️ Konfirmasi Dikirim</button>
-                        <button id="btnComplete" class="btn btn-success" style="display:none">✅ Konfirmasi Diterima</button>
-                        <button id="btnCancel" class="btn btn-outline-danger" style="display:none">❌ Batalkan Order</button>
-                    </div>
+                        <div class="rating-group">
+                            <label>Rating Produk</label>
+                            <div class="star-input" id="starProduk">
+                                <input type="radio" name="ratingProduk" value="5" id="p5"><label for="p5">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="4" id="p4"><label for="p4">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="3" id="p3"><label for="p3">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="2" id="p2"><label for="p2">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="1" id="p1"><label for="p1">&#9733;</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="rating-submit">Kirim Rating</button>
+                    </form>
+                    <div class="form-status" id="rating-status" aria-live="polite">&nbsp;</div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const currentUserId = document.getElementById('currentUserId').value;
-        const orderId = document.getElementById('orderId').value;
-        const jastiperId = document.getElementById('jastiperId').value;
-        const buyerId = document.getElementById('buyerId').value;
-        const status = document.getElementById('orderStatus').value;
+document.addEventListener('DOMContentLoaded', function() {
+    const currentUserId = document.getElementById('currentUserId').value;
+    const orderId = document.getElementById('orderId').value;
+    const jastiperId = document.getElementById('jastiperId').value;
+    const buyerId = document.getElementById('buyerId').value;
+    const status = document.getElementById('orderStatus').value;
+    const hasRating = document.getElementById('hasRating').value === 'true';
 
-        const isJastiper = currentUserId === jastiperId;
-        const isBuyer = currentUserId === buyerId;
+    const isJastiper = currentUserId === jastiperId;
+    const isBuyer = currentUserId === buyerId;
 
-        if (isJastiper && status === 'PAID') document.getElementById('btnBuy').style.display = '';
-        if (isJastiper && status === 'PURCHASED') document.getElementById('btnShip').style.display = '';
-        if (isBuyer && status === 'SHIPPED') document.getElementById('btnComplete').style.display = '';
-        if ((isJastiper || isBuyer) && (status === 'PAID' || status === 'PURCHASED')) {
-            document.getElementById('btnCancel').style.display = '';
-        }
-
-        document.getElementById('btnBuy').addEventListener('click', () => updateStatus('PURCHASED'));
-        document.getElementById('btnShip').addEventListener('click', () => updateStatus('SHIPPED'));
-        document.getElementById('btnComplete').addEventListener('click', () => updateStatus('COMPLETED'));
-        document.getElementById('btnCancel').addEventListener('click', () => cancelOrder());
-    });
-
-    async function updateStatus(newStatus) {
-        if (!confirm('Ubah status ke ' + newStatus + '?')) return;
-        try {
-            const response = await fetch('/api/orders/' + document.getElementById('orderId').value + '/status?status=' + newStatus, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            if (response.ok) {
-                alert('Status berhasil diupdate!');
-                window.location.reload();
-            } else {
-                alert('Gagal: ' + await response.text());
-            }
-        } catch (e) {
-            alert('System error.');
-        }
+    // Show relevant action buttons
+    if (isJastiper && status === 'PAID') document.getElementById('btnBuy').style.display = '';
+    if (isJastiper && status === 'PURCHASED') document.getElementById('btnShip').style.display = '';
+    if (isBuyer && status === 'SHIPPED') document.getElementById('btnComplete').style.display = '';
+    if ((isJastiper || isBuyer) && (status === 'PAID' || status === 'PURCHASED')) {
+        document.getElementById('btnCancel').style.display = '';
     }
 
-    async function cancelOrder() {
-        if (!confirm('Batalkan order ini? Saldo akan dikembalikan.')) return;
+    // Show rating form for buyer on COMPLETED orders that haven't been rated
+    if (isBuyer && status === 'COMPLETED' && !hasRating) {
+        document.getElementById('ratingSection').style.display = '';
+    }
+
+    // Button handlers
+    document.getElementById('btnBuy').addEventListener('click', () => updateStatus('PURCHASED'));
+    document.getElementById('btnShip').addEventListener('click', () => updateStatus('SHIPPED'));
+    document.getElementById('btnComplete').addEventListener('click', () => updateStatus('COMPLETED'));
+    document.getElementById('btnCancel').addEventListener('click', () => cancelOrder());
+
+    // Rating form handler
+    document.getElementById('ratingForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const statusEl = document.getElementById('rating-status');
+
+        const ratingJastiper = document.querySelector('input[name="ratingJastiper"]:checked');
+        const ratingProduk = document.querySelector('input[name="ratingProduk"]:checked');
+
+        if (!ratingJastiper || !ratingProduk) {
+            statusEl.textContent = 'Pilih rating untuk Jastiper dan Produk.';
+            statusEl.className = 'form-status tone-error';
+            return;
+        }
+
+        statusEl.textContent = 'Mengirim rating...';
+        statusEl.className = 'form-status tone-warning';
+
         try {
-            const response = await fetch('/api/orders/' + document.getElementById('orderId').value + '/cancel', {
+            const response = await fetch('/api/orders/' + orderId + '/rating', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ratingJastiper: parseInt(ratingJastiper.value),
+                    ratingProduk: parseInt(ratingProduk.value)
+                })
             });
+
             if (response.ok) {
-                alert('Order dibatalkan!');
-                window.location.href = '/order/list';
+                statusEl.textContent = 'Rating berhasil dikirim!';
+                statusEl.className = 'form-status tone-success';
+                setTimeout(() => window.location.reload(), 1000);
             } else {
-                alert('Gagal cancel: ' + await response.text());
+                const err = await response.text();
+                statusEl.textContent = 'Gagal: ' + err;
+                statusEl.className = 'form-status tone-error';
             }
-        } catch (e) {
-            alert('System error.');
+        } catch (err) {
+            statusEl.textContent = 'Terjadi kesalahan sistem.';
+            statusEl.className = 'form-status tone-error';
         }
+    });
+});
+
+async function updateStatus(newStatus) {
+    if (!confirm('Ubah status ke ' + newStatus + '?')) return;
+    try {
+        const response = await fetch('/api/orders/' + document.getElementById('orderId').value + '/status?status=' + newStatus, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+            alert('Status berhasil diupdate!');
+            window.location.reload();
+        } else {
+            alert('Gagal: ' + await response.text());
+        }
+    } catch (e) {
+        alert('System error.');
     }
+}
+
+async function cancelOrder() {
+    if (!confirm('Batalkan order ini? Saldo akan dikembalikan.')) return;
+    try {
+        const response = await fetch('/api/orders/' + document.getElementById('orderId').value + '/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+            alert('Order dibatalkan!');
+            window.location.href = '/order/list';
+        } else {
+            alert('Gagal cancel: ' + await response.text());
+        }
+    } catch (e) {
+        alert('System error.');
+    }
+}
 </script>
 </body>
 </html>
