@@ -89,5 +89,29 @@ public class OrderApiController {
 <span class="nc" id="L89">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
         }
     }
+
+    // Titiper: riwayat pesanan aktif
+    @GetMapping(&quot;/buyer/{buyerId}/active&quot;)
+    public ResponseEntity&lt;List&lt;Order&gt;&gt; getBuyerActiveOrders(@PathVariable UUID buyerId) {
+<span class="nc" id="L96">        return ResponseEntity.ok(orderService.findBuyerActiveOrders(buyerId));</span>
+    }
+
+    // Titiper: riwayat pesanan selesai
+    @GetMapping(&quot;/buyer/{buyerId}/completed&quot;)
+    public ResponseEntity&lt;List&lt;Order&gt;&gt; getBuyerCompletedOrders(@PathVariable UUID buyerId) {
+<span class="nc" id="L102">        return ResponseEntity.ok(orderService.findBuyerCompletedOrders(buyerId));</span>
+    }
+
+    // Jastiper: to-do list
+    @GetMapping(&quot;/jastiper/{jastiperId}/todo&quot;)
+    public ResponseEntity&lt;List&lt;Order&gt;&gt; getJastiperTodoOrders(@PathVariable UUID jastiperId) {
+<span class="nc" id="L108">        return ResponseEntity.ok(orderService.findJastiperTodoOrders(jastiperId));</span>
+    }
+
+    // Jastiper: pesanan selesai
+    @GetMapping(&quot;/jastiper/{jastiperId}/done&quot;)
+    public ResponseEntity&lt;List&lt;Order&gt;&gt; getJastiperDoneOrders(@PathVariable UUID jastiperId) {
+<span class="nc" id="L114">        return ResponseEntity.ok(orderService.findJastiperCompletedOrders(jastiperId));</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -184,12 +184,39 @@ public class OrderServiceImpl implements OrderService {
 <span class="fc" id="L184">        return savedOrder;</span>
     }
 
-    private void validateCheckoutRequest(CheckoutRequest request) {
-<span class="fc bfc" id="L188" title="All 2 branches covered.">        if (request.getBuyerId() == null) throw new IllegalArgumentException(&quot;Buyer ID is required&quot;);</span>
-<span class="fc bfc" id="L189" title="All 2 branches covered.">        if (request.getProductId() == null) throw new IllegalArgumentException(&quot;Product ID is required&quot;);</span>
-<span class="pc bpc" id="L190" title="1 of 4 branches missed.">        if (request.getQuantity() == null || request.getQuantity() &lt; 1) throw new IllegalArgumentException(&quot;Invalid quantity&quot;);</span>
-<span class="pc bpc" id="L191" title="1 of 4 branches missed.">        if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException(&quot;Address required&quot;);</span>
-<span class="fc" id="L192">    }</span>
-}
+    // Titiper: active orders (in progress)
+    @Override
+    public List&lt;Order&gt; findBuyerActiveOrders(UUID buyerId) {
+<span class="fc" id="L190">        return orderRepository.findByBuyerIdAndStatusIn(buyerId,</span>
+<span class="fc" id="L191">                List.of(OrderStatus.PAID, OrderStatus.PURCHASED, OrderStatus.SHIPPED));</span>
+    }
 
+    // Titiper: completed/cancelled orders
+    @Override
+    public List&lt;Order&gt; findBuyerCompletedOrders(UUID buyerId) {
+<span class="fc" id="L197">        return orderRepository.findByBuyerIdAndStatusIn(buyerId,</span>
+<span class="fc" id="L198">                List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));</span>
+    }
+
+    // Jastiper: to-do list (orders that need action)
+    @Override
+    public List&lt;Order&gt; findJastiperTodoOrders(UUID jastiperId) {
+<span class="fc" id="L204">        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,</span>
+<span class="fc" id="L205">                List.of(OrderStatus.PAID, OrderStatus.PURCHASED));</span>
+    }
+
+    // Jastiper: completed/shipped/cancelled orders
+    @Override
+    public List&lt;Order&gt; findJastiperCompletedOrders(UUID jastiperId) {
+<span class="fc" id="L211">        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,</span>
+<span class="fc" id="L212">                List.of(OrderStatus.SHIPPED, OrderStatus.COMPLETED, OrderStatus.CANCELLED));</span>
+    }
+
+    private void validateCheckoutRequest(CheckoutRequest request) {
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        if (request.getBuyerId() == null) throw new IllegalArgumentException(&quot;Buyer ID is required&quot;);</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (request.getProductId() == null) throw new IllegalArgumentException(&quot;Product ID is required&quot;);</span>
+<span class="pc bpc" id="L218" title="1 of 4 branches missed.">        if (request.getQuantity() == null || request.getQuantity() &lt; 1) throw new IllegalArgumentException(&quot;Invalid quantity&quot;);</span>
+<span class="pc bpc" id="L219" title="1 of 4 branches missed.">        if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException(&quot;Address required&quot;);</span>
+<span class="fc" id="L220">    }</span>
+}
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
