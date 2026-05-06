@@ -32,6 +32,8 @@ import id.ac.ui.cs.advprog.groupproject.order.port.PaymentPort;
 import id.ac.ui.cs.advprog.groupproject.order.port.StockPort;
 import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -48,6 +50,12 @@ class OrderServiceImplTest {
   @Mock
   private PaymentPort paymentPort;
 
+  @Mock
+  private CatalogService catalogService;
+
+  @Mock
+  private UserRepository userRepository;
+
   private OrderServiceImpl orderService;
   private UUID buyerId;
   private UUID jastiperId;
@@ -57,7 +65,8 @@ class OrderServiceImplTest {
   @BeforeEach
   void setUp() {
     orderService = new OrderServiceImpl(
-        orderRepository, statusHistoryRepository, stockPort, paymentPort);
+        orderRepository, statusHistoryRepository, stockPort, paymentPort,
+        catalogService, userRepository);
     buyerId = UUID.randomUUID();
     jastiperId = UUID.randomUUID();
     productId = UUID.randomUUID();
@@ -257,5 +266,99 @@ class OrderServiceImplTest {
 
     verify(stockPort).releaseStock(productId, 3);
     verify(paymentPort).refund(eq(buyerId), eq(BigDecimal.valueOf(300000)), anyString(), eq(orderId));
+  }
+
+  @Test
+  void submitRating_success_setsRatingAndPropagates() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+    id.ac.ui.cs.advprog.groupproject.auth.model.User buyer =
+        new id.ac.ui.cs.advprog.groupproject.auth.model.User();
+    buyer.setId(buyerId);
+    buyer.setUsername("testbuyer");
+    when(userRepository.findById(buyerId)).thenReturn(Optional.of(buyer));
+
+    Order result = orderService.submitRating(orderId, 4);
+
+    assertEquals(4, result.getRatingProduk());
+    verify(orderRepository).save(order);
+    verify(catalogService).applyProductRating(eq(productId), any(), eq(buyer));
+  }
+
+  @Test
+  void submitRating_notCompleted_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.PAID);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_alreadyRated_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setRatingProduk(3);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_invalidRating_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 0));
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 6));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_orderNotFound_throws() {
+    UUID orderId = UUID.randomUUID();
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 4));
+  }
+
+  @Test
+  void submitRating_catalogPropagationFails_stillSavesRating() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+    id.ac.ui.cs.advprog.groupproject.auth.model.User buyer =
+        new id.ac.ui.cs.advprog.groupproject.auth.model.User();
+    buyer.setId(buyerId);
+    when(userRepository.findById(buyerId)).thenReturn(Optional.of(buyer));
+    doThrow(new RuntimeException("Catalog down")).when(catalogService)
+        .applyProductRating(any(), any(), any());
+
+    Order result = orderService.submitRating(orderId, 5);
+
+    assertEquals(5, result.getRatingProduk());
+    verify(orderRepository).save(order);
   }
 }
