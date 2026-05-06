@@ -133,6 +133,30 @@ public class OrderServiceImpl implements OrderService {
         return cancelled;
     }
 
+    @Override
+    @Transactional
+    public Order submitRating(UUID orderId, int ratingJastiper, int ratingProduk) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+
+        if (order.getStatus() != OrderStatus.COMPLETED) {
+            throw new IllegalStateException("Rating hanya bisa diberikan untuk order yang sudah COMPLETED");
+        }
+
+        if (order.getRatingJastiper() != null || order.getRatingProduk() != null) {
+            throw new IllegalStateException("Order ini sudah diberi rating");
+        }
+
+        if (ratingJastiper < 1 || ratingJastiper > 5 || ratingProduk < 1 || ratingProduk > 5) {
+            throw new IllegalArgumentException("Rating harus antara 1 sampai 5");
+        }
+
+        order.setRatingJastiper(ratingJastiper);
+        order.setRatingProduk(ratingProduk);
+
+        return orderRepository.save(order);
+    }
+
     private void validateCheckoutRequest(CheckoutRequest request) {
         if (request.getBuyerId() == null) throw new IllegalArgumentException("Buyer ID is required");
         if (request.getProductId() == null) throw new IllegalArgumentException("Product ID is required");
@@ -140,3 +164,4 @@ public class OrderServiceImpl implements OrderService {
         if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException("Address required");
     }
 }
+

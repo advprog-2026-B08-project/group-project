@@ -30,6 +30,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    private Integer ratingJastiper;
+    private Integer ratingProduk;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

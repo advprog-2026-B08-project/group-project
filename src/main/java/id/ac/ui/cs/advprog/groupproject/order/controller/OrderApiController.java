@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.order.controller;
 
 import id.ac.ui.cs.advprog.groupproject.order.dto.CheckoutRequest;
+import id.ac.ui.cs.advprog.groupproject.order.dto.RatingRequest;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
 import id.ac.ui.cs.advprog.groupproject.order.model.OrderStatus;
 import id.ac.ui.cs.advprog.groupproject.order.service.OrderService;
@@ -64,6 +65,24 @@ public class OrderApiController {
     public ResponseEntity<?> cancelOrder(@PathVariable UUID id) {
         try {
             Order order = orderService.cancelOrder(id);
+            return ResponseEntity.ok(order);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}/rating")
+    public ResponseEntity<?> submitRating(
+            @PathVariable UUID id,
+            @Valid @RequestBody RatingRequest request) {
+        try {
+            Order order = orderService.submitRating(
+                    id,
+                    request.getRatingJastiper(),
+                    request.getRatingProduk()
+            );
             return ResponseEntity.ok(order);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
