@@ -40,11 +40,6 @@ public class OrderWebController {
     @Autowired
     private WalletService walletService;
 
-    @GetMapping
-    public String redirectToList() {
-        return "redirect:/order/list";
-    }
-
     @GetMapping("/list")
     public String getAllOrders(Model model, Principal principal) {
         model.addAttribute("orders", orderService.findAll());
