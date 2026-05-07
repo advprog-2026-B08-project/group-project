@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderDisplayDto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.order.dto</a> &gt; <span class="el_source">OrderDisplayDto.java</span></div><h1>OrderDisplayDto.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.order.dto;
+
+import id.ac.ui.cs.advprog.groupproject.order.model.Order;
+import id.ac.ui.cs.advprog.groupproject.order.model.OrderStatus;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+<span class="fc" id="L13">public class OrderDisplayDto {</span>
+    private UUID id;
+    private UUID buyerId;
+    private UUID jastiperId;
+    private UUID productId;
+    private Integer quantity;
+    private String shippingAddress;
+    private BigDecimal totalPrice;
+    private OrderStatus status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private Integer ratingProduk;
+
+    // Enriched fields
+    private String productName;
+    private String productImageUrl;
+    private String buyerUsername;
+    private String jastiperUsername;
+
+    public static OrderDisplayDto from(Order order) {
+<span class="fc" id="L33">        OrderDisplayDto dto = new OrderDisplayDto();</span>
+<span class="fc" id="L34">        dto.setId(order.getId());</span>
+<span class="fc" id="L35">        dto.setBuyerId(order.getBuyerId());</span>
+<span class="fc" id="L36">        dto.setJastiperId(order.getJastiperId());</span>
+<span class="fc" id="L37">        dto.setProductId(order.getProductId());</span>
+<span class="fc" id="L38">        dto.setQuantity(order.getQuantity());</span>
+<span class="fc" id="L39">        dto.setShippingAddress(order.getShippingAddress());</span>
+<span class="fc" id="L40">        dto.setTotalPrice(order.getTotalPrice());</span>
+<span class="fc" id="L41">        dto.setStatus(order.getStatus());</span>
+<span class="fc" id="L42">        dto.setCreatedAt(order.getCreatedAt());</span>
+<span class="fc" id="L43">        dto.setUpdatedAt(order.getUpdatedAt());</span>
+<span class="fc" id="L44">        dto.setRatingProduk(order.getRatingProduk());</span>
+<span class="fc" id="L45">        return dto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
