@@ -43,17 +43,20 @@ public class User implements UserDetails {
     @Column
     private String fullName;
 
+    @Column
+    private String socials;
+
     @OneToMany(mappedBy = &quot;jastiper&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
     private List&lt;Catalog&gt; catalog = new ArrayList&lt;&gt;();
 
     public boolean isJastiper() {
-<span class="fc" id="L50">        return &quot;JASTIPER&quot;.equalsIgnoreCase(this.role);</span>
+<span class="fc" id="L53">        return &quot;JASTIPER&quot;.equalsIgnoreCase(this.role);</span>
     }
 
 
     @Override
     public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
-<span class="fc" id="L56">        return List.of(new SimpleGrantedAuthority(role.toString()));</span>
+<span class="fc" id="L59">        return List.of(new SimpleGrantedAuthority(role.toString()));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

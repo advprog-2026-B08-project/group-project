@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomUserDetailService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.auth.service</a> &gt; <span class="el_source">CustomUserDetailService.java</span></div><h1>CustomUserDetailService.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.auth.service;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
 import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
 import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
@@ -7,6 +8,8 @@ import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 import id.ac.ui.cs.advprog.groupproject.event.UserRegisteredEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -21,102 +24,159 @@ public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final ActionLogService logService;
 
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-<span class="fc" id="L26">                                   ApplicationEventPublisher eventPublisher) {</span>
-<span class="fc" id="L27">        this.userRepository = userRepository;</span>
-<span class="fc" id="L28">        this.passwordEncoder = passwordEncoder;</span>
-<span class="fc" id="L29">        this.eventPublisher = eventPublisher;</span>
-<span class="fc" id="L30">    }</span>
+    public CustomUserDetailService(UserRepository userRepository,
+                                   PasswordEncoder passwordEncoder,
+                                   ApplicationEventPublisher eventPublisher,
+<span class="fc" id="L32">                                   ActionLogService logService) {</span>
+<span class="fc" id="L33">        this.userRepository = userRepository;</span>
+<span class="fc" id="L34">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L35">        this.eventPublisher = eventPublisher;</span>
+<span class="fc" id="L36">        this.logService = logService;</span>
+<span class="fc" id="L37">    }</span>
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-<span class="nc" id="L34">        User user = userRepository.findByEmail(email).orElseThrow(() -&gt;</span>
-<span class="nc" id="L35">                new UsernameNotFoundException(&quot;User not found&quot;));</span>
+<span class="nc" id="L41">        User user = userRepository.findByEmail(email).orElseThrow(() -&gt;</span>
+<span class="nc" id="L42">                new UsernameNotFoundException(&quot;User not found&quot;));</span>
 
-<span class="nc" id="L37">        return user;</span>
+<span class="nc" id="L44">        return user;</span>
     }
 
     public boolean emailExists(String email) {
-<span class="nc" id="L41">        return userRepository.findByEmail(email).isPresent();</span>
+<span class="nc" id="L48">        return userRepository.findByEmail(email).isPresent();</span>
     }
     public boolean confirmPassword(String password, String confirmPassword) {
-<span class="nc" id="L44">        return password.equals(confirmPassword);</span>
+<span class="nc" id="L51">        return password.equals(confirmPassword);</span>
     }
 
     public User createUser(String email, String password, String username, String fullName) {
-<span class="nc" id="L48">        String usernameInput = username;</span>
-<span class="nc bnc" id="L49" title="All 4 branches missed.">        if (usernameInput == null || usernameInput.isBlank()) {</span>
-<span class="nc" id="L50">            usernameInput = getDefaultUsername(email);</span>
+<span class="nc" id="L55">        String usernameInput = username;</span>
+<span class="nc bnc" id="L56" title="All 4 branches missed.">        if (usernameInput == null || usernameInput.isBlank()) {</span>
+<span class="nc" id="L57">            usernameInput = getDefaultUsername(email);</span>
         }
 
-<span class="nc" id="L53">        User user = new User();</span>
-<span class="nc" id="L54">        user.setUsername(usernameInput);</span>
-<span class="nc" id="L55">        user.setPassword(passwordEncoder.encode(password));</span>
-<span class="nc" id="L56">        user.setRole(Role.ROLE_TITIPER.toString());</span>
-<span class="nc" id="L57">        user.setStatus(Status.ACTIVE.toString());</span>
-<span class="nc" id="L58">        user.setEmail(email);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (fullName != null) user.setFullName(fullName);</span>
+<span class="nc" id="L60">        User user = new User();</span>
+<span class="nc" id="L61">        user.setUsername(usernameInput);</span>
+<span class="nc" id="L62">        user.setPassword(passwordEncoder.encode(password));</span>
+<span class="nc" id="L63">        user.setRole(Role.ROLE_TITIPER.toString());</span>
+<span class="nc" id="L64">        user.setStatus(Status.ACTIVE.toString());</span>
+<span class="nc" id="L65">        user.setEmail(email);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (fullName != null) user.setFullName(fullName);</span>
 
-<span class="nc" id="L61">        userRepository.save(user);</span>
-<span class="nc" id="L62">        eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));</span>
-<span class="nc" id="L63">        return user;</span>
+<span class="nc" id="L68">        userRepository.save(user);</span>
+<span class="nc" id="L69">        eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));</span>
+
+<span class="nc" id="L71">        String description = user.getUsername()</span>
+                + &quot; created a new account!&quot;;
+<span class="nc" id="L73">        logService.log(&quot;Registered a new user&quot;, user.getUsername(),</span>
+<span class="nc" id="L74">                user.getRole(), null, description, LogType.INFO);</span>
+<span class="nc" id="L75">        return user;</span>
     }
 
     public String getDefaultUsername(String email) {
-<span class="nc" id="L67">        return email.split(&quot;@&quot;)[0];</span>
+<span class="nc" id="L79">        return email.split(&quot;@&quot;)[0];</span>
     }
 
     public Map&lt;String, Long&gt; getUserCountByRole() {
-<span class="fc" id="L71">        List&lt;Object[]&gt; results = userRepository.countUsersByRole();</span>
-<span class="fc" id="L72">        Map&lt;String, Long&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L83">        List&lt;Object[]&gt; results = userRepository.countUsersByRole();</span>
+<span class="nc" id="L84">        Map&lt;String, Long&gt; map = new HashMap&lt;&gt;();</span>
 
-<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        for (Object[] row : results) {</span>
-<span class="nc" id="L75">            String role = (String) row[0];</span>
-<span class="nc" id="L76">            Long count = (Long) row[1];</span>
-<span class="nc" id="L77">            map.put(role, count);</span>
-<span class="nc" id="L78">        }</span>
-<span class="fc" id="L79">        return map;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (Object[] row : results) {</span>
+<span class="nc" id="L87">            String role = (String) row[0];</span>
+<span class="nc" id="L88">            Long count = (Long) row[1];</span>
+<span class="nc" id="L89">            map.put(role, count);</span>
+<span class="nc" id="L90">        }</span>
+<span class="nc" id="L91">        return map;</span>
     }
 
     public List&lt;User&gt; getUserList() {
-<span class="fc" id="L83">        return userRepository.findAll();</span>
+<span class="nc" id="L95">        return userRepository.findAll();</span>
     }
 
-    public void makeStatusPending(User user) {
-<span class="nc" id="L87">        User repoUser = userRepository.findById(user.getId())</span>
-<span class="nc" id="L88">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (!repoUser.getRole().equals(&quot;ROLE_TITIPER&quot;)) {</span>
-<span class="nc" id="L90">            throw new RuntimeException(&quot;Invalid user role!&quot;);</span>
+    public void demote(User admin, UUID id) {
+<span class="nc" id="L99">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if(!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="nc" id="L101">            String description = admin.getUsername()</span>
+                    + &quot;tried to perform an unauthorized action of demoting another user&quot;;
+<span class="nc" id="L103">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
+<span class="nc" id="L104">                    admin.getRole(), null, description, LogType.DANGER);</span>
+<span class="nc" id="L105">            return;</span>
         }
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (!repoUser.getStatus().equals(&quot;ACTIVE&quot;)) {</span>
-<span class="nc" id="L93">            throw new RuntimeException(&quot;Invalid user status!&quot;);</span>
-        }
-
-<span class="nc" id="L96">        repoUser.setStatus(Status.PENDING.toString());</span>
-<span class="nc" id="L97">        userRepository.save(repoUser);</span>
-<span class="nc" id="L98">    }</span>
-
-    public void demote(UUID id) {
-<span class="nc" id="L101">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (!user.getRole().equals(&quot;ROLE_JASTIPER&quot;)) {</span>
-<span class="nc" id="L103">            throw new RuntimeException(&quot;Invalid role for demotion!&quot;);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (!user.getRole().equals(&quot;ROLE_JASTIPER&quot;)) {</span>
+<span class="nc" id="L108">            throw new RuntimeException(&quot;Invalid role for demotion!&quot;);</span>
         }
 
-<span class="nc" id="L106">        user.setRole(Role.ROLE_TITIPER.toString());</span>
-<span class="nc" id="L107">        userRepository.save(user);</span>
+<span class="nc" id="L111">        user.setRole(Role.ROLE_TITIPER.toString());</span>
+<span class="nc" id="L112">        userRepository.save(user);</span>
 
-<span class="nc" id="L109">    }</span>
+<span class="nc" id="L114">        String description = admin.getUsername()</span>
+                + &quot; banned &quot;
+<span class="nc" id="L116">                + user.getUsername()</span>
+                + &quot;'s account&quot;;
 
-    public void ban(UUID id) {
-<span class="nc" id="L112">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (user.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
-<span class="nc" id="L114">            throw new RuntimeException(&quot;Invalid role for banning!&quot;);</span>
+<span class="nc" id="L119">        logService.log(&quot;Demoted a user&quot;, admin.getUsername(),</span>
+<span class="nc" id="L120">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
+<span class="nc" id="L121">    }</span>
+
+    public void ban(User admin, UUID id) {
+<span class="nc" id="L124">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="nc" id="L126">            String description = admin.getUsername()</span>
+                    + &quot;tried to perform an unauthorized action of banning another user&quot;;
+<span class="nc" id="L128">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
+<span class="nc" id="L129">                    admin.getRole(), null, description, LogType.DANGER);</span>
+<span class="nc" id="L130">            return;</span>
+        }
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (user.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="nc" id="L133">            throw new RuntimeException(&quot;Invalid role for banning!&quot;);</span>
         }
 
-<span class="nc" id="L117">        user.setStatus(Status.BANNED.toString());</span>
-<span class="nc" id="L118">        userRepository.save(user);</span>
-<span class="nc" id="L119">    }</span>
+<span class="nc" id="L136">        user.setStatus(Status.BANNED.toString());</span>
+<span class="nc" id="L137">        userRepository.save(user);</span>
+
+<span class="nc" id="L139">        String description = admin.getUsername()</span>
+                + &quot; banned &quot;
+<span class="nc" id="L141">                + user.getUsername()</span>
+                + &quot;'s account&quot;;
+
+<span class="nc" id="L144">        logService.log(&quot;Banned a user&quot;, admin.getUsername(),</span>
+<span class="nc" id="L145">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
+<span class="nc" id="L146">    }</span>
+
+    public void updateProfile(UUID id, String username, String socials, String fullName, String profilePictureURL) {
+<span class="nc" id="L149">        User user = userRepository.findById(id)</span>
+<span class="nc" id="L150">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
+
+<span class="nc" id="L152">        user.setUsername(username);</span>
+
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (socials != null) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (!socials.isBlank()) {</span>
+<span class="nc" id="L156">                user.setSocials(socials);</span>
+            }
+        }
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (fullName != null) {</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            if (!fullName.isBlank()) {</span>
+<span class="nc" id="L161">                user.setFullName(fullName);</span>
+            }
+        }
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (profilePictureURL != null) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (!profilePictureURL.isBlank()) {</span>
+<span class="nc" id="L166">                user.setProfilePictureURL(profilePictureURL);</span>
+            }
+        }
+<span class="nc" id="L169">        userRepository.save(user);</span>
+
+<span class="nc" id="L171">        UsernamePasswordAuthenticationToken auth =</span>
+                new UsernamePasswordAuthenticationToken(
+                        user,
+                        null,
+<span class="nc" id="L175">                        user.getAuthorities()</span>
+                );
+
+<span class="nc" id="L178">        SecurityContextHolder.getContext().setAuthentication(auth);</span>
+<span class="nc" id="L179">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

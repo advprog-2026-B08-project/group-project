@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.auth.controller</a> &gt; <span class="el_source">AdminController.java</span></div><h1>AdminController.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -13,34 +18,73 @@ import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
 public class AdminController {
     private final CustomUserDetailService userDetailService;
     private final KycRequestService requestService;
+    private final ActionLogService logService;
 
-<span class="fc" id="L17">    public AdminController(CustomUserDetailService userDetailService, KycRequestService requestService) {</span>
-<span class="fc" id="L18">        this.userDetailService = userDetailService;</span>
-<span class="fc" id="L19">        this.requestService = requestService;</span>
-<span class="fc" id="L20">    }</span>
+    public AdminController(CustomUserDetailService userDetailService,
+                           KycRequestService requestService,
+<span class="fc" id="L25">                           ActionLogService logService) {</span>
+<span class="fc" id="L26">        this.userDetailService = userDetailService;</span>
+<span class="fc" id="L27">        this.requestService = requestService;</span>
+<span class="fc" id="L28">        this.logService = logService;</span>
+<span class="fc" id="L29">    }</span>
+
+    @GetMapping(&quot;/admin&quot;)
+    public String admin(Model model) {
+<span class="nc" id="L33">        model.addAttribute(&quot;roleCount&quot;, userDetailService.getUserCountByRole());</span>
+<span class="nc" id="L34">        model.addAttribute(&quot;requestCount&quot;, requestService.getRequestCountByStatus());</span>
+<span class="nc" id="L35">        return &quot;auth/admin/admin&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/userList&quot;)
+    public String userList(Model model) {
+<span class="nc" id="L40">        model.addAttribute(&quot;userList&quot;, userDetailService.getUserList());</span>
+<span class="nc" id="L41">        return &quot;auth/admin/userList&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/kycRequestList&quot;)
+    public String kycRequestList(Model model,
+                                 @RequestParam(required = false) UUID selectedId) {
+<span class="nc" id="L47">        model.addAttribute(&quot;requestList&quot;, requestService.getRequestList());</span>
+<span class="nc" id="L48">        model.addAttribute(&quot;requestCount&quot;, requestService.getRequestCountByStatus());</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (selectedId != null) {</span>
+<span class="nc" id="L50">            KycRequest selected = requestService.getById(selectedId);</span>
+<span class="nc" id="L51">            model.addAttribute(&quot;selectedRequest&quot;, selected);</span>
+        }
+<span class="nc" id="L53">        return &quot;auth/admin/approve-kyc&quot;;</span>
+    }
+
+    @GetMapping(&quot;/admin/logs&quot;)
+    public String adminLogs(Model model) {
+<span class="nc" id="L58">        model.addAttribute(&quot;logs&quot;, logService.getAllLogs());</span>
+<span class="nc" id="L59">        return &quot;auth/admin/auditLog&quot;;</span>
+    }
 
     @PostMapping(&quot;/admin/demote&quot;)
-    public String demote(@RequestParam UUID userId) {
-<span class="nc" id="L24">        userDetailService.demote(userId);</span>
-<span class="nc" id="L25">        return &quot;redirect:/admin/userList&quot;;</span>
+    public String demote(@AuthenticationPrincipal User admin,
+                         @RequestParam UUID userId) {
+<span class="nc" id="L65">        userDetailService.demote(admin, userId);</span>
+<span class="nc" id="L66">        return &quot;redirect:/admin/userList&quot;;</span>
     }
 
     @PostMapping(&quot;/admin/ban&quot;)
-    public String ban(@RequestParam UUID userId) {
-<span class="nc" id="L30">        userDetailService.ban(userId);</span>
-<span class="nc" id="L31">        return &quot;redirect:/admin/userList&quot;;</span>
+    public String ban(@AuthenticationPrincipal User admin,
+                      @RequestParam UUID userId) {
+<span class="nc" id="L72">        userDetailService.ban(admin, userId);</span>
+<span class="nc" id="L73">        return &quot;redirect:/admin/userList&quot;;</span>
     }
 
     @PostMapping(&quot;/admin/kyc/accept&quot;)
-    public String acceptRequest(@RequestParam UUID requestId) {
-<span class="nc" id="L36">        requestService.closeAcceptedRequest(requestId);</span>
-<span class="nc" id="L37">        return &quot;redirect:/admin/kycRequestList&quot;;</span>
+    public String acceptRequest(@AuthenticationPrincipal User admin,
+                                @RequestParam UUID requestId) {
+<span class="nc" id="L79">        requestService.closeAcceptedRequest(admin, requestId);</span>
+<span class="nc" id="L80">        return &quot;redirect:/admin/kycRequestList&quot;;</span>
     }
 
     @PostMapping(&quot;/admin/kyc/reject&quot;)
-    public String rejectRequest(@RequestParam UUID requestId) {
-<span class="nc" id="L42">        requestService.closeRejectedRequest(requestId);</span>
-<span class="nc" id="L43">        return &quot;redirect:/admin/kycRequestList&quot;;</span>
+    public String rejectRequest(@AuthenticationPrincipal User admin,
+                                @RequestParam UUID requestId) {
+<span class="nc" id="L86">        requestService.closeRejectedRequest(admin, requestId);</span>
+<span class="nc" id="L87">        return &quot;redirect:/admin/kycRequestList&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

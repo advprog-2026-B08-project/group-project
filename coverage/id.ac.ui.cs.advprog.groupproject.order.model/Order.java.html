@@ -5,14 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 @Entity
 @Table(name = &quot;orders&quot;)
 @Getter
 @Setter
-<span class="fc" id="L15">public class Order {</span>
+<span class="fc" id="L14">public class Order {</span>
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,39 +30,23 @@ import java.util.UUID;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private Integer ratingJastiper;
-    private Integer ratingProduk;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @PrePersist
     public void prePersist() {
-<span class="fc bfc" id="L42" title="All 4 branches covered.">        if (buyerId != null &amp;&amp; buyerId.equals(jastiperId)) {</span>
-<span class="fc" id="L43">            throw new IllegalArgumentException(&quot;Jastiper tidak boleh memesan dari jasanya sendiri!&quot;);</span>
+<span class="fc bfc" id="L38" title="All 4 branches covered.">        if (buyerId != null &amp;&amp; buyerId.equals(jastiperId)) {</span>
+<span class="fc" id="L39">            throw new IllegalArgumentException(&quot;Jastiper tidak boleh memesan dari jasanya sendiri!&quot;);</span>
         }
-<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (createdAt == null) {</span>
-<span class="fc" id="L46">            createdAt = LocalDateTime.now();</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (createdAt == null) {</span>
+<span class="fc" id="L42">            createdAt = LocalDateTime.now();</span>
         }
-<span class="fc" id="L48">        updatedAt = LocalDateTime.now();</span>
-<span class="fc" id="L49">    }</span>
+<span class="fc" id="L44">        updatedAt = LocalDateTime.now();</span>
+<span class="fc" id="L45">    }</span>
 
     @PreUpdate
     public void preUpdate() {
-<span class="nc" id="L53">        updatedAt = LocalDateTime.now();</span>
-<span class="nc" id="L54">    }</span>
-
-    @Override
-    public boolean equals(Object o) {
-<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (this == o) return true;</span>
-<span class="fc bfc" id="L59" title="All 4 branches covered.">        if (o == null || getClass() != o.getClass()) return false;</span>
-<span class="fc" id="L60">        Order order = (Order) o;</span>
-<span class="fc bfc" id="L61" title="All 4 branches covered.">        return id != null &amp;&amp; Objects.equals(id, order.id);</span>
-    }
-
-    @Override
-    public int hashCode() {
-<span class="fc bfc" id="L66" title="All 2 branches covered.">        return id != null ? id.hashCode() : System.identityHashCode(this);</span>
-    }
+<span class="nc" id="L49">        updatedAt = LocalDateTime.now();</span>
+<span class="nc" id="L50">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
