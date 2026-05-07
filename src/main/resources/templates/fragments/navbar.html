@@ -11,7 +11,7 @@
         <div th:if="${user.role == 'ROLE_JASTIPER' or user.role == 'ROLE_TITIPER' or user.role =='ROLE_ADMIN'}">
             <a th:href="@{/catalog}">Catalog</a>
         </div>
-        <a th:href="@{/order}">Order</a>
+        <a th:href="@{/order/list}">Order</a>
         <a th:href="@{/wallet}">Wallet</a>
     </div>
 
