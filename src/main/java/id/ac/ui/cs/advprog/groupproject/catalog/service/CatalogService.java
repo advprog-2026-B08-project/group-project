@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
@@ -63,7 +64,8 @@ public class CatalogService {
         currentUser.getUsername(),
         currentUser.getRole(),
         getCatalogTarget(savedCatalog),
-        "Created catalog '" + savedCatalog.getName() + "'");
+        "Created catalog '" + savedCatalog.getName() + "'",
+            LogType.INFO);
     return savedCatalog;
   }
 
@@ -127,7 +129,8 @@ public class CatalogService {
         currentUser.getUsername(),
         currentUser.getRole(),
         getCatalogTarget(updatedCatalog),
-        "Updated catalog '" + updatedCatalog.getName() + "'");
+        "Updated catalog '" + updatedCatalog.getName() + "'",
+            LogType.INFO);
     return updatedCatalog;
   }
 
@@ -145,7 +148,8 @@ public class CatalogService {
         "SYSTEM_ADMIN",
         "ADMIN",
         getCatalogTarget(updatedCatalog),
-        "Admin updated catalog '" + updatedCatalog.getName() + "'");
+        "Admin updated catalog '" + updatedCatalog.getName() + "'",
+            LogType.INFO);
     return updatedCatalog;
   }
 
@@ -166,7 +170,8 @@ public class CatalogService {
         currentUser.getUsername(),
         currentUser.getRole(),
         catalogId.toString(),
-        "Deleted catalog '" + catalog.getName() + "'");
+        "Deleted catalog '" + catalog.getName() + "'",
+            LogType.WARN);
   }
 
   public void deleteCatalogByAdmin(UUID catalogId) {
@@ -181,7 +186,8 @@ public class CatalogService {
         "SYSTEM_ADMIN",
         "ADMIN",
         catalogId.toString(),
-        "Admin deleted catalog '" + catalog.getName() + "'");
+        "Admin deleted catalog '" + catalog.getName() + "'",
+            LogType.WARN);
   }
 
   @Transactional

@@ -1,13 +1,11 @@
 package id.ac.ui.cs.advprog.groupproject.auth.service;
 
-import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
-import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
-import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.model.*;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.KycRequestRepository;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,11 +15,14 @@ import java.util.UUID;
 public class KycRequestService {
     KycRequestRepository kycRequestRepository;
     UserRepository userRepository;
+    ActionLogService logService;
 
     public KycRequestService(KycRequestRepository kycRequestRepository,
-                             UserRepository userRepository) {
+                             UserRepository userRepository,
+                             ActionLogService logService) {
         this.kycRequestRepository = kycRequestRepository;
         this.userRepository = userRepository;
+        this.logService = logService;
     }
     public KycRequest createRequestForJastiper(User user, String email,
                                                String fullName, String socials) {
@@ -38,6 +39,12 @@ public class KycRequestService {
 
         kycRequestRepository.save(request);
         userRepository.save(user);
+
+        String description = user.getUsername()
+                + " submitted an application to be a jastiper";
+        logService.log("Submitted an application", user.getUsername(),
+                user.getRole(), null, description, LogType.INFO);
+
         return request;
     }
 
@@ -78,12 +85,19 @@ public class KycRequestService {
         return kycRequestRepository.getPendingRequests();
     }
 
-    public void closeAcceptedRequest(UUID requestId) {
+    public void closeAcceptedRequest(User admin, UUID requestId) {
         KycRequest request = kycRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found!"));
         User user = userRepository.findById(request.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("User not Found!"));
 
+        if (!admin.getRole().equals("ROLE_ADMIN")) {
+            String description = admin.getUsername()
+                    + "tried to perform an unauthorized action of accepting a kyc request";
+            logService.log("Unauthorized action", admin.getUsername(),
+                    admin.getRole(), null, description, LogType.DANGER);
+            return;
+        }
         if (!request.getUser().getRole().equals("ROLE_TITIPER")) {
             throw new RuntimeException("Invalid user role!");
         }
@@ -104,14 +118,29 @@ public class KycRequestService {
         user.setStatus(Status.ACTIVE.toString());
         user.setRole(Role.ROLE_JASTIPER.toString());
         userRepository.save(user);
+
+        String description = admin.getUsername()
+                + " accepted "
+                + user.getUsername()
+                + "'s application to be a jastiper";
+
+        logService.log("Accept kyc application", admin.getUsername(),
+                admin.getRole(), user.getRole(), description, LogType.INFO);
     }
 
-    public void closeRejectedRequest(UUID requestId) {
+    public void closeRejectedRequest(User admin, UUID requestId) {
         KycRequest request = kycRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found!"));
         User user = userRepository.findById(request.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("User not Found!"));
 
+        if(!admin.getRole().equals("ROLE_ADMIN")) {
+            String description = admin.getUsername()
+                    + "tried to perform an unauthorized action of rejecting a kyc request";
+            logService.log("Unauthorized action", admin.getUsername(),
+                    admin.getRole(), null, description, LogType.DANGER);
+            return;
+        }
         if (!request.getUser().getRole().equals("ROLE_TITIPER")) {
             throw new RuntimeException("Invalid user role!");
         }
@@ -131,6 +160,13 @@ public class KycRequestService {
 
         user.setStatus(Status.ACTIVE.toString());
         userRepository.save(user);
+
+        String description = admin.getUsername()
+                + " rejected "
+                + user.getUsername()
+                + "'s application to be a jastiper";
+        logService.log("Rejected kyc application", admin.getUsername(),
+                admin.getRole(), user.getUsername(), description, LogType.WARN);
     }
 
     public KycRequest getById(UUID id) {

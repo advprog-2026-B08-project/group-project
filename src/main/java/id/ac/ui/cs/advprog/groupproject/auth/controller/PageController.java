@@ -37,16 +37,6 @@ public class PageController {
         return "auth/register";
     }
 
-    @GetMapping("/profile")
-    public String profile() {
-        return "auth/profile";
-    }
-
-    @GetMapping("/admin")
-    public String admin() {
-        return "auth/admin/admin";
-    }
-
     @GetMapping("/order")
     public String order() {
         return "order/list";
@@ -60,26 +50,5 @@ public class PageController {
     @GetMapping("/kycRequestAdmin")
     public String kycRequestAdmin() {
         return "auth/kyc/kyc-admin";
-    }
-
-    @GetMapping("/admin/userList")
-    public String userList() {
-        return "auth/admin/userList";
-    }
-
-    @GetMapping("/admin/kycRequestList")
-    public String kycRequestList(Model model,
-                                 @RequestParam(required = false) UUID selectedId) {
-
-        if (selectedId != null) {
-            KycRequest selected = requestService.getById(selectedId);
-            model.addAttribute("selectedRequest", selected);
-        }
-        return "auth/admin/approve-kyc";
-    }
-
-    @GetMapping("/admin/logs")
-    public String adminLogs() {
-        return "auth/admin/auditLog";
     }
 }
