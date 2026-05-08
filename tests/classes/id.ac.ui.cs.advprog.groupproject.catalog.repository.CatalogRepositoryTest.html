@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.410s</div>
+<div class="counter">0.482s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,27 +79,27 @@
 </thead>
 <tr>
 <td class="success">testApplyProductRating_UpdatesAggregateRating()</td>
-<td class="success">0.036s</td>
+<td class="success">0.059s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testDecreaseStockIfAvailable_FailsWhenInsufficientStock()</td>
-<td class="success">0.014s</td>
+<td class="success">0.015s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testDecreaseStockIfAvailable_Success()</td>
-<td class="success">0.287s</td>
+<td class="success">0.292s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testFindByJastiperId_EmptyResult()</td>
-<td class="success">0.051s</td>
+<td class="success">0.081s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testFindByJastiperId_MultipleResults()</td>
-<td class="success">0.022s</td>
+<td class="success">0.035s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -107,8 +107,8 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-08T10:43:18.836Z  INFO 2632 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepositoryTest]: CatalogRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-05-08T10:43:18.863Z  INFO 2632 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepositoryTest
+<pre>2026-05-08T15:54:00.324Z  INFO 2471 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepositoryTest]: CatalogRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-05-08T15:54:00.352Z  INFO 2471 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepositoryTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -119,49 +119,49 @@
 
  :: Spring Boot ::               (v3.5.10)
 
-2026-05-08T10:43:18.902Z  INFO 2632 --- [group-project] [    Test worker] i.a.u.c.a.g.c.r.CatalogRepositoryTest    : Starting CatalogRepositoryTest using Java 21.0.10 with PID 2632 (started by runner in /home/runner/work/group-project/group-project)
-2026-05-08T10:43:18.902Z  INFO 2632 --- [group-project] [    Test worker] i.a.u.c.a.g.c.r.CatalogRepositoryTest    : The following 1 profile is active: &quot;test&quot;
-2026-05-08T10:43:18.997Z  INFO 2632 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-05-08T10:43:19.032Z  INFO 2632 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 33 ms. Found 9 JPA repository interfaces.
-2026-05-08T10:43:19.081Z  INFO 2632 --- [group-project] [    Test worker] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
-2026-05-08T10:43:19.164Z  INFO 2632 --- [group-project] [    Test worker] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:8aceaf81-3230-42d0-bd61-cd08e122d4b1;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
-2026-05-08T10:43:19.227Z  INFO 2632 --- [group-project] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:8aceaf81-3230-42d0-bd61-cd08e122d4b1 (H2 2.3)
-2026-05-08T10:43:19.244Z  INFO 2632 --- [group-project] [    Test worker] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table &quot;PUBLIC&quot;.&quot;flyway_schema_history&quot; does not exist yet
-2026-05-08T10:43:19.245Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.008s)
-2026-05-08T10:43:19.247Z  INFO 2632 --- [group-project] [    Test worker] org.flywaydb.core.Flyway                 : All configured schemas are empty; baseline operation skipped. A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended.
-2026-05-08T10:43:19.247Z  INFO 2632 --- [group-project] [    Test worker] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table &quot;PUBLIC&quot;.&quot;flyway_schema_history&quot; ...
-2026-05-08T10:43:19.259Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema &quot;PUBLIC&quot;: &lt;&lt; Empty Schema &gt;&gt;
-2026-05-08T10:43:19.262Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;1 - Create users table&quot;
-2026-05-08T10:43:19.276Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;2 - Create catalog table&quot;
-2026-05-08T10:43:19.290Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;3 - Alter users table&quot;
-2026-05-08T10:43:19.314Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260306.2137 - Create wallet tables&quot;
-2026-05-08T10:43:19.327Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260416 - Create order tables&quot;
-2026-05-08T10:43:19.340Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260417 - Create kyc request table&quot;
-2026-05-08T10:43:19.349Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260417.2 - Alter table users&quot;
-2026-05-08T10:43:19.368Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260422.1000 - Add reference id to wallet transactions&quot;
-2026-05-08T10:43:19.380Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260504.2 - Add catalog rating tables&quot;
-2026-05-08T10:43:19.401Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260504.2207 - Create table log&quot;
-2026-05-08T10:43:19.406Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0001 - Add catalog version column&quot;
-2026-05-08T10:43:19.416Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0002 - Alter activity log actor role column&quot;
-2026-05-08T10:43:19.421Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0003 - Alter table activity log add log type&quot;
-2026-05-08T10:43:19.428Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0004 - Alter table users add column socials&quot;
-2026-05-08T10:43:19.439Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260506.0001 - Add order rating columns&quot;
-2026-05-08T10:43:19.452Z  INFO 2632 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Successfully applied 15 migrations to schema &quot;PUBLIC&quot;, now at version v20260506.0001 (execution time 00:00.103s)
-2026-05-08T10:43:19.470Z  INFO 2632 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-05-08T10:43:19.474Z  INFO 2632 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-05-08T10:43:19.484Z  INFO 2632 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-05-08T10:43:19.486Z  WARN 2632 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-05-08T10:43:19.487Z  INFO 2632 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@78bdb72a']
+2026-05-08T15:54:00.397Z  INFO 2471 --- [group-project] [    Test worker] i.a.u.c.a.g.c.r.CatalogRepositoryTest    : Starting CatalogRepositoryTest using Java 21.0.10 with PID 2471 (started by runner in /home/runner/work/group-project/group-project)
+2026-05-08T15:54:00.397Z  INFO 2471 --- [group-project] [    Test worker] i.a.u.c.a.g.c.r.CatalogRepositoryTest    : The following 1 profile is active: &quot;test&quot;
+2026-05-08T15:54:00.482Z  INFO 2471 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-08T15:54:00.500Z  INFO 2471 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 15 ms. Found 9 JPA repository interfaces.
+2026-05-08T15:54:00.535Z  INFO 2471 --- [group-project] [    Test worker] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-05-08T15:54:00.582Z  INFO 2471 --- [group-project] [    Test worker] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:1ec31bc6-90e3-4590-b5a5-b5866e1374d5;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-05-08T15:54:00.621Z  INFO 2471 --- [group-project] [    Test worker] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:1ec31bc6-90e3-4590-b5a5-b5866e1374d5 (H2 2.3)
+2026-05-08T15:54:00.635Z  INFO 2471 --- [group-project] [    Test worker] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table &quot;PUBLIC&quot;.&quot;flyway_schema_history&quot; does not exist yet
+2026-05-08T15:54:00.636Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbValidate     : Successfully validated 15 migrations (execution time 00:00.009s)
+2026-05-08T15:54:00.639Z  INFO 2471 --- [group-project] [    Test worker] org.flywaydb.core.Flyway                 : All configured schemas are empty; baseline operation skipped. A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended.
+2026-05-08T15:54:00.639Z  INFO 2471 --- [group-project] [    Test worker] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table &quot;PUBLIC&quot;.&quot;flyway_schema_history&quot; ...
+2026-05-08T15:54:00.651Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Current version of schema &quot;PUBLIC&quot;: &lt;&lt; Empty Schema &gt;&gt;
+2026-05-08T15:54:00.656Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;1 - Create users table&quot;
+2026-05-08T15:54:00.667Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;2 - Create catalog table&quot;
+2026-05-08T15:54:00.678Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;3 - Alter users table&quot;
+2026-05-08T15:54:00.703Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260306.2137 - Create wallet tables&quot;
+2026-05-08T15:54:00.719Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260416 - Create order tables&quot;
+2026-05-08T15:54:00.731Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260417 - Create kyc request table&quot;
+2026-05-08T15:54:00.740Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260417.2 - Alter table users&quot;
+2026-05-08T15:54:00.761Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260422.1000 - Add reference id to wallet transactions&quot;
+2026-05-08T15:54:00.773Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260504.2 - Add catalog rating tables&quot;
+2026-05-08T15:54:00.796Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260504.2207 - Create table log&quot;
+2026-05-08T15:54:00.805Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0001 - Add catalog version column&quot;
+2026-05-08T15:54:00.814Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0002 - Alter activity log actor role column&quot;
+2026-05-08T15:54:00.819Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0003 - Alter table activity log add log type&quot;
+2026-05-08T15:54:00.826Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260505.0004 - Alter table users add column socials&quot;
+2026-05-08T15:54:00.837Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Migrating schema &quot;PUBLIC&quot; to version &quot;20260506.0001 - Add order rating columns&quot;
+2026-05-08T15:54:00.851Z  INFO 2471 --- [group-project] [    Test worker] o.f.core.internal.command.DbMigrate      : Successfully applied 15 migrations to schema &quot;PUBLIC&quot;, now at version v20260506.0001 (execution time 00:00.110s)
+2026-05-08T15:54:00.871Z  INFO 2471 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-08T15:54:00.875Z  INFO 2471 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-08T15:54:00.886Z  INFO 2471 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-08T15:54:00.890Z  WARN 2471 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-08T15:54:00.892Z  INFO 2471 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@1c9cb0ff']
 	Database driver: undefined/unknown
 	Database version: 2.3.232
 	Autocommit mode: undefined/unknown
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-05-08T10:43:19.603Z  INFO 2632 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-05-08T10:43:19.608Z  INFO 2632 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-05-08T10:43:19.752Z  INFO 2632 --- [group-project] [    Test worker] i.a.u.c.a.g.c.r.CatalogRepositoryTest    : Started CatalogRepositoryTest in 0.884 seconds (process running for 22.028)
+2026-05-08T15:54:01.004Z  INFO 2471 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-08T15:54:01.009Z  INFO 2471 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-08T15:54:01.175Z  INFO 2471 --- [group-project] [    Test worker] i.a.u.c.a.g.c.r.CatalogRepositoryTest    : Started CatalogRepositoryTest in 0.818 seconds (process running for 22.267)
 Hibernate: insert into users (email,full_name,password,profile_pictureurl,role,socials,status,username,id) values (?,?,?,?,?,?,?,?,?)
 Hibernate: insert into users (email,full_name,password,profile_pictureurl,role,socials,status,username,id) values (?,?,?,?,?,?,?,?,?)
 Hibernate: insert into catalog (description,image_url,user_id,name,origin_location,price,rating_average,rating_count,rating_sum,stock,travel_date,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?)
@@ -198,7 +198,7 @@ Hibernate: select c1_0.id,c1_0.description,c1_0.image_url,c1_0.user_id,c1_0.name
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 8, 2026, 10:43:23 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 8, 2026, 3:54:05 PM</p>
 </div>
 </div>
 </body>
