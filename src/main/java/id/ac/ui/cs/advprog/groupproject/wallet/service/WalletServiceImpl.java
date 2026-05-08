@@ -48,6 +48,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public WalletResponse getBalance(UUID userId) {
         Wallet wallet = walletRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
@@ -221,6 +222,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TransactionResponse> getTransactionHistory(UUID userId) {
         Wallet wallet = walletRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
@@ -232,6 +234,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AdminTransactionResponse> getAllTransactions() {
         List<WalletTransaction> transactions = walletTransactionRepository.findAllByOrderByCreatedAtDesc();
         Set<UUID> walletIds = transactions.stream()
