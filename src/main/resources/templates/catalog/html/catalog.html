@@ -77,7 +77,7 @@
                                 <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
                             </span>
                             <span class="rating-count"
-                                th:text="'(' + (catalog.ratingCount != null ? catalog.ratingCount : 0) + ')'"></span>
+                                th:text="${(catalog.ratingAverage != null ? #numbers.formatDecimal(catalog.ratingAverage, 1, 1) : '0.0') + ' / 5 (' + (catalog.ratingCount != null ? catalog.ratingCount : 0) + ' ulasan)'}"></span>
                         </div>
                         <div style="margin-top: auto; padding-top: 6px;">
                             <a th:href="@{/catalog/{userId}(userId=${catalog.jastiperId})}" class="jastiper-link"

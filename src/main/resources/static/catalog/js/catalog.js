@@ -42,7 +42,7 @@ function buildRatingHtml(catalog) {
         stars += `<span style="color: ${color};">&#9733;</span>`;
     }
 
-    return `${stars}<span class="rating-count"> (${ratingCount})</span>`;
+    return `${stars}<span class="rating-count">${average.toFixed(1)} / 5 (${ratingCount} ulasan)</span>`;
 }
 
 function getCurrentUserId() {
