@@ -17,7 +17,7 @@ function formatDate(value) {
         return '-';
     }
 
-    return new Intl.DateTimeFormat('en-GB', {
+    return new Intl.DateTimeFormat('id-ID', {
         day: '2-digit',
         month: 'short',
         year: 'numeric'
@@ -27,8 +27,8 @@ function formatDate(value) {
 function formatPrice(value) {
     const amount = Number(value || 0);
     return new Intl.NumberFormat('id-ID', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
     }).format(amount);
 }
 
@@ -42,59 +42,86 @@ function buildRatingHtml(catalog) {
         stars += `<span style="color: ${color};">&#9733;</span>`;
     }
 
-    return `${stars}<span class="text-muted"> (${ratingCount})</span>`;
+    return `${stars}<span class="rating-count"> (${ratingCount})</span>`;
 }
 
-function buildCatalogRow(catalog) {
+function getCurrentUserId() {
+    const meta = document.querySelector('meta[name="current-user-id"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
+function buildFooterAction(catalog) {
+    const currentUserId = getCurrentUserId();
+    const jastiperId = catalog.jastiperId ? String(catalog.jastiperId) : '';
+    const isOwner = currentUserId && currentUserId === jastiperId;
+
+    if (isOwner) {
+        return `
+            <div class="own-product-actions">
+                <span class="own-badge">✨ Produk Kamu</span>
+                <a href="/catalog/edit/${escapeHtml(catalog.id)}" class="edit-own-btn">✏️ Edit</a>
+            </div>
+        `;
+    }
+
+    return `<a href="/order/checkout/${escapeHtml(catalog.id)}" class="order-btn">🛒 Order</a>`;
+}
+
+function buildCatalogCard(catalog) {
     const imageHtml = catalog.imageUrl
-        ? `<img src="${escapeHtml(catalog.imageUrl)}" alt="Product Image" style="width: 80px; height: 80px; object-fit: cover;">`
-        : '<span class="text-muted">No image</span>';
+        ? `<img src="${escapeHtml(catalog.imageUrl)}" alt="Product Image">`
+        : '<span class="no-image">📷</span>';
 
     const sellerName = catalog.jastiperUsername ? escapeHtml(catalog.jastiperUsername) : '-';
     const sellerId = catalog.jastiperId ? escapeHtml(catalog.jastiperId) : '';
     const travelDate = formatDate(catalog.travelDate);
     const stockId = `stock-${escapeHtml(catalog.id)}`;
+    const stock = Number(catalog.stock || 0);
 
     return `
-        <tr data-catalog-id="${escapeHtml(catalog.id)}">
-            <td>${imageHtml}</td>
-            <td>${escapeHtml(catalog.name || '')}</td>
-            <td>${escapeHtml(catalog.description || '')}</td>
-            <td>Rp ${formatPrice(catalog.price)}</td>
-            <td>${buildRatingHtml(catalog)}</td>
-            <td id="${stockId}">${escapeHtml(catalog.stock)}</td>
-            <td>${escapeHtml(catalog.originLocation || '')}</td>
-            <td>${travelDate}</td>
-            <td>
-                <a href="/catalog/${sellerId}" class="text-primary font-weight-bold">${sellerName}</a>
-            </td>
-            <td>
-                <a href="/order/checkout/${escapeHtml(catalog.id)}" class="btn btn-success btn-sm">
-                    🛒 Order
-                </a>
-            </td>
-        </tr>
+        <div class="catalog-card" data-catalog-id="${escapeHtml(catalog.id)}">
+            <div class="catalog-card-image">${imageHtml}</div>
+            <div class="catalog-card-body">
+                <div class="catalog-card-name">${escapeHtml(catalog.name || '')}</div>
+                <div class="catalog-card-desc">${escapeHtml(catalog.description || '')}</div>
+                <div class="catalog-card-meta">
+                    <span class="meta-chip location">📍 ${escapeHtml(catalog.originLocation || '')}</span>
+                    <span class="meta-chip date">📅 ${travelDate}</span>
+                </div>
+                <div class="catalog-card-rating">${buildRatingHtml(catalog)}</div>
+                <div style="margin-top: auto; padding-top: 6px;">
+                    <a href="/catalog/${sellerId}" class="jastiper-link">👤 ${sellerName}</a>
+                </div>
+            </div>
+            <div class="catalog-card-footer">
+                <div>
+                    <div class="catalog-card-price">Rp ${formatPrice(catalog.price)}</div>
+                    <span class="stock-badge${stock <= 0 ? ' out' : ''}" id="${stockId}">${stock > 0 ? 'Stok: ' + stock : 'Habis'}</span>
+                </div>
+                ${buildFooterAction(catalog)}
+            </div>
+        </div>
     `;
 }
 
-function renderCatalogTable(catalogs) {
-    const tableBody = document.getElementById('catalog-table-body');
-    if (!tableBody) {
+function renderCatalogGrid(catalogs) {
+    const grid = document.getElementById('catalog-grid');
+    if (!grid) {
         return;
     }
 
     if (!catalogs || catalogs.length === 0) {
-        tableBody.innerHTML = `
-            <tr id="catalog-empty-row">
-                <td colspan="10" class="text-center text-muted">
-                    <em>No products found</em>
-                </td>
-            </tr>
+        grid.innerHTML = `
+            <div class="catalog-empty" style="grid-column: 1 / -1;">
+                <span class="catalog-empty-icon">🔍</span>
+                <p>Tidak ada produk ditemukan.</p>
+            </div>
         `;
         return;
     }
 
-    tableBody.innerHTML = catalogs.map(buildCatalogRow).join('');
+    grid.innerHTML = catalogs.map(buildCatalogCard).join('');
+    bindCardClicks();
 }
 
 async function loadCatalogs() {
@@ -115,14 +142,20 @@ async function loadCatalogs() {
 }
 
 async function handleSearch(event) {
-    event.preventDefault();
+    if (event) {
+        event.preventDefault();
+    }
 
     try {
         const catalogs = await loadCatalogs();
-        renderCatalogTable(catalogs);
+        renderCatalogGrid(catalogs);
     } catch (error) {
-        alert('Failed to search catalogs.');
+        alert('Gagal mencari produk.');
     }
+}
+
+function handleSearchBtn() {
+    handleSearch(null);
 }
 
 async function resetSearch() {
@@ -134,21 +167,38 @@ async function resetSearch() {
 
     try {
         const catalogs = await loadCatalogs();
-        renderCatalogTable(catalogs);
+        renderCatalogGrid(catalogs);
     } catch (error) {
-        alert('Failed to reset catalog search.');
+        alert('Gagal mereset pencarian.');
     }
 }
 
+function bindCardClicks() {
+    document.querySelectorAll('.catalog-card[data-catalog-id]').forEach(function(card) {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('a, button')) return;
+            window.location.href = '/catalog/detail/' + card.dataset.catalogId;
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    const searchForm = document.getElementById('catalog-search-form');
+    const searchInput = document.getElementById('catalogSearchInput');
     const resetButton = document.getElementById('catalog-search-reset');
 
-    if (searchForm) {
-        searchForm.addEventListener('submit', handleSearch);
+    if (searchInput) {
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch(null);
+            }
+        });
     }
 
     if (resetButton) {
         resetButton.addEventListener('click', resetSearch);
     }
+
+    bindCardClicks();
 });

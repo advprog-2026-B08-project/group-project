@@ -71,9 +71,24 @@ public class CatalogWebController {
     if (principal != null) {
       userRepository
           .findByUsername(principal.getName())
-          .ifPresent(user -> model.addAttribute("currentUserId", user.getId().toString()));
+          .ifPresent(user -> {
+            model.addAttribute("currentUserId", user.getId().toString());
+            model.addAttribute("userRole", user.getRole());
+          });
     }
     return "catalog/html/catalog";
+  }
+
+  @GetMapping("/detail/{id}")
+  public String catalogDetail(@PathVariable UUID id, Model model, Principal principal) {
+    Catalog catalog = catalogService.getCatalogByIdForAdmin(id);
+    model.addAttribute("catalog", catalogMapper.toDto(catalog));
+    if (principal != null) {
+      userRepository
+          .findByUsername(principal.getName())
+          .ifPresent(user -> model.addAttribute("currentUserId", user.getId().toString()));
+    }
+    return "catalog/html/detailCatalog";
   }
 
   @GetMapping("/{userId}")
