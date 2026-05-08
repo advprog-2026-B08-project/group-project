@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.AdminTransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
@@ -183,6 +184,27 @@ class WalletServiceImplTest {
     }
 
     @Test
+    void deductBalance_NullDescription_UsesDefaultDescription() {
+        wallet.setBalance(new BigDecimal("200000"));
+        BigDecimal amount = new BigDecimal("75000");
+
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.save(any(WalletTransaction.class)))
+                .thenAnswer(invocation -> {
+                    WalletTransaction tx = invocation.getArgument(0);
+                    tx.setId(UUID.randomUUID());
+                    return tx;
+                });
+
+        TransactionResponse response = walletService.deductBalance(userId, amount, null);
+
+        assertEquals("DEBIT", response.getType());
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals("Deduct sebesar " + amount, response.getDescription());
+    }
+
+    @Test
     void deductBalance_NullAmount_ThrowsException() {
         assertThrows(IllegalArgumentException.class,
                 () -> walletService.deductBalance(userId, null, "Checkout order"));
@@ -293,6 +315,28 @@ class WalletServiceImplTest {
         assertEquals(amount, response.getAmount());
         assertEquals("Refund order", response.getDescription());
         assertEquals(new BigDecimal("15000"), wallet.getBalance());
+    }
+
+    @Test
+    void refundBalance_NullDescription_UsesDefaultDescription() {
+        wallet.setBalance(new BigDecimal("10000"));
+        BigDecimal amount = new BigDecimal("5000");
+        UUID referenceId = UUID.randomUUID();
+
+        when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletTransactionRepository.saveAndFlush(any(WalletTransaction.class)))
+                .thenAnswer(invocation -> {
+                    WalletTransaction tx = invocation.getArgument(0);
+                    tx.setId(UUID.randomUUID());
+                    return tx;
+                });
+
+        TransactionResponse response = walletService.refundBalance(userId, amount, null, referenceId);
+
+        assertEquals("REFUND", response.getType());
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals("Refund sebesar " + amount, response.getDescription());
     }
 
     @Test
@@ -515,6 +559,34 @@ class WalletServiceImplTest {
     }
 
     // ===================== getAllTransactions tests =====================
+
+    @Test
+    void getAllTransactions_ReturnsMappedResponses() {
+        WalletTransaction transaction = new WalletTransaction();
+        transaction.setId(UUID.randomUUID());
+        transaction.setWalletId(wallet.getId());
+        transaction.setType(TransactionType.TOP_UP);
+        transaction.setAmount(new BigDecimal("10000"));
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        transaction.setDescription("Top-up success");
+        transaction.setReferenceId(UUID.randomUUID());
+
+        Wallet mappedWallet = new Wallet();
+        mappedWallet.setId(wallet.getId());
+        mappedWallet.setUserId(userId);
+
+        when(walletTransactionRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(transaction));
+        when(walletRepository.findAllById(any())).thenReturn(List.of(mappedWallet));
+
+        List<AdminTransactionResponse> responses = walletService.getAllTransactions();
+
+        assertEquals(1, responses.size());
+        AdminTransactionResponse response = responses.get(0);
+        assertEquals(userId, response.getUserId());
+        assertEquals("TOP_UP", response.getType());
+        assertEquals("SUCCESS", response.getStatus());
+        assertEquals(transaction.getReferenceId(), response.getReferenceId());
+    }
 
     @Test
     void getAllTransactions_MissingWallet_ThrowsException() {
