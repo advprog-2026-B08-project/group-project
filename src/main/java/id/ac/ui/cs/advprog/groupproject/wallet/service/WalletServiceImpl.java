@@ -187,7 +187,7 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Status must be SUCCESS or FAILED");
         }
 
-        WalletTransaction transaction = walletTransactionRepository.findById(transactionId)
+        WalletTransaction transaction = walletTransactionRepository.findByIdForUpdate(transactionId)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
 
         if (transaction.getStatus() != TransactionStatus.PENDING) {

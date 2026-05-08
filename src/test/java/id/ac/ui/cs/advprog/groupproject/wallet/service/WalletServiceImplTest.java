@@ -396,7 +396,7 @@ class WalletServiceImplTest {
     @Test
     void verifyTransaction_TransactionNotFound_ThrowsException() {
         UUID transactionId = UUID.randomUUID();
-        when(walletTransactionRepository.findById(transactionId)).thenReturn(Optional.empty());
+        when(walletTransactionRepository.findByIdForUpdate(transactionId)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
                 () -> walletService.verifyTransaction(transactionId, TransactionStatus.SUCCESS));
@@ -411,7 +411,7 @@ class WalletServiceImplTest {
         transaction.setAmount(new BigDecimal("5000"));
         transaction.setStatus(TransactionStatus.SUCCESS);
 
-        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.findByIdForUpdate(transaction.getId())).thenReturn(Optional.of(transaction));
 
         assertThrows(IllegalStateException.class,
                 () -> walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS));
@@ -426,7 +426,7 @@ class WalletServiceImplTest {
         transaction.setAmount(new BigDecimal("5000"));
         transaction.setStatus(TransactionStatus.PENDING);
 
-        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.findByIdForUpdate(transaction.getId())).thenReturn(Optional.of(transaction));
 
         assertThrows(IllegalArgumentException.class,
                 () -> walletService.verifyTransaction(transaction.getId(), TransactionStatus.SUCCESS));
@@ -441,7 +441,7 @@ class WalletServiceImplTest {
         transaction.setAmount(new BigDecimal("5000"));
         transaction.setStatus(TransactionStatus.PENDING);
 
-        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.findByIdForUpdate(transaction.getId())).thenReturn(Optional.of(transaction));
         when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.empty());
 
         assertThrows(IllegalStateException.class,
@@ -459,7 +459,7 @@ class WalletServiceImplTest {
 
         wallet.setBalance(new BigDecimal("1000"));
 
-        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.findByIdForUpdate(transaction.getId())).thenReturn(Optional.of(transaction));
         when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.of(wallet));
 
         assertThrows(IllegalStateException.class,
@@ -477,7 +477,7 @@ class WalletServiceImplTest {
 
         wallet.setBalance(new BigDecimal("10000"));
 
-        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.findByIdForUpdate(transaction.getId())).thenReturn(Optional.of(transaction));
         when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.of(wallet));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class))).thenReturn(transaction);
@@ -499,7 +499,7 @@ class WalletServiceImplTest {
 
         wallet.setBalance(new BigDecimal("10000"));
 
-        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.findByIdForUpdate(transaction.getId())).thenReturn(Optional.of(transaction));
         when(walletRepository.findByIdForUpdate(wallet.getId())).thenReturn(Optional.of(wallet));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class))).thenReturn(transaction);
@@ -521,7 +521,7 @@ class WalletServiceImplTest {
 
         wallet.setBalance(new BigDecimal("10000"));
 
-        when(walletTransactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
+        when(walletTransactionRepository.findByIdForUpdate(transaction.getId())).thenReturn(Optional.of(transaction));
         when(walletTransactionRepository.save(any(WalletTransaction.class))).thenReturn(transaction);
 
         TransactionResponse response = walletService.verifyTransaction(transaction.getId(), TransactionStatus.FAILED);
