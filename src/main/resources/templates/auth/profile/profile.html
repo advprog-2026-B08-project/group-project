@@ -25,10 +25,10 @@
                   <br>
                   <span style="color: #606060" th:text="${user.email}"></span>
                   <span style="color: #606060">  |  </span>
-                  <span style="color: #606060" th:text="${user.fullName}"></span>
+                  <span style="color: #606060" th:text="${user.fullName} ?: '-'"></span>
               </div>
-              <div style="margin-bottom: 30px" th:if="${user.socials.isBlank() == false}">
-                  <b style="color: #606060"><span>Socials : </span><span th:text="${user.socials} ?: '-'"></span></b>
+              <div style="margin-bottom: 30px" th:if="${user.socials != null}">
+                    <b style="color: #606060"><span>Socials : </span><span th:text="${user.socials} ?: '-'"></span></b>
               </div>
               <div>
                   <a th:href="@{/profile/edit}">
