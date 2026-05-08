@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/wallet.css}">
+</head>
+<body class="wallet-body">
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="wallet-shell" th:attr="data-user-id=${user.id}">
+    <section class="wallet-hero">
+        <div class="hero-copy">
+            <span class="eyebrow">Digital Wallet</span>
+            <h1>Kontrol saldo, transaksi, dan tarik dana tanpa drama.</h1>
+            <p class="hero-subtitle">
+                Top-up dan withdrawal akan berstatus pending sampai diverifikasi.
+            </p>
+
+            <div class="balance-card">
+                <div>
+                    <div class="balance-label">Saldo saat ini</div>
+                    <div class="balance-value" id="wallet-balance">Rp 0</div>
+                    <div class="balance-meta" id="wallet-updated">Terakhir diperbarui: -</div>
+                </div>
+                <div class="balance-badge" id="wallet-status">Status: OK</div>
+            </div>
+        </div>
+
+        <div class="hero-panel">
+            <div class="action-card">
+                <h3>Top-up</h3>
+                <p>Masukkan nominal. Saldo bertambah setelah verifikasi.</p>
+                <form id="topup-form" class="wallet-form">
+                    <label class="field-group">
+                        <span class="field-label">Nominal</span>
+                        <input id="topup-amount" type="number" name="amount" min="1" step="0.01" placeholder="100000" required>
+                    </label>
+                    <div class="amount-presets" data-target="topup-amount">
+                        <button type="button" class="preset-chip" data-value="10000">10K</button>
+                        <button type="button" class="preset-chip" data-value="50000">50K</button>
+                        <button type="button" class="preset-chip" data-value="100000">100K</button>
+                        <button type="button" class="preset-chip" data-value="500000">500K</button>
+                    </div>
+                    <div class="inline-warning" id="topup-warning" aria-live="polite"></div>
+                    <button type="submit" id="topup-submit">Submit Top-up</button>
+                </form>
+                <div class="form-status" id="topup-status" aria-live="polite">&nbsp;</div>
+            </div>
+
+            <div class="action-card">
+                <h3>Withdrawal</h3>
+                <p>Pastikan saldo mencukupi dan tujuan jelas.</p>
+                <form id="withdraw-form" class="wallet-form">
+                    <label class="field-group">
+                        <span class="field-label">Nominal</span>
+                        <input id="withdraw-amount" type="number" name="amount" min="1" step="0.01" placeholder="50000" required>
+                    </label>
+                    <div class="amount-presets" data-target="withdraw-amount">
+                        <button type="button" class="preset-chip" data-mode="percent" data-value="0.1">10%</button>
+                        <button type="button" class="preset-chip" data-mode="percent" data-value="0.5">50%</button>
+                        <button type="button" class="preset-chip" data-mode="percent" data-value="0.75">75%</button>
+                        <button type="button" class="preset-chip" data-mode="max" data-value="max">Max</button>
+                    </div>
+                    <label class="field-group">
+                        <span class="field-label">Tujuan penarikan</span>
+                        <select id="withdraw-destination" name="destination" required>
+                            <option value="" selected disabled>Pilih bank / e-wallet</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="BCA">BCA</option>
+                            <option value="Mandiri">Mandiri</option>
+                            <option value="BNI">BNI</option>
+                            <option value="BRI">BRI</option>
+                            <option value="DANA">DANA</option>
+                            <option value="OVO">OVO</option>
+                            <option value="GoPay">GoPay</option>
+                            <option value="ShopeePay">ShopeePay</option>
+                        </select>
+                    </label>
+                    <div class="inline-warning" id="withdraw-warning" aria-live="polite"></div>
+                    <button type="submit" id="withdraw-submit" class="secondary">Ajukan Withdrawal</button>
+                </form>
+                <div class="form-status" id="withdraw-status" aria-live="polite">&nbsp;</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="wallet-history">
+        <div class="history-header">
+            <div>
+                <h2>Riwayat Transaksi</h2>
+                <p class="muted">Semua mutasi saldo, lengkap dengan status dan waktu.</p>
+            </div>
+            <button id="refresh-history" class="ghost">Refresh</button>
+        </div>
+        <div class="history-list" id="history-list">
+            <div class="history-empty">Belum ada transaksi.</div>
+        </div>
+    </section>
+</main>
+
+<script>
+(() => {
+    const shell = document.querySelector(".wallet-shell");
+    if (!shell) {
+        return;
+    }
+
+    const userId = shell.getAttribute("data-user-id");
+    if (!userId) {
+        return;
+    }
+
+    const balanceEl = document.getElementById("wallet-balance");
+    const updatedEl = document.getElementById("wallet-updated");
+    const statusEl = document.getElementById("wallet-status");
+    const historyList = document.getElementById("history-list");
+    const refreshButton = document.getElementById("refresh-history");
+    const topupForm = document.getElementById("topup-form");
+    const withdrawForm = document.getElementById("withdraw-form");
+    const topupAmountInput = document.getElementById("topup-amount");
+    const withdrawAmountInput = document.getElementById("withdraw-amount");
+    const withdrawDestinationInput = document.getElementById("withdraw-destination");
+    const topupSubmitButton = document.getElementById("topup-submit");
+    const withdrawSubmitButton = document.getElementById("withdraw-submit");
+    const topupWarning = document.getElementById("topup-warning");
+    const withdrawWarning = document.getElementById("withdraw-warning");
+
+    let currentBalance = 0;
+    let topupTouched = false;
+    let withdrawTouched = false;
+
+    const formatIdr = (value) => {
+        const numeric = Number(value);
+        if (Number.isNaN(numeric)) {
+            return "Rp 0";
+        }
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0
+        }).format(numeric);
+    };
+
+    const formatTime = (value) => {
+        if (!value) {
+            return "-";
+        }
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return value;
+        }
+        return date.toLocaleString("id-ID");
+    };
+
+    const setStatus = (element, message, tone) => {
+        element.textContent = message;
+        element.classList.remove("tone-success", "tone-warning", "tone-error");
+        if (tone) {
+            element.classList.add(tone);
+        }
+    };
+
+    const formatAmountInput = (value) => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric) || numeric <= 0) {
+            return 0;
+        }
+        return Math.floor(numeric);
+    };
+
+    const updateButtonState = (button, enabled) => {
+        button.disabled = !enabled;
+        button.setAttribute("aria-disabled", String(!enabled));
+    };
+
+    const validateTopUpForm = () => {
+        const amount = formatAmountInput(topupAmountInput.value);
+        const valid = amount > 0;
+        updateButtonState(topupSubmitButton, valid);
+        const shouldShowWarning = topupTouched && !valid;
+        topupWarning.textContent = shouldShowWarning ? "⚠ Masukkan nominal top-up yang valid." : "";
+        topupWarning.classList.toggle("visible", shouldShowWarning);
+        return valid;
+    };
+
+    const validateWithdrawForm = () => {
+        const amount = formatAmountInput(withdrawAmountInput.value);
+        const destination = withdrawDestinationInput.value;
+        const validAmount = amount > 0 && amount <= currentBalance;
+        const validDestination = Boolean(destination);
+        const valid = validAmount && validDestination;
+
+        updateButtonState(withdrawSubmitButton, valid);
+
+        if (!validAmount) {
+            withdrawWarning.textContent = amount <= 0
+                ? "⚠ Masukkan nominal withdrawal yang valid."
+                : "⚠ Nominal withdrawal tidak boleh melebihi saldo saat ini.";
+        } else if (!validDestination) {
+            withdrawWarning.textContent = "⚠ Pilih tujuan bank atau e-wallet terlebih dahulu.";
+        } else {
+            withdrawWarning.textContent = "";
+        }
+
+        const shouldShowWarning = withdrawTouched && !valid;
+        withdrawWarning.textContent = shouldShowWarning ? withdrawWarning.textContent : "";
+        withdrawWarning.classList.toggle("visible", shouldShowWarning);
+        return valid;
+    };
+
+    const applyPresetAmount = (input, value) => {
+        input.value = String(Math.max(1, Math.floor(value)));
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+
+    const bindPresetButtons = (container, input, resolver) => {
+        if (!container) {
+            return;
+        }
+
+        container.addEventListener("click", (event) => {
+            const button = event.target.closest("button[data-value]");
+            if (!button) {
+                return;
+            }
+
+            const rawValue = button.getAttribute("data-value");
+            const mode = button.getAttribute("data-mode");
+            const amount = resolver(rawValue, mode);
+            if (!amount || amount <= 0) {
+                return;
+            }
+
+            applyPresetAmount(input, amount);
+        });
+    };
+
+    const renderHistory = (items) => {
+        historyList.innerHTML = "";
+        if (!items || items.length === 0) {
+            historyList.innerHTML = '<div class="history-empty">Belum ada transaksi.</div>';
+            return;
+        }
+
+        items.forEach((item) => {
+            const row = document.createElement("div");
+            row.className = "history-row";
+
+            const statusClass = `status-${String(item.status || "").toLowerCase()}`;
+
+            row.innerHTML = `
+                <div>
+                    <div class="history-title">${item.type || "-"}</div>
+                    <div class="history-meta">${item.description || "-"}</div>
+                </div>
+                <div class="history-amount">${formatIdr(item.amount)}</div>
+                <div class="history-status ${statusClass}">${item.status || "-"}</div>
+                <div class="history-time">${formatTime(item.createdAt)}</div>
+            `;
+
+            historyList.appendChild(row);
+        });
+    };
+
+    const loadBalance = async () => {
+        try {
+            const response = await fetch(`/api/wallet/balance/${userId}`);
+            if (!response.ok) {
+                throw new Error("Failed to load balance");
+            }
+            const data = await response.json();
+            currentBalance = Number(data.balance) || 0;
+            balanceEl.textContent = formatIdr(currentBalance);
+            updatedEl.textContent = `Terakhir diperbarui: ${formatTime(data.updatedAt)}`;
+            setStatus(statusEl, "Status: OK", "tone-success");
+            validateWithdrawForm();
+        } catch (error) {
+            setStatus(statusEl, "Status: Tidak bisa memuat saldo", "tone-error");
+        }
+    };
+
+    const loadHistory = async () => {
+        try {
+            const response = await fetch(`/api/wallet/history/${userId}`);
+            if (!response.ok) {
+                throw new Error("Failed to load history");
+            }
+            const data = await response.json();
+            renderHistory(data);
+        } catch (error) {
+            historyList.innerHTML = '<div class="history-empty">Gagal memuat transaksi.</div>';
+        }
+    };
+
+    const submitTopUp = async (amount) => {
+        const status = document.getElementById("topup-status");
+        setStatus(status, "Mengirim top-up...", "tone-warning");
+        try {
+            const response = await fetch(`/api/wallet/top-up/${userId}` , {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ amount })
+            });
+            if (!response.ok) {
+                throw new Error("Top-up failed");
+            }
+            const data = await response.json();
+            setStatus(status, `Top-up ${data.status}.`, "tone-success");
+            loadHistory();
+            loadBalance();
+        } catch (error) {
+            setStatus(status, "Top-up gagal. Coba lagi.", "tone-error");
+        }
+    };
+
+    const submitWithdraw = async (amount, destination) => {
+        const status = document.getElementById("withdraw-status");
+        setStatus(status, "Mengirim withdrawal...", "tone-warning");
+        try {
+            const response = await fetch(`/api/wallet/withdraw/${userId}` , {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ amount, destination })
+            });
+            if (!response.ok) {
+                throw new Error("Withdrawal failed");
+            }
+            const data = await response.json();
+            setStatus(status, `Withdrawal ${data.status}.`, "tone-success");
+            loadHistory();
+            loadBalance();
+        } catch (error) {
+            setStatus(status, "Withdrawal gagal. Cek saldo atau tujuan.", "tone-error");
+        }
+    };
+
+    bindPresetButtons(document.querySelector('.amount-presets[data-target="topup-amount"]'), topupAmountInput, (value) => Number(value));
+    bindPresetButtons(document.querySelector('.amount-presets[data-target="withdraw-amount"]'), withdrawAmountInput, (value, mode) => {
+        if (mode === "max") {
+            return currentBalance;
+        }
+        const percent = Number(value);
+        if (!Number.isFinite(percent)) {
+            return 0;
+        }
+        return currentBalance * percent;
+    });
+
+    topupAmountInput.addEventListener("input", () => {
+        topupTouched = true;
+        validateTopUpForm();
+    });
+    withdrawAmountInput.addEventListener("input", () => {
+        withdrawTouched = true;
+        validateWithdrawForm();
+    });
+    withdrawDestinationInput.addEventListener("change", () => {
+        withdrawTouched = true;
+        validateWithdrawForm();
+    });
+
+    topupForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        topupTouched = true;
+        if (!validateTopUpForm()) {
+            return;
+        }
+        const amount = event.target.amount.value;
+        submitTopUp(amount);
+        event.target.reset();
+        topupTouched = false;
+        validateTopUpForm();
+    });
+
+    withdrawForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        withdrawTouched = true;
+        if (!validateWithdrawForm()) {
+            return;
+        }
+        const amount = event.target.amount.value;
+        const destination = event.target.destination.value;
+        submitWithdraw(amount, destination);
+        event.target.reset();
+        withdrawTouched = false;
+        validateWithdrawForm();
+    });
+
+    refreshButton.addEventListener("click", () => {
+        loadHistory();
+        loadBalance();
+    });
+
+    validateTopUpForm();
+    validateWithdrawForm();
+    loadBalance();
+    loadHistory();
+})();
+</script>
+</body>
+</html>

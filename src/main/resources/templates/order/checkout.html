@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/order.css}">
+</head>
+<body class="order-body">
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="order-shell">
+    <section class="checkout-hero">
+        <div class="hero-copy">
+            <span class="eyebrow">Checkout</span>
+            <h1>Konfirmasi pesanan kamu.</h1>
+            <p class="hero-subtitle">
+                Periksa detail produk, isi jumlah dan alamat pengiriman, lalu bayar.
+            </p>
+        </div>
+    </section>
+
+    <div class="checkout-grid">
+        <!-- LEFT: Product + User Info -->
+        <div class="checkout-left">
+            <!-- Product Card -->
+            <div class="checkout-card">
+                <h3>📦 Detail Produk</h3>
+                <div class="product-info">
+                    <div class="product-image-wrapper" th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}">
+                        <img th:src="${product.imageUrl}" alt="Product" class="product-image">
+                    </div>
+                    <div class="product-image-wrapper product-image-placeholder" th:if="${product.imageUrl == null or product.imageUrl.isEmpty()}">
+                        <span>📷</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="product-name" th:text="${product.name}">Product Name</div>
+                        <div class="product-meta">
+                            <span class="meta-label">Jastiper</span>
+                            <span th:text="${product.jastiper.username}">jastiper_name</span>
+                        </div>
+                        <div class="product-meta">
+                            <span class="meta-label">Asal</span>
+                            <span th:text="${product.originLocation}">Location</span>
+                        </div>
+                        <div class="product-meta">
+                            <span class="meta-label">Travel Date</span>
+                            <span th:text="${#temporals.format(product.travelDate, 'dd MMM yyyy')}">01 Jan 2026</span>
+                        </div>
+                        <div class="product-meta">
+                            <span class="meta-label">Stok Tersedia</span>
+                            <span class="stock-badge" th:text="${product.stock + ' pcs'}" id="availableStock">10 pcs</span>
+                        </div>
+                        <div class="product-price-tag">
+                            <span class="price-label">Harga per item</span>
+                            <span class="price-value" th:text="${'Rp ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}" id="pricePerItem">Rp 50.000</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Rating Display -->
+                <div class="product-rating" th:if="${product.ratingCount != null and product.ratingCount > 0}">
+                    <span class="stars">
+                        <span th:each="i : ${#numbers.sequence(1,5)}"
+                              th:classappend="${i <= product.ratingAverage ? 'star-filled' : 'star-empty'}"
+                              class="star">&#9733;</span>
+                    </span>
+                    <span class="rating-text"
+                          th:text="${#numbers.formatDecimal(product.ratingAverage, 1, 1)} + ' (' + ${product.ratingCount} + ' review)'">4.5 (12 review)</span>
+                </div>
+            </div>
+
+            <!-- Jastiper Info Card -->
+            <div class="checkout-card">
+                <h3>👤 Informasi Jastiper</h3>
+                <div class="user-info-grid">
+                    <div class="user-info-row">
+                        <span class="info-label">Username</span>
+                        <span class="info-value" th:text="${product.jastiper.username}">username</span>
+                    </div>
+                    <div class="user-info-row">
+                        <span class="info-label">Full Name</span>
+                        <span class="info-value" th:text="${product.jastiper.fullName != null ? product.jastiper.fullName : '-'}">Full Name</span>
+                    </div>
+                    <div class="user-info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value" th:text="${product.jastiper.email}">email@example.com</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Checkout Form + Price Summary -->
+        <div class="checkout-right">
+            <!-- Balance Card -->
+            <div class="checkout-balance-card">
+                <div class="balance-info">
+                    <div class="balance-label-text">Saldo Wallet</div>
+                    <div class="balance-amount" id="walletBalance"
+                         th:text="${'Rp ' + #numbers.formatDecimal(walletBalance, 0, 'POINT', 0, 'COMMA')}">Rp 0</div>
+                </div>
+                <div class="balance-status-badge" id="balanceStatus">Siap Bayar</div>
+            </div>
+
+            <!-- Checkout Form -->
+            <div class="checkout-card">
+                <h3>🛒 Form Pemesanan</h3>
+                <form id="checkout-form" class="checkout-form">
+                    <input type="hidden" id="buyerId" th:value="${currentUser.id}">
+                    <input type="hidden" id="productId" th:value="${product.id}">
+                    <input type="hidden" id="rawPrice" th:value="${product.price}">
+                    <input type="hidden" id="rawBalance" th:value="${walletBalance}">
+                    <input type="hidden" id="rawStock" th:value="${product.stock}">
+
+                    <label class="field-group">
+                        <span class="field-label">Jumlah Pesanan</span>
+                        <div class="quantity-control">
+                            <button type="button" class="qty-btn" id="qtyMinus">−</button>
+                            <input type="number" id="quantity" name="quantity" min="1"
+                                   th:max="${product.stock}" value="1" required>
+                            <button type="button" class="qty-btn" id="qtyPlus">+</button>
+                        </div>
+                    </label>
+
+                    <label class="field-group">
+                        <span class="field-label">Alamat Pengiriman</span>
+                        <textarea id="shippingAddress" name="shippingAddress" rows="3"
+                                  placeholder="Masukkan alamat lengkap pengiriman..." required></textarea>
+                    </label>
+
+                    <div class="inline-warning" id="checkout-warning" aria-live="polite"></div>
+
+                    <!-- Price Summary -->
+                    <div class="price-summary">
+                        <h4>Ringkasan Harga</h4>
+                        <div class="summary-row">
+                            <span>Harga per item</span>
+                            <span id="summaryPrice">Rp 0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Jumlah</span>
+                            <span id="summaryQty">× 1</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row summary-total">
+                            <span>Total Bayar</span>
+                            <span id="summaryTotal">Rp 0</span>
+                        </div>
+                        <div class="summary-row summary-remaining">
+                            <span>Sisa Saldo</span>
+                            <span id="summaryRemaining">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="checkout-submit" class="checkout-btn" disabled>
+                        💳 Bayar Sekarang
+                    </button>
+                </form>
+                <div class="form-status" id="checkout-status" aria-live="polite">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+(() => {
+    const rawPrice = Number(document.getElementById('rawPrice').value) || 0;
+    const rawBalance = Number(document.getElementById('rawBalance').value) || 0;
+    const rawStock = Number(document.getElementById('rawStock').value) || 0;
+    const quantityInput = document.getElementById('quantity');
+    const addressInput = document.getElementById('shippingAddress');
+    const submitBtn = document.getElementById('checkout-submit');
+    const warningEl = document.getElementById('checkout-warning');
+    const statusEl = document.getElementById('checkout-status');
+    const balanceStatusEl = document.getElementById('balanceStatus');
+
+    const formatIdr = (value) => {
+        const numeric = Number(value);
+        if (Number.isNaN(numeric)) return 'Rp 0';
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            maximumFractionDigits: 0
+        }).format(numeric);
+    };
+
+    const updateSummary = () => {
+        const qty = Math.max(1, parseInt(quantityInput.value) || 1);
+        const total = rawPrice * qty;
+        const remaining = rawBalance - total;
+        const address = addressInput.value.trim();
+
+        document.getElementById('summaryPrice').textContent = formatIdr(rawPrice);
+        document.getElementById('summaryQty').textContent = '× ' + qty;
+        document.getElementById('summaryTotal').textContent = formatIdr(total);
+        document.getElementById('summaryRemaining').textContent = formatIdr(remaining);
+
+        const remainingEl = document.getElementById('summaryRemaining');
+        remainingEl.classList.toggle('negative', remaining < 0);
+
+        // Validation
+        let warning = '';
+        let valid = true;
+
+        if (qty > rawStock) {
+            warning = '⚠ Jumlah melebihi stok tersedia (' + rawStock + ' pcs)';
+            valid = false;
+        } else if (qty < 1) {
+            warning = '⚠ Jumlah minimal 1';
+            valid = false;
+        } else if (remaining < 0) {
+            warning = '⚠ Saldo tidak mencukupi. Silakan top-up terlebih dahulu.';
+            valid = false;
+            balanceStatusEl.textContent = 'Saldo Kurang';
+            balanceStatusEl.classList.add('insufficient');
+        } else if (!address) {
+            warning = '⚠ Masukkan alamat pengiriman';
+            valid = false;
+        }
+
+        if (remaining >= 0) {
+            balanceStatusEl.textContent = 'Siap Bayar';
+            balanceStatusEl.classList.remove('insufficient');
+        }
+
+        warningEl.textContent = warning;
+        warningEl.classList.toggle('visible', warning.length > 0);
+        submitBtn.disabled = !valid;
+        submitBtn.setAttribute('aria-disabled', String(!valid));
+    };
+
+    // Quantity controls
+    document.getElementById('qtyMinus').addEventListener('click', () => {
+        const current = parseInt(quantityInput.value) || 1;
+        if (current > 1) {
+            quantityInput.value = current - 1;
+            updateSummary();
+        }
+    });
+
+    document.getElementById('qtyPlus').addEventListener('click', () => {
+        const current = parseInt(quantityInput.value) || 1;
+        if (current < rawStock) {
+            quantityInput.value = current + 1;
+            updateSummary();
+        }
+    });
+
+    quantityInput.addEventListener('input', updateSummary);
+    addressInput.addEventListener('input', updateSummary);
+
+    // Submit checkout
+    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const buyerId = document.getElementById('buyerId').value;
+        const productId = document.getElementById('productId').value;
+        const quantity = parseInt(quantityInput.value);
+        const shippingAddress = addressInput.value.trim();
+
+        submitBtn.disabled = true;
+        statusEl.textContent = 'Memproses pesanan...';
+        statusEl.className = 'form-status tone-warning';
+
+        try {
+            const response = await fetch('/api/orders/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buyerId, productId, quantity, shippingAddress })
+            });
+
+            if (response.ok) {
+                const order = await response.json();
+                statusEl.textContent = 'Pesanan berhasil! Mengalihkan...';
+                statusEl.className = 'form-status tone-success';
+                setTimeout(() => {
+                    window.location.href = '/order/' + order.id;
+                }, 1200);
+            } else {
+                const errText = await response.text();
+                statusEl.textContent = 'Gagal: ' + errText;
+                statusEl.className = 'form-status tone-error';
+                submitBtn.disabled = false;
+            }
+        } catch (err) {
+            statusEl.textContent = 'Terjadi kesalahan sistem. Coba lagi.';
+            statusEl.className = 'form-status tone-error';
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Initial render
+    updateSummary();
+})();
+</script>
+</body>
+</html>

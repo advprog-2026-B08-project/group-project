@@ -321,4 +321,49 @@ class CatalogWebControllerTest {
 
         verifyNoInteractions(userRepository);
     }
+
+    @Test
+    void testAdminMonitoringPage() throws Exception {
+        List<Catalog> catalogs = List.of(testCatalog);
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
+        when(catalogService.getAllCatalogs()).thenReturn(catalogs);
+        when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
+
+        mockMvc.perform(get("/catalog/admin/monitoring")
+                .with(user(adminUser)))
+            .andExpect(status().isOk())
+            .andExpect(view().name("catalog/html/adminCatalogMonitoring"))
+            .andExpect(model().attributeExists("catalogs"));
+
+        verify(userRepository, times(1)).findByUsername("admin");
+        verify(catalogService, times(1)).getAllCatalogs();
+    }
+
+    @Test
+    void testAdminEditCatalogPage() throws Exception {
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
+        when(catalogService.getCatalogByIdForAdmin(catalogId)).thenReturn(testCatalog);
+        when(catalogMapper.toDto(testCatalog)).thenReturn(testCatalogDto);
+
+        mockMvc.perform(get("/catalog/admin/edit/" + catalogId)
+                .with(user(adminUser)))
+            .andExpect(status().isOk())
+            .andExpect(view().name("catalog/html/editCatalog"))
+            .andExpect(model().attributeExists("catalog"));
+
+        verify(catalogService, times(1)).getCatalogByIdForAdmin(catalogId);
+    }
+
+    @Test
+    void testAdminDeleteCatalogPost() throws Exception {
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
+
+        mockMvc.perform(post("/catalog/admin/delete/" + catalogId)
+                .with(user(adminUser))
+                .with(csrf()))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/catalog/admin/monitoring"));
+
+        verify(catalogService, times(1)).deleteCatalogByAdmin(catalogId);
+    }
 }

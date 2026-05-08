@@ -1,15 +1,22 @@
 package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.UUID;
 
 @Controller
 public class PageController {
+    public final KycRequestService requestService;
+
+    public PageController(KycRequestService requestService) {
+        this.requestService = requestService;
+    }
 
     @GetMapping("/login")
     public String login() {
@@ -28,16 +35,6 @@ public class PageController {
     @GetMapping("/register")
     public String register() {
         return "auth/register";
-    }
-
-    @GetMapping("/profile")
-    public String profile() {
-        return "auth/profile";
-    }
-
-    @GetMapping("/admin")
-    public String admin() {
-        return "auth/admin";
     }
 
     @GetMapping("/order")

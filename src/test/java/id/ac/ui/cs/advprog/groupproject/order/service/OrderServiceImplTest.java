@@ -12,6 +12,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import id.ac.ui.cs.advprog.groupproject.order.dto.CheckoutRequest;
 import id.ac.ui.cs.advprog.groupproject.order.dto.ProductSnapshot;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
@@ -21,15 +32,8 @@ import id.ac.ui.cs.advprog.groupproject.order.port.PaymentPort;
 import id.ac.ui.cs.advprog.groupproject.order.port.StockPort;
 import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -46,6 +50,12 @@ class OrderServiceImplTest {
   @Mock
   private PaymentPort paymentPort;
 
+  @Mock
+  private CatalogService catalogService;
+
+  @Mock
+  private UserRepository userRepository;
+
   private OrderServiceImpl orderService;
   private UUID buyerId;
   private UUID jastiperId;
@@ -55,7 +65,8 @@ class OrderServiceImplTest {
   @BeforeEach
   void setUp() {
     orderService = new OrderServiceImpl(
-        orderRepository, statusHistoryRepository, stockPort, paymentPort);
+        orderRepository, statusHistoryRepository, stockPort, paymentPort,
+        catalogService, userRepository);
     buyerId = UUID.randomUUID();
     jastiperId = UUID.randomUUID();
     productId = UUID.randomUUID();
@@ -254,6 +265,144 @@ class OrderServiceImplTest {
     orderService.cancelOrder(orderId);
 
     verify(stockPort).releaseStock(productId, 3);
-    verify(paymentPort).refund(eq(buyerId), eq(BigDecimal.valueOf(300000)), anyString());
+    verify(paymentPort).refund(eq(buyerId), eq(BigDecimal.valueOf(300000)), anyString(), eq(orderId));
+  }
+
+  @Test
+  void submitRating_success_setsRatingAndPropagates() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+    id.ac.ui.cs.advprog.groupproject.auth.model.User buyer =
+        new id.ac.ui.cs.advprog.groupproject.auth.model.User();
+    buyer.setId(buyerId);
+    buyer.setUsername("testbuyer");
+    when(userRepository.findById(buyerId)).thenReturn(Optional.of(buyer));
+
+    Order result = orderService.submitRating(orderId, 4);
+
+    assertEquals(4, result.getRatingProduk());
+    verify(orderRepository).save(order);
+    verify(catalogService).applyProductRating(eq(productId), any(), eq(buyer));
+  }
+
+  @Test
+  void submitRating_notCompleted_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.PAID);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_alreadyRated_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setRatingProduk(3);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_invalidRating_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 0));
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 6));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_orderNotFound_throws() {
+    UUID orderId = UUID.randomUUID();
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 4));
+  }
+
+  @Test
+  void submitRating_catalogPropagationFails_stillSavesRating() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+    id.ac.ui.cs.advprog.groupproject.auth.model.User buyer =
+        new id.ac.ui.cs.advprog.groupproject.auth.model.User();
+    buyer.setId(buyerId);
+    when(userRepository.findById(buyerId)).thenReturn(Optional.of(buyer));
+    doThrow(new RuntimeException("Catalog down")).when(catalogService)
+        .applyProductRating(any(), any(), any());
+
+    Order result = orderService.submitRating(orderId, 5);
+
+    assertEquals(5, result.getRatingProduk());
+    verify(orderRepository).save(order);
+  }
+
+  @Test
+  void findBuyerActiveOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByBuyerIdAndStatusIn(buyerId,
+            List.of(OrderStatus.PAID, OrderStatus.PURCHASED, OrderStatus.SHIPPED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findBuyerActiveOrders(buyerId);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void findBuyerCompletedOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByBuyerIdAndStatusIn(buyerId,
+            List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findBuyerCompletedOrders(buyerId);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void findJastiperTodoOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByJastiperIdAndStatusIn(jastiperId,
+            List.of(OrderStatus.PAID, OrderStatus.PURCHASED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findJastiperTodoOrders(jastiperId);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void findJastiperCompletedOrders_returnsCorrectOrders() {
+    List<Order> expected = List.of(new Order());
+    when(orderRepository.findByJastiperIdAndStatusIn(jastiperId,
+            List.of(OrderStatus.SHIPPED, OrderStatus.COMPLETED, OrderStatus.CANCELLED)))
+            .thenReturn(expected);
+
+    List<Order> result = orderService.findJastiperCompletedOrders(jastiperId);
+    assertEquals(expected, result);
   }
 }

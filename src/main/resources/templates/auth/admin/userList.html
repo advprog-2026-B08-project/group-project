@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User List</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body style="background: #f0f0f0">
+  <div th:replace="fragments/navbar :: navbar"></div>
+
+  <div class="container mt-4">
+      <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">User List</h1>
+      <div class="row">
+          <div class="col-md-4 mb-4" th:each="user : ${userList}">
+              <div class="card h-100 shadow-sm" style="border-radius: 12px;">
+                  <div class="containerRowWhite">
+                      <div>
+                          <img th:src="${user.profilePictureURL != null} ? ${user.profilePictureURL} : '/images/defaultProfilePicture.png'"
+                               class="card-img-top"
+                               style="height: 64px; width: 64px; object-fit: cover; border-radius: 50%">
+                      </div>
+                      <div class="containerBadge">
+                          <div th:if="${user.role == 'ROLE_ADMIN'}">
+                              <p class="pin" style="background: #ddaaff; color: #552277">Admin</p>
+                          </div>
+                          <div th:if="${user.role == 'ROLE_JASTIPER'}">
+                              <p class="pin" style="background: #aaddff; color: #225577">Jastiper</p>
+                          </div>
+                          <div th:if="${user.role == 'ROLE_TITIPER'}">
+                              <p class="pin" style="background: #ffddaa; color: #775522">Titiper</p>
+                          </div>
+                          <div th:if="${user.status == 'ACTIVE'}">
+                              <p class="pin" style="background: #aaffdd; color: #227755">Aktif</p>
+                          </div>
+                          <div th:if="${user.status == 'PENDING'}">
+                              <p class="pin" style="background: #ffffcc; color: #777744">Pending</p>
+                          </div>
+                          <div th:if="${user.status == 'BANNED'}">
+                              <p class="pin" style="background: #ffbbbb; color: #773333">Banned</p>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="card-body">
+                      <p class="card-text" style="font-family: 'Arial Black'; font-size: 30px">
+                          <span th:text="${user.username}"></span>
+                      </p>
+                      <p th:text="${user.fullName}" style="color: #808080"></p>
+                      <p th:text="${user.email}" style="color: #808080"></p>
+                  </div>
+
+                  <div class="containerRowWhite" style="background: #cceeff; height:68px; border-radius: 0px 0px 10px 10px">
+<!--                      TODO: button demote & ban-->
+                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${user.role !='ROLE_ADMIN' and user.status != 'BANNED'}">
+                          <form th:action="@{/admin/ban}" method="post" onsubmit="return confirm('Are you sure you want to ban this user?');">
+                              <input type="hidden" name="userId" th:value="${user.id}" />
+                              <button type="submit" class="btn btn-danger btn-sm" style="color: white; padding: 4px 24px 4px 24px">
+                                  Ban
+                              </button>
+                          </form>
+                      </div>
+                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${user.role == 'ROLE_JASTIPER'}">
+                          <form th:action="@{/admin/demote}" method="post" onsubmit="return confirm('Are you sure you want to demote this user?');">
+                              <input type="hidden" name="userId" th:value="${user.id}" />
+                              <button type="submit" class="btn btn-warning btn-sm" style="color: white; padding: 4px 10px 4px 10px">
+                                  Demote
+                              </button>
+                          </form>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -3,14 +3,23 @@
         <a th:href="@{/homepage}">Homepage</a>
         <div th:if="${user.role == 'ROLE_ADMIN'}">
             <a th:href="@{/admin}">Admin</a>
+            <a th:href="@{/admin/wallet}">Wallet Admin</a>
         </div>
-        <div th:if="${user.role == 'ROLE_JASTIPER' or user.role =='ROLE_ADMIN'}">
+        <div th:if="${user.role == 'ROLE_ADMIN'}">
+            <a th:href="@{/catalog/admin/monitoring}">Monitoring Katalog</a>
+        </div>
+        <div th:if="${user.role == 'ROLE_JASTIPER' or user.role == 'ROLE_TITIPER' or user.role =='ROLE_ADMIN'}">
             <a th:href="@{/catalog}">Catalog</a>
         </div>
-        <a th:href="@{/order}">Order</a>
+        <a th:href="@{/order/list}">Order</a>
+        <a th:href="@{/wallet}">Wallet</a>
     </div>
 
     <div class="nav">
+        <div class="balance-chip" th:if="${user != null}" th:attr="data-user-id=${user.id}">
+            <span class="balance-label">Saldo</span>
+            <span class="balance-value" id="nav-balance">Rp 0</span>
+        </div>
         <form th:action="@{/logout}" method="post">
             <input type="hidden"
                    th:name="${_csrf.parameterName}"
@@ -19,11 +28,50 @@
         </form>
         <a th:href="@{/profile}" class="profile">
             <img th:if="${user != null and user.profilePictureURL != null}"
-                 th:src="${user.profilePictureURL}" />
+                 th:src="${user.profilePictureURL}"
+                 onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"/>
 
             <img th:if="${user == null or user.profilePictureURL == null}"
-                 th:src="@{/images/defaultProfilePicture.png}" />
+                 th:src="@{/images/defaultProfilePicture.png}"
+                 onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"/>
             <span th:text="${user.username}"></span>
         </a>
     </div>
 </nav>
+
+<script>
+(() => {
+    const chip = document.querySelector(".balance-chip");
+    if (!chip) {
+        return;
+    }
+
+    const userId = chip.getAttribute("data-user-id");
+    const valueEl = chip.querySelector(".balance-value");
+    if (!userId || !valueEl) {
+        return;
+    }
+
+    const formatIdr = (value) => {
+        const numeric = Number(value);
+        if (Number.isNaN(numeric)) {
+            return "Rp 0";
+        }
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0
+        }).format(numeric);
+    };
+
+    fetch(`/api/wallet/balance/${userId}`)
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => {
+            if (!data) {
+                return;
+            }
+            valueEl.textContent = formatIdr(data.balance);
+        })
+        .catch(() => {});
+})();
+</script>

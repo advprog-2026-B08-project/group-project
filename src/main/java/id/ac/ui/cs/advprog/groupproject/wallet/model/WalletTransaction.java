@@ -1,18 +1,36 @@
 package id.ac.ui.cs.advprog.groupproject.wallet.model;
 
-import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionStatus;
-import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionType;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UuidGenerator;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UuidGenerator;
+
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Entity
-@Table(name = "wallet_transactions")
+@Table(
+    name = "wallet_transactions",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uq_wallet_transactions_reference",
+            columnNames = {"wallet_id", "reference_id", "type"}
+        )
+    }
+)
 @Getter @Setter
 @NoArgsConstructor
 public class WalletTransaction{
@@ -23,6 +41,9 @@ public class WalletTransaction{
 
     @Column(nullable = false)
     private UUID walletId;
+
+    @Column(name = "reference_id")
+    private UUID referenceId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
