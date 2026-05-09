@@ -15,6 +15,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -25,9 +26,12 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
 import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
+import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import java.math.BigDecimal;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -53,6 +57,9 @@ class WalletE2eTest {
     private WalletRepository walletRepository;
 
     @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
     private WalletService walletService;
 
     @Autowired
@@ -60,6 +67,9 @@ class WalletE2eTest {
 
     private final String email = "e2e_user@example.com";
     private final String password = "password123";
+    private final String adminEmail = "e2e_admin@example.com";
+    private final String adminPassword = "adminpass123";
+    private UUID userId;
 
     @BeforeEach
     void setUp() {
@@ -69,13 +79,23 @@ class WalletE2eTest {
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(Role.ROLE_TITIPER.toString());
         user.setStatus(Status.ACTIVE.toString());
-        userRepository.save(user);
+        user = userRepository.save(user);
+        userId = user.getId();
 
-        walletService.createWallet(user.getId());
+        User admin = new User();
+        admin.setUsername("e2eadmin");
+        admin.setEmail(adminEmail);
+        admin.setPassword(passwordEncoder.encode(adminPassword));
+        admin.setRole(Role.ROLE_ADMIN.toString());
+        admin.setStatus(Status.ACTIVE.toString());
+        userRepository.save(admin);
+
+        walletService.createWallet(userId);
     }
 
     @AfterEach
     void tearDown() {
+        walletTransactionRepository.deleteAll();
         walletRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -85,7 +105,7 @@ class WalletE2eTest {
         WebDriver driver = createDriver();
         try {
             WebDriverWait wait = createWait(driver);
-            login(driver, wait);
+            login(driver, wait, email, password);
             openWallet(driver, wait);
 
             WebElement topUpForm = wait.until(
@@ -102,7 +122,7 @@ class WalletE2eTest {
         WebDriver driver = createDriver();
         try {
             WebDriverWait wait = createWait(driver);
-            login(driver, wait);
+            login(driver, wait, email, password);
             openWallet(driver, wait);
 
             WebElement amountInput = wait.until(
@@ -128,6 +148,72 @@ class WalletE2eTest {
         }
     }
 
+    @Test
+    void withdrawShowsPendingStatusAndHistory() {
+        walletRepository.findByUserId(userId).ifPresent(wallet -> {
+            wallet.setBalance(new BigDecimal("100000"));
+            walletRepository.save(wallet);
+        });
+
+        WebDriver driver = createDriver();
+        try {
+            WebDriverWait wait = createWait(driver);
+            login(driver, wait, email, password);
+            openWallet(driver, wait);
+
+            WebElement amountInput = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(By.id("withdraw-amount")));
+            amountInput.clear();
+            amountInput.sendKeys("50000");
+
+            Select destination = new Select(driver.findElement(By.id("withdraw-destination")));
+            destination.selectByVisibleText("BCA");
+
+            WebElement submitButton = wait.until(
+                    ExpectedConditions.elementToBeClickable(By.id("withdraw-submit")));
+            submitButton.click();
+
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                    By.id("withdraw-status"), "Withdrawal"));
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                    By.id("withdraw-status"), "PENDING"));
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                    By.id("history-list"), "WITHDRAWAL"));
+
+            String statusText = driver.findElement(By.id("withdraw-status")).getText();
+            assertTrue(statusText.contains("PENDING"));
+        } finally {
+            driver.quit();
+        }
+    }
+
+    @Test
+    void adminCanVerifyPendingTopUp() {
+        TopUpRequest request = new TopUpRequest();
+        request.setAmount(new BigDecimal("10000"));
+        walletService.topUp(userId, request);
+
+        WebDriver driver = createDriver();
+        try {
+            WebDriverWait wait = createWait(driver);
+            login(driver, wait, adminEmail, adminPassword);
+
+            driver.get(baseUrl("/admin/wallet"));
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                    By.id("admin-table-body"), "PENDING"));
+
+            WebElement successButton = wait.until(
+                    ExpectedConditions.elementToBeClickable(By.cssSelector("button[data-status='SUCCESS']")));
+            successButton.click();
+
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                    By.id("admin-table-body"), "SUCCESS"));
+            assertTrue(driver.findElement(By.id("admin-table-body")).getText().contains("SUCCESS"));
+        } finally {
+            driver.quit();
+        }
+    }
+
     private WebDriver createDriver() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
@@ -142,10 +228,10 @@ class WalletE2eTest {
         return new WebDriverWait(driver, Duration.ofSeconds(6));
     }
 
-    private void login(WebDriver driver, WebDriverWait wait) {
+    private void login(WebDriver driver, WebDriverWait wait, String username, String rawPassword) {
         driver.get(baseUrl("/login"));
-        driver.findElement(By.name("username")).sendKeys(email);
-        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.name("username")).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(rawPassword);
         driver.findElement(By.id("loginButton")).click();
         wait.until(ExpectedConditions.urlContains("/homepage"));
     }
