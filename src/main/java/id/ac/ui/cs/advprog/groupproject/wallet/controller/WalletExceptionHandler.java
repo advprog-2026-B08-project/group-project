@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +47,14 @@ public class WalletExceptionHandler {
             HttpMessageNotReadableException ex,
             HttpServletRequest request) {
         return buildError(HttpStatus.BAD_REQUEST, "Invalid request body", request);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
+        String parameter = ex.getName() != null ? ex.getName() : "parameter";
+        return buildError(HttpStatus.BAD_REQUEST, "Invalid parameter: " + parameter, request);
     }
 
     @ExceptionHandler(ResponseStatusException.class)
