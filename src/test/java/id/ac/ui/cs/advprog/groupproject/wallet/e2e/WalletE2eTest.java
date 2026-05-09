@@ -2,7 +2,9 @@ package id.ac.ui.cs.advprog.groupproject.wallet.e2e;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +16,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -27,11 +29,10 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.Status;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
-import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
+import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import java.math.BigDecimal;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
