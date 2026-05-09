@@ -43,6 +43,9 @@ public class User implements UserDetails {
     @Column
     private String fullName;
 
+    @Column
+    private String socials;
+
     @OneToMany(mappedBy = "jastiper", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Catalog> catalog = new ArrayList<>();
 

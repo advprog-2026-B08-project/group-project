@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="orderCard(order, iter)"
+     class="order-card order-card-rich"
+     th:data-order-id="${order.id}"
+     th:data-jastiper-id="${order.jastiperId}"
+     th:data-buyer-id="${order.buyerId}"
+     th:data-status="${order.status}"
+     th:style="'animation-delay: ' + ${iter.index * 0.04} + 's'">
+
+    <!-- Product Image -->
+    <div class="order-card-image">
+        <img th:if="${order.productImageUrl != null and !order.productImageUrl.isEmpty()}"
+             th:src="${order.productImageUrl}"
+             alt="Product" class="order-product-img">
+        <div th:if="${order.productImageUrl == null or order.productImageUrl.isEmpty()}"
+             class="order-product-img-placeholder">📦</div>
+    </div>
+
+    <!-- Product & Order Info -->
+    <div class="order-card-info">
+        <div class="order-card-product-name"
+             th:text="${order.productName != null ? order.productName : 'Produk'}">Produk</div>
+        <div class="order-card-meta">
+            <span th:text="${order.quantity + ' pcs'}">1 pcs</span>
+            <span>•</span>
+            <span th:text="${'Jastiper: ' + (order.jastiperUsername != null ? order.jastiperUsername : '-')}">Jastiper: -</span>
+        </div>
+    </div>
+
+    <!-- Price -->
+    <div class="order-card-price"
+         th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">Rp 50.000</div>
+
+    <!-- Status Badge -->
+    <div>
+        <span class="status-badge"
+              th:classappend="${
+                  order.status.name() == 'PAID' ? 'status-paid' :
+                  (order.status.name() == 'PURCHASED' ? 'status-purchased' :
+                  (order.status.name() == 'SHIPPED' ? 'status-shipped' :
+                  (order.status.name() == 'COMPLETED' ? 'status-completed' : 'status-cancelled')))
+              }"
+              th:text="${order.status}">PAID</span>
+    </div>
+
+    <!-- Date -->
+    <div class="order-card-date"
+         th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy')}">01 Jan 2026</div>
+
+    <!-- Actions -->
+    <div class="order-actions" onclick="event.stopPropagation()">
+        <!-- Jastiper: Buy -->
+        <button th:if="${order.status.name() == 'PAID'}"
+                class="action-btn-sm buy jastiper-only"
+                th:data-id="${order.id}"
+                th:data-jastiper-id="${order.jastiperId}"
+                data-action="PURCHASED">🛒 Beli</button>
+
+        <!-- Jastiper: Ship -->
+        <button th:if="${order.status.name() == 'PURCHASED'}"
+                class="action-btn-sm ship jastiper-only"
+                th:data-id="${order.id}"
+                th:data-jastiper-id="${order.jastiperId}"
+                data-action="SHIPPED">✈️ Kirim</button>
+
+        <!-- Buyer: Complete -->
+        <button th:if="${order.status.name() == 'SHIPPED'}"
+                class="action-btn-sm complete buyer-only"
+                th:data-id="${order.id}"
+                th:data-buyer-id="${order.buyerId}"
+                data-action="COMPLETED">✅ Terima</button>
+
+        <!-- Cancel (Buyer, Jastiper, or Admin) -->
+        <button th:if="${order.status.name() == 'PAID' or order.status.name() == 'PURCHASED'}"
+                class="action-btn-sm cancel cancel-btn"
+                th:data-id="${order.id}"
+                th:data-buyer-id="${order.buyerId}"
+                th:data-jastiper-id="${order.jastiperId}">❌ Batal</button>
+
+        <!-- Completed/Cancelled: no actions -->
+        <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}"
+              class="order-card-date">—</span>
+    </div>
+</div>
+
+</html>

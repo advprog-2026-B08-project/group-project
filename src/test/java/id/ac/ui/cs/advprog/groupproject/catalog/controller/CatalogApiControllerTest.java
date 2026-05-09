@@ -4,6 +4,8 @@ import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
@@ -289,5 +291,42 @@ class CatalogApiControllerTest {
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
         verify(catalogService, times(1)).decreaseStock(catalogId, 99);
+    }
+
+    @Test
+    void testApplyProductRatingSuccess() {
+        ProductRatingUpdateRequest request = new ProductRatingUpdateRequest();
+        request.setOrderId(UUID.randomUUID());
+        request.setBuyerId(testUser.getId());
+        request.setProductRating(5);
+
+        ProductRatingUpdateResponse serviceResponse = new ProductRatingUpdateResponse(true, 4.7, 13);
+        when(principal.getName()).thenReturn("testuser");
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+        when(catalogService.applyProductRating(catalogId, request, testUser)).thenReturn(serviceResponse);
+
+        ResponseEntity<ProductRatingUpdateResponse> response =
+            catalogApiController.applyProductRating(catalogId, request, principal);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isApplied());
+        assertEquals(4.7, response.getBody().getRatingAverage());
+        verify(catalogService, times(1)).applyProductRating(catalogId, request, testUser);
+    }
+
+    @Test
+    void testApplyProductRatingUnauthorizedWhenPrincipalMissing() {
+        ProductRatingUpdateRequest request = new ProductRatingUpdateRequest();
+        request.setOrderId(UUID.randomUUID());
+        request.setBuyerId(testUser.getId());
+        request.setProductRating(5);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            catalogApiController.applyProductRating(catalogId, request, null);
+        });
+
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
+        verifyNoInteractions(catalogService);
     }
 }

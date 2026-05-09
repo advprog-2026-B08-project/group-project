@@ -29,6 +29,8 @@ public class CatalogDto {
   @NotNull(message = "Stock is required")
   @Min(value = 0, message = "Stock cannot be negative")
   private Integer stock;
+  private Double ratingAverage;
+  private Integer ratingCount;
 
   @NotNull(message = "originLocation is required")
   private String originLocation;

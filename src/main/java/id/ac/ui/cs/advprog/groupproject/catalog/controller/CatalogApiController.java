@@ -2,6 +2,8 @@ package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
@@ -100,5 +102,15 @@ public class CatalogApiController {
       @PathVariable UUID id, @Valid @RequestBody DecreaseStockRequest request) {
     Catalog updatedCatalog = catalogService.decreaseStock(id, request.getQuantity());
     return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));
+  }
+
+  @PostMapping("/{id}/ratings")
+  public ResponseEntity<ProductRatingUpdateResponse> applyProductRating(
+      @PathVariable UUID id,
+      @Valid @RequestBody ProductRatingUpdateRequest request,
+      Principal principal) {
+    User currentUser = getCurrentUser(principal);
+    ProductRatingUpdateResponse response = catalogService.applyProductRating(id, request, currentUser);
+    return ResponseEntity.ok(response);
   }
 }
