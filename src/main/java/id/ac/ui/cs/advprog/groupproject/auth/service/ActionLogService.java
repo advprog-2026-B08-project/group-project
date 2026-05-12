@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public class ActionLogService {
-    ActionLogRepository logRepository;
+    private final ActionLogRepository logRepository;
 
     public ActionLogService(ActionLogRepository logRepository) {
         this.logRepository = logRepository;

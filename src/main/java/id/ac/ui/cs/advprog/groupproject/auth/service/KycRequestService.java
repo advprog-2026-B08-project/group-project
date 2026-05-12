@@ -13,9 +13,9 @@ import java.util.UUID;
 
 @Service
 public class KycRequestService {
-    KycRequestRepository kycRequestRepository;
-    UserRepository userRepository;
-    ActionLogService logService;
+    private final KycRequestRepository kycRequestRepository;
+    private final UserRepository userRepository;
+    private final ActionLogService logService;
 
     public KycRequestService(KycRequestRepository kycRequestRepository,
                              UserRepository userRepository,
