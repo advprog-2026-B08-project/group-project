@@ -50,7 +50,7 @@ public class User implements UserDetails {
     private List<Catalog> catalog = new ArrayList<>();
 
     public boolean isJastiper() {
-        return "JASTIPER".equalsIgnoreCase(this.role);
+        return "ROLE_JASTIPER".equalsIgnoreCase(this.role);
     }
 
 
