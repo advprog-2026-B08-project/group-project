@@ -20,14 +20,14 @@ import jakarta.servlet.http.HttpServletRequest;
     public ResponseEntity&lt;ApiError&gt; handleIllegalArgument(
             IllegalArgumentException ex,
             HttpServletRequest request) {
-<span class="nc" id="L23">        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);</span>
+<span class="fc" id="L23">        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);</span>
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity&lt;ApiError&gt; handleIllegalState(
             IllegalStateException ex,
             HttpServletRequest request) {
-<span class="nc" id="L30">        return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);</span>
+<span class="fc" id="L30">        return buildError(HttpStatus.CONFLICT, ex.getMessage(), request);</span>
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -46,7 +46,7 @@ import jakarta.servlet.http.HttpServletRequest;
     public ResponseEntity&lt;ApiError&gt; handleNotReadable(
             HttpMessageNotReadableException ex,
             HttpServletRequest request) {
-<span class="nc" id="L49">        return buildError(HttpStatus.BAD_REQUEST, &quot;Invalid request body&quot;, request);</span>
+<span class="fc" id="L49">        return buildError(HttpStatus.BAD_REQUEST, &quot;Invalid request body&quot;, request);</span>
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -61,9 +61,9 @@ import jakarta.servlet.http.HttpServletRequest;
     public ResponseEntity&lt;ApiError&gt; handleResponseStatus(
             ResponseStatusException ex,
             HttpServletRequest request) {
-<span class="nc" id="L64">        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        String message = ex.getReason() != null ? ex.getReason() : ex.getMessage();</span>
-<span class="nc" id="L66">        return buildError(status, message, request);</span>
+<span class="fc" id="L64">        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        String message = ex.getReason() != null ? ex.getReason() : ex.getMessage();</span>
+<span class="fc" id="L66">        return buildError(status, message, request);</span>
     }
 
     private ResponseEntity&lt;ApiError&gt; buildError(HttpStatus status, String message, HttpServletRequest request) {
