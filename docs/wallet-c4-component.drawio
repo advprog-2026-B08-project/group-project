@@ -1,0 +1,69 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0">
+  <diagram id="c4-wallet" name="C4 Component - Wallet">
+    <mxGraphModel dx="2605" dy="1318" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="light-dark(#FFFFFF,#FFFFFF)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="boundary" parent="1" style="swimlane;whiteSpace=wrap;html=1;startSize=40;dashed=1;fillColor=none;strokeColor=#666666;fontColor=#333333;fontStyle=0;" value="&lt;b&gt;Wallet Module&lt;/b&gt;&lt;br&gt;[Container]" vertex="1">
+          <mxGeometry height="420" width="560" x="200" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="user" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#083F75;fontColor=#ffffff;strokeColor=#06315C;" value="&lt;b&gt;User&lt;/b&gt;&lt;br&gt;[Person]&lt;br&gt;&lt;br&gt;Titiper / Jastiper / Admin" vertex="1">
+          <mxGeometry height="80" width="160" x="400" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ui" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BB65;fontColor=#ffffff;strokeColor=#5D8347;" value="&lt;b&gt;Wallet UI&lt;/b&gt;&lt;br&gt;[Component: Thymeleaf + JS]&lt;br&gt;&lt;br&gt;Renders wallet pages &amp; verification" vertex="1">
+          <mxGeometry height="80" width="160" x="400" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="controller" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BB65;fontColor=#ffffff;strokeColor=#5D8347;" value="&lt;b&gt;Wallet Controllers&lt;/b&gt;&lt;br&gt;[Component: Spring REST &amp; MVC]&lt;br&gt;&lt;br&gt;Handles HTTP API requests" vertex="1">
+          <mxGeometry height="80" width="160" x="400" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="service" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BB65;fontColor=#ffffff;strokeColor=#5D8347;" value="&lt;b&gt;Wallet Service&lt;/b&gt;&lt;br&gt;[Component: Spring Service]&lt;br&gt;&lt;br&gt;Core logic (balance, top-up, etc)" vertex="1">
+          <mxGeometry height="80" width="160" x="400" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="listener" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BB65;fontColor=#ffffff;strokeColor=#5D8347;" value="&lt;b&gt;Wallet Event Listener&lt;/b&gt;&lt;br&gt;[Component: Spring Component]&lt;br&gt;&lt;br&gt;Listens for domain events" vertex="1">
+          <mxGeometry height="80" width="140" x="220" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#85BB65;fontColor=#ffffff;strokeColor=#5D8347;" value="&lt;b&gt;Wallet Repositories&lt;/b&gt;&lt;br&gt;[Component: Spring Data JPA]&lt;br&gt;&lt;br&gt;DB operations" vertex="1">
+          <mxGeometry height="80" width="140" x="600" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="order" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;fontColor=#ffffff;strokeColor=#6B6B6B;" value="&lt;b&gt;Order Module&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages Orders &amp; Payments" vertex="1">
+          <mxGeometry height="80" width="140" x="30" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="auth" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#999999;fontColor=#ffffff;strokeColor=#6B6B6B;" value="&lt;b&gt;Auth Module&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Manages Users &amp; KYC" vertex="1">
+          <mxGeometry height="80" width="140" x="30" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#999999;fontColor=#ffffff;strokeColor=#6B6B6B;" value="&lt;b&gt;PostgreSQL DB&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;Stores wallet data" vertex="1">
+          <mxGeometry height="90" width="120" x="610" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="ui" value="Fills forms, clicks buttons&lt;br&gt;[HTTPS]">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" edge="1" parent="1" source="ui" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="controller" value="Sends API requests&lt;br&gt;[JSON/HTTP]">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" edge="1" parent="1" source="controller" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="service" value="Delegates logic&lt;br&gt;[Java Method]">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" edge="1" parent="1" source="auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="listener" value="Emits UserRegisteredEvent&lt;br&gt;[Spring Event Bus]">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" edge="1" parent="1" source="listener" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="service" value="createWallet()&lt;br&gt;[In-process]">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" edge="1" parent="1" source="order" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="service" value="pay() and refund()&lt;br&gt;[Adapter Pattern]">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="100" y="440" />
+              <mxPoint x="480" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge7" edge="1" parent="1" source="service" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="repo" value="Reads/Writes&lt;br&gt;[Java Method]">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" edge="1" parent="1" source="repo" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=#ffffff;" target="db" value="Persists data&lt;br&gt;[JDBC/SQL]">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
