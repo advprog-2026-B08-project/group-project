@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wallet Code Diagram - Domain & Repository</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  </script>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 40px; color: #333; background-color: #f9f9f9; }
+    .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    h1 { text-align: center; margin-bottom: 30px; color: #2c3e50; }
+    .mermaid { display: flex; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Code Diagram 1: Domain / Entity & Repository Layer</h1>
+    <div class="mermaid">
+classDiagram
+class Wallet {
+  -UUID id
+  -UUID userId
+  -BigDecimal balance
+  -Long version
+  -LocalDateTime createdAt
+  -LocalDateTime updatedAt
+}
+
+class WalletTransaction {
+  -UUID id
+  -UUID walletId
+  -UUID referenceId
+  -TransactionType type
+  -BigDecimal amount
+  -String description
+  -TransactionStatus status
+  -LocalDateTime createdAt
+}
+
+class TransactionType {
+  &lt;&lt;enum&gt;&gt;
+  TOP_UP
+  DEBIT
+  REFUND
+  WITHDRAWAL
+}
+
+class TransactionStatus {
+  &lt;&lt;enum&gt;&gt;
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+class WalletRepository {
+  &lt;&lt;interface&gt;&gt;
+  +findByUserId(userId: UUID) Optional~Wallet~
+  +findByUserIdForUpdate(userId: UUID) Optional~Wallet~
+  +findByIdForUpdate(id: UUID) Optional~Wallet~
+}
+
+class WalletTransactionRepository {
+  &lt;&lt;interface&gt;&gt;
+  +findByWalletIdOrderByCreatedAtDesc(walletId: UUID) List~WalletTransaction~
+  +findAllByOrderByCreatedAtDesc() List~WalletTransaction~
+  +findByIdForUpdate(id: UUID) Optional~WalletTransaction~
+}
+
+WalletTransaction --> TransactionType
+WalletTransaction --> TransactionStatus
+WalletRepository ..> Wallet
+WalletTransactionRepository ..> WalletTransaction
+Wallet "1" o-- "0..*" WalletTransaction : has
+    </div>
+  </div>
+</body>
+</html>

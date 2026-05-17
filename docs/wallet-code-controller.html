@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wallet Code Diagram - Controller & API</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  </script>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 40px; color: #333; background-color: #f9f9f9; }
+    .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    h1 { text-align: center; margin-bottom: 30px; color: #2c3e50; }
+    .mermaid { display: flex; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Code Diagram 3: API & Controller Layer</h1>
+    <div class="mermaid">
+classDiagram
+class WalletController {
+  &lt;&lt;RestController&gt;&gt;
+  -WalletService walletService
+  +getBalance(userId: UUID) ResponseEntity~WalletResponse~
+  +topUp(userId: UUID, request: TopUpRequest) ResponseEntity~TransactionResponse~
+  +withdraw(userId: UUID, request: WithdrawalRequest) ResponseEntity~TransactionResponse~
+  +getTransactionHistory(userId: UUID) ResponseEntity~List~
+}
+
+class WalletAdminController {
+  &lt;&lt;RestController&gt;&gt;
+  -WalletService walletService
+  +getAllTransactions() ResponseEntity~List~
+  +updateStatus(id: UUID, request: UpdateTransactionStatusRequest) ResponseEntity
+}
+
+class WalletExceptionHandler {
+  &lt;&lt;RestControllerAdvice&gt;&gt;
+  +handleIllegalArgument()
+  +handleIllegalState()
+  +handleValidation()
+  -buildError(...)
+}
+
+class TopUpRequest { &lt;&lt;DTO&gt;&gt; -amount: BigDecimal }
+class WithdrawalRequest { &lt;&lt;DTO&gt;&gt; -amount, -destination }
+class UpdateTransactionStatusRequest { &lt;&lt;DTO&gt;&gt; -status }
+class TransactionResponse { &lt;&lt;DTO&gt;&gt; -id, -type, -amount, -status... }
+class AdminTransactionResponse { &lt;&lt;DTO&gt;&gt; -userId, -walletId... }
+class WalletService { &lt;&lt;interface&gt;&gt; }
+
+WalletController --> WalletService : delegates
+WalletAdminController --> WalletService : delegates
+
+WalletController ..> TopUpRequest : receives
+WalletController ..> WithdrawalRequest : receives
+WalletController ..> TransactionResponse : returns
+
+WalletAdminController ..> UpdateTransactionStatusRequest : receives
+WalletAdminController ..> AdminTransactionResponse : returns
+WalletExceptionHandler ..> WalletController : binds to
+WalletExceptionHandler ..> WalletAdminController : binds to
+    </div>
+  </div>
+</body>
+</html>

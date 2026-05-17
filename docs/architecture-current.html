@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSON Current Architecture</title>
+  <style>
+    :root {
+      --bg-1: #f4efe5;
+      --bg-2: #e6f0ee;
+      --ink: #1d2428;
+      --muted: #55606a;
+      --panel: #ffffff;
+      --line: #1f6b6a;
+      --accent: #e07a5f;
+      --shadow: rgba(31, 107, 106, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    }
+
+    header {
+      padding: 32px 24px 12px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: 0.3px;
+    }
+
+    p {
+      margin: 0 0 10px;
+      color: var(--muted);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+      display: grid;
+      gap: 24px;
+    }
+
+    section {
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 18px 18px 10px;
+      box-shadow: 0 12px 30px var(--shadow);
+      border: 1px solid rgba(31, 107, 106, 0.15);
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      margin-bottom: 12px;
+      color: var(--muted);
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fbfbfb;
+      border-radius: 12px;
+      border: 1px dashed rgba(31, 107, 106, 0.2);
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+
+    .dot.accent {
+      background: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>JSON Current Architecture</h1>
+    <p>Modular monolith with layered modules (controller, service, repository). Order uses ports and adapters for internal integration.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>System Context</h2>
+      <div class="subtitle">People and external systems interacting with JSON.</div>
+      <svg viewBox="0 0 960 420" role="img" aria-label="System context diagram">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L10,3 L0,6" fill="none" stroke="#1f6b6a" stroke-width="2" />
+          </marker>
+        </defs>
+
+        <rect x="340" y="130" width="280" height="160" rx="14" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="480" y="180" text-anchor="middle" font-size="16" fill="#1d2428">JSON Web App</text>
+        <text x="480" y="205" text-anchor="middle" font-size="12" fill="#55606a">Spring Boot + Thymeleaf</text>
+
+        <rect x="60" y="70" width="200" height="90" rx="12" fill="#ffffff" stroke="#e07a5f" stroke-width="2" />
+        <text x="160" y="115" text-anchor="middle" font-size="14" fill="#1d2428">Titiper (Buyer)</text>
+
+        <rect x="60" y="180" width="200" height="90" rx="12" fill="#ffffff" stroke="#e07a5f" stroke-width="2" />
+        <text x="160" y="225" text-anchor="middle" font-size="14" fill="#1d2428">Jastiper (Traveler)</text>
+
+        <rect x="60" y="290" width="200" height="90" rx="12" fill="#ffffff" stroke="#e07a5f" stroke-width="2" />
+        <text x="160" y="335" text-anchor="middle" font-size="14" fill="#1d2428">Admin</text>
+
+        <rect x="700" y="100" width="220" height="90" rx="12" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="810" y="145" text-anchor="middle" font-size="14" fill="#1d2428">PostgreSQL DB</text>
+
+        <rect x="700" y="240" width="220" height="90" rx="12" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="810" y="285" text-anchor="middle" font-size="14" fill="#1d2428">Cloudinary</text>
+        <text x="810" y="305" text-anchor="middle" font-size="12" fill="#55606a">Image storage</text>
+
+        <line x1="260" y1="115" x2="340" y2="165" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow)" />
+        <line x1="260" y1="225" x2="340" y2="205" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow)" />
+        <line x1="260" y1="335" x2="340" y2="245" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow)" />
+
+        <line x1="620" y1="170" x2="700" y2="145" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow)" />
+        <line x1="620" y1="250" x2="700" y2="275" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow)" />
+      </svg>
+      <div class="legend">
+        <span><span class="dot"></span> Systems</span>
+        <span><span class="dot accent"></span> Users</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Container Diagram</h2>
+      <div class="subtitle">Main runtime containers and internal modules.</div>
+      <svg viewBox="0 0 960 460" role="img" aria-label="Container diagram">
+        <defs>
+          <marker id="arrow2" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L10,3 L0,6" fill="none" stroke="#1f6b6a" stroke-width="2" />
+          </marker>
+        </defs>
+
+        <rect x="60" y="170" width="200" height="100" rx="12" fill="#ffffff" stroke="#e07a5f" stroke-width="2" />
+        <text x="160" y="215" text-anchor="middle" font-size="14" fill="#1d2428">Browser UI</text>
+        <text x="160" y="235" text-anchor="middle" font-size="12" fill="#55606a">Thymeleaf + JS</text>
+
+        <rect x="300" y="70" width="420" height="320" rx="16" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="510" y="105" text-anchor="middle" font-size="15" fill="#1d2428">Spring Boot Monolith</text>
+        <text x="510" y="125" text-anchor="middle" font-size="12" fill="#55606a">JSON application</text>
+
+        <rect x="330" y="150" width="160" height="80" rx="10" fill="#f8f3ed" stroke="#1f6b6a" stroke-width="1.5" />
+        <text x="410" y="195" text-anchor="middle" font-size="12" fill="#1d2428">Auth & Profile</text>
+
+        <rect x="530" y="150" width="160" height="80" rx="10" fill="#f8f3ed" stroke="#1f6b6a" stroke-width="1.5" />
+        <text x="610" y="195" text-anchor="middle" font-size="12" fill="#1d2428">Catalog & Inventory</text>
+
+        <rect x="330" y="260" width="160" height="80" rx="10" fill="#f8f3ed" stroke="#1f6b6a" stroke-width="1.5" />
+        <text x="410" y="305" text-anchor="middle" font-size="12" fill="#1d2428">Order</text>
+
+        <rect x="530" y="260" width="160" height="80" rx="10" fill="#f8f3ed" stroke="#1f6b6a" stroke-width="1.5" />
+        <text x="610" y="305" text-anchor="middle" font-size="12" fill="#1d2428">Wallet</text>
+
+        <rect x="760" y="140" width="160" height="80" rx="12" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="840" y="185" text-anchor="middle" font-size="13" fill="#1d2428">PostgreSQL DB</text>
+
+        <rect x="760" y="260" width="160" height="80" rx="12" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="840" y="305" text-anchor="middle" font-size="13" fill="#1d2428">Cloudinary</text>
+
+        <line x1="260" y1="220" x2="300" y2="220" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow2)" />
+        <line x1="720" y1="200" x2="760" y2="180" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow2)" />
+        <line x1="720" y1="260" x2="760" y2="300" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow2)" />
+      </svg>
+      <div class="legend">
+        <span><span class="dot"></span> Containers</span>
+        <span><span class="dot accent"></span> Users</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Deployment Diagram</h2>
+      <div class="subtitle">Typical deployment using a single app server and relational database.</div>
+      <svg viewBox="0 0 960 420" role="img" aria-label="Deployment diagram">
+        <defs>
+          <marker id="arrow3" markerWidth="10" markerHeight="10" refX="10" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L10,3 L0,6" fill="none" stroke="#1f6b6a" stroke-width="2" />
+          </marker>
+        </defs>
+
+        <rect x="60" y="150" width="200" height="110" rx="12" fill="#ffffff" stroke="#e07a5f" stroke-width="2" />
+        <text x="160" y="200" text-anchor="middle" font-size="14" fill="#1d2428">User Devices</text>
+        <text x="160" y="222" text-anchor="middle" font-size="12" fill="#55606a">Browser</text>
+
+        <rect x="320" y="90" width="280" height="200" rx="14" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="460" y="130" text-anchor="middle" font-size="14" fill="#1d2428">App Server</text>
+        <text x="460" y="152" text-anchor="middle" font-size="12" fill="#55606a">Spring Boot (Heroku)</text>
+        <rect x="350" y="170" width="220" height="90" rx="10" fill="#f8f3ed" stroke="#1f6b6a" stroke-width="1.5" />
+        <text x="460" y="220" text-anchor="middle" font-size="12" fill="#1d2428">JSON Monolith</text>
+
+        <rect x="660" y="90" width="230" height="90" rx="12" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="775" y="140" text-anchor="middle" font-size="13" fill="#1d2428">PostgreSQL</text>
+
+        <rect x="660" y="210" width="230" height="90" rx="12" fill="#ffffff" stroke="#1f6b6a" stroke-width="2" />
+        <text x="775" y="255" text-anchor="middle" font-size="13" fill="#1d2428">Cloudinary SaaS</text>
+        <text x="775" y="275" text-anchor="middle" font-size="11" fill="#55606a">Image storage</text>
+
+        <line x1="260" y1="205" x2="320" y2="190" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow3)" />
+        <line x1="600" y1="150" x2="660" y2="135" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow3)" />
+        <line x1="600" y1="220" x2="660" y2="245" stroke="#1f6b6a" stroke-width="2" marker-end="url(#arrow3)" />
+      </svg>
+      <div class="legend">
+        <span><span class="dot"></span> Deployment nodes</span>
+        <span><span class="dot accent"></span> Users</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

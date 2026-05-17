@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Wallet Module - C4 Component Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "default",
+      flowchart: { nodeSpacing: 120, rankSpacing: 140 }
+    });
+  </script>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 40px;
+      color: #333;
+      background-color: #f9f9f9;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .mermaid>svg {
+      min-width: 1200px;
+      height: auto;
+    }
+
+    /* Fix untuk teks <<stereotype>> dkk agar tidak miring dan lebih terang */
+    .mermaid text,
+    .mermaid tspan {
+      font-style: normal !important;
+    }
+
+    .edgeLabel {
+      background-color: #ffffff;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Wallet Module - C4 Component Diagram</h1>
+    <div class="mermaid">
+      C4Component
+
+      Person(user, "User", "Titiper / Jastiper / Admin")
+
+      System_Ext(authModule, "Auth Module", "Manages Users & KYC")
+      System_Ext(orderModule, "Order Module", "Manages Orders & Payments")
+
+      Container_Boundary(walletApp, "Wallet Module") {
+      Component(walletUi, "Wallet UI", "Thymeleaf + JS", "Renders wallet pages & admin verification panel")
+      Component(walletService, "Wallet Service", "Spring Service", "Core logic (balance, top-up, withdraw)")
+      Component(walletListener, "Wallet Event Listener", "Spring Component", "Listens for domain events")
+      Component(walletController, "Wallet Controllers", "Spring REST & MVC", "Handles HTTP API requests and error
+      handling")
+      Component(walletRepo, "Wallet Repositories", "Spring Data JPA", "DB operations for wallet and transactions")
+      }
+
+      SystemDb_Ext(db, "PostgreSQL", "Stores wallet & transaction data")
+
+      Rel_D(user, walletUi, "Fills forms, clicks buttons", "HTTPS")
+      Rel_D(walletUi, walletController, "Sends API requests", "JSON/HTTP")
+      Rel_D(walletController, walletService, "Delegates logic", "Java Method")
+
+      Rel_R(authModule, walletListener, "Emits UserRegisteredEvent", "Spring Event Bus")
+      Rel_D(walletListener, walletService, "createWallet()", "In-process")
+
+      Rel_R(orderModule, walletService, "pay() and refund()", "Adapter Pattern")
+
+      Rel_D(walletService, walletRepo, "Reads and Writes", "Java Method")
+      Rel_D(walletRepo, db, "Persists data", "JDBC/SQL")
+
+      UpdateRelStyle(authModule, walletListener, $offsetX="0", $offsetY="-50")
+      UpdateRelStyle(walletListener, walletService, $offsetX="-30", $offsetY="30")
+      UpdateRelStyle(orderModule, walletService, $offsetX="-100", $offsetY="30")
+
+      UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+    </div>
+  </div>
+</body>
+
+</html>

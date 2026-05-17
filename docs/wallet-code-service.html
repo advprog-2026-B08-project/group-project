@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wallet Code Diagram - Service Logic</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  </script>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 40px; color: #333; background-color: #f9f9f9; }
+    .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    h1 { text-align: center; margin-bottom: 30px; color: #2c3e50; }
+    .mermaid { display: flex; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Code Diagram 2: Service Layer & Business Logic</h1>
+    <div class="mermaid">
+classDiagram
+class WalletService {
+  &lt;&lt;interface&gt;&gt;
+  +createWallet(userId: UUID) Wallet
+  +getBalance(userId: UUID) WalletResponse
+  +topUp(userId: UUID, request: TopUpRequest) TransactionResponse
+  +withdrawBalance(userId: UUID, amount: BigDecimal, dest: String) TransactionResponse
+  +deductBalance(userId: UUID, amount: BigDecimal, desc: String) TransactionResponse
+  +refundBalance(userId: UUID, amount: BigDecimal, desc: String, refId: UUID) TransactionResponse
+  +verifyTransaction(transactionId: UUID, status: TransactionStatus) TransactionResponse
+  +getTransactionHistory(userId: UUID) List~TransactionResponse~
+  +getAllTransactions() List~AdminTransactionResponse~
+}
+
+class WalletServiceImpl {
+  -WalletRepository walletRepository
+  -WalletTransactionRepository walletTransactionRepository
+  +createWallet(userId) Wallet
+  +getBalance(userId) WalletResponse
+  +topUp(userId, request) TransactionResponse
+  +verifyTransaction(...) TransactionResponse
+  ...() 
+}
+
+class WalletEventListener {
+  -WalletService walletService
+  +handleUserRegistered(event: UserRegisteredEvent)
+}
+
+class PaymentPortAdapter {
+  &lt;&lt;adapter&gt;&gt;
+  -WalletService walletService
+  +pay(userId, amount, description)
+  +refund(userId, amount, description, referenceId)
+}
+
+class WalletRepository { &lt;&lt;interface&gt;&gt; }
+class WalletTransactionRepository { &lt;&lt;interface&gt;&gt; }
+
+WalletServiceImpl ..|> WalletService
+WalletServiceImpl --> WalletRepository : uses
+WalletServiceImpl --> WalletTransactionRepository : uses
+
+WalletEventListener --> WalletService : calls createWallet
+PaymentPortAdapter --> WalletService : calls deduct/refund
+    </div>
+  </div>
+</body>
+</html>
