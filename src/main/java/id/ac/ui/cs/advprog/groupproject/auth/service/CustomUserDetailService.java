@@ -130,7 +130,7 @@ public class CustomUserDetailService implements UserDetailsService {
             return;
         }
         if (user.getRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Invalid role for banning!");
+            throw new RuntimeException("Can't ban an admin!");
         }
 
         user.setStatus(Status.BANNED.toString());
@@ -142,6 +142,34 @@ public class CustomUserDetailService implements UserDetailsService {
                 + "'s account";
 
         logService.log("Banned a user", admin.getUsername(),
+                admin.getRole(), user.getUsername(), description, LogType.WARN);
+    }
+
+    public void liftBan(User admin, UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        if (!admin.getRole().equals("ROLE_ADMIN")) {
+            String description = admin.getUsername()
+                    + "tried to perform an unauthorized action of lifting the ban off another user";
+            logService.log("Unauthorized action", admin.getUsername(),
+                    admin.getRole(), null, description, LogType.DANGER);
+            return;
+        }
+        if (user.getRole().equals("ROLE_ADMIN")) {
+            throw new RuntimeException("Account can't be banned!");
+        }
+        if (!user.getStatus().equals(Status.BANNED.toString())) {
+            throw new RuntimeException("User was not banned in the first place");
+        }
+
+        user.setStatus(Status.ACTIVE.toString());
+        userRepository.save(user);
+
+        String description = admin.getUsername()
+                + " lifted the ban from "
+                + user.getUsername()
+                + "'s account";
+
+        logService.log("lifted a ban", admin.getUsername(),
                 admin.getRole(), user.getUsername(), description, LogType.WARN);
     }
 

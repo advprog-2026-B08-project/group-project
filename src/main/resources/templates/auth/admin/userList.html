@@ -12,56 +12,65 @@
   <div class="container mt-4">
       <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">User List</h1>
       <div class="row">
-          <div class="col-md-4 mb-4" th:each="user : ${userList}">
+          <div class="col-md-4 mb-4" th:if="${user.role == 'ROLE_ADMIN' or userInList.role != 'ROLE_ADMIN'}"  th:each="userInList : ${userList}">
               <div class="card h-100 shadow-sm" style="border-radius: 12px;">
                   <div class="containerRowWhite">
                       <div>
-                          <img th:src="${user.profilePictureURL != null} ? ${user.profilePictureURL} : '/images/defaultProfilePicture.png'"
+                          <img th:src="${userInList.profilePictureURL != null} ? ${userInList.profilePictureURL} : '/images/defaultProfilePicture.png'"
                                class="card-img-top"
                                style="height: 64px; width: 64px; object-fit: cover; border-radius: 50%">
                       </div>
                       <div class="containerBadge">
-                          <div th:if="${user.role == 'ROLE_ADMIN'}">
+                          <div th:if="${userInList.role == 'ROLE_ADMIN'}">
                               <p class="pin" style="background: #ddaaff; color: #552277">Admin</p>
                           </div>
-                          <div th:if="${user.role == 'ROLE_JASTIPER'}">
+                          <div th:if="${userInList.role == 'ROLE_JASTIPER'}">
                               <p class="pin" style="background: #aaddff; color: #225577">Jastiper</p>
                           </div>
-                          <div th:if="${user.role == 'ROLE_TITIPER'}">
+                          <div th:if="${userInList.role == 'ROLE_TITIPER'}">
                               <p class="pin" style="background: #ffddaa; color: #775522">Titiper</p>
                           </div>
-                          <div th:if="${user.status == 'ACTIVE'}">
+                          <div th:if="${userInList.status == 'ACTIVE'}">
                               <p class="pin" style="background: #aaffdd; color: #227755">Aktif</p>
                           </div>
-                          <div th:if="${user.status == 'PENDING'}">
+                          <div th:if="${userInList.status == 'PENDING'}">
                               <p class="pin" style="background: #ffffcc; color: #777744">Pending</p>
                           </div>
-                          <div th:if="${user.status == 'BANNED'}">
+                          <div th:if="${userInList.status == 'BANNED'}">
                               <p class="pin" style="background: #ffbbbb; color: #773333">Banned</p>
                           </div>
                       </div>
                   </div>
                   <div class="card-body">
-                      <p class="card-text" style="font-family: 'Arial Black'; font-size: 30px">
-                          <span th:text="${user.username}"></span>
+                      <p class="card-text" style="font-family: 'Arial Black'; font-size: 30px; margin-bottom: 0px">
+                          <span th:text="${userInList.username}"></span>
                       </p>
-                      <p th:text="${user.fullName}" style="color: #808080"></p>
-                      <p th:text="${user.email}" style="color: #808080"></p>
+                      <span th:text="${userInList.fullName}" style="color: #808080"></span>
+                      <br>
+                      <span th:text="${user.email}" style="color: #808080"></span>
                   </div>
 
                   <div class="containerRowWhite" style="background: #cceeff; height:68px; border-radius: 0px 0px 10px 10px">
 <!--                      TODO: button demote & ban-->
-                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${user.role !='ROLE_ADMIN' and user.status != 'BANNED'}">
+                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${userInList.role !='ROLE_ADMIN' and userInList.status != 'BANNED' and user.role == 'ROLE_ADMIN'}">
                           <form th:action="@{/admin/ban}" method="post" onsubmit="return confirm('Are you sure you want to ban this user?');">
-                              <input type="hidden" name="userId" th:value="${user.id}" />
+                              <input type="hidden" name="userId" th:value="${userInList.id}" />
                               <button type="submit" class="btn btn-danger btn-sm" style="color: white; padding: 4px 24px 4px 24px">
                                   Ban
                               </button>
                           </form>
                       </div>
-                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${user.role == 'ROLE_JASTIPER'}">
+                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${userInList.role !='ROLE_ADMIN' and userInList.status == 'BANNED' and user.role == 'ROLE_ADMIN'}">
+                          <form th:action="@{/admin/liftBan}" method="post" onsubmit="return confirm('Are you sure you want to lift the ban from this user?');">
+                              <input type="hidden" name="userId" th:value="${userInList.id}" />
+                              <button type="submit" class="btn btn-danger btn-sm" style="color: white; padding: 4px 24px 4px 24px">
+                                  Lift ban
+                              </button>
+                          </form>
+                      </div>
+                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${userInList.role == 'ROLE_JASTIPER' and user.role == 'ROLE_ADMIN'}">
                           <form th:action="@{/admin/demote}" method="post" onsubmit="return confirm('Are you sure you want to demote this user?');">
-                              <input type="hidden" name="userId" th:value="${user.id}" />
+                              <input type="hidden" name="userId" th:value="${userInList.id}" />
                               <button type="submit" class="btn btn-warning btn-sm" style="color: white; padding: 4px 10px 4px 10px">
                                   Demote
                               </button>
