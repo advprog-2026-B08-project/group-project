@@ -112,7 +112,7 @@ public class CustomUserDetailService implements UserDetailsService {
         userRepository.save(user);
 
         String description = admin.getUsername()
-                + " banned "
+                + " demoted "
                 + user.getUsername()
                 + "'s account";
 

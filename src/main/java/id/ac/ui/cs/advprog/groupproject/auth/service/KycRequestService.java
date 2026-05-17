@@ -48,26 +48,6 @@ public class KycRequestService {
         return request;
     }
 
-    public KycRequest createRequestForAdmin(User user, String email, String fullName,
-                                            String phoneNumber, String socials) {
-        KycRequest request = new KycRequest();
-        request.setUser(user);
-        request.setRequestedRole(Role.ROLE_JASTIPER);
-        request.setStatus(Status.ACTIVE);
-
-        request.setEmail(email);
-        request.setFullName(fullName);
-        request.setPhoneNumber(phoneNumber);
-        request.setSocials(socials);
-
-        user.setStatus(Status.PENDING.toString());
-
-        kycRequestRepository.save(request);
-        userRepository.save(user);
-
-        return request;
-    }
-
     public Map<String, Long> getRequestCountByStatus() {
         List<Object[]> result = kycRequestRepository.countRequestByStatus();
         Map<String, Long> map = new HashMap<>();
@@ -125,7 +105,7 @@ public class KycRequestService {
                 + "'s application to be a jastiper";
 
         logService.log("Accept kyc application", admin.getUsername(),
-                admin.getRole(), user.getRole(), description, LogType.INFO);
+                admin.getRole(), user.getUsername(), description, LogType.INFO);
     }
 
     public void closeRejectedRequest(User admin, UUID requestId) {
