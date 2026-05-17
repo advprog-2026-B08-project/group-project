@@ -23,7 +23,7 @@
 <tr>
 <td>
 <div class="infoBox" id="tests">
-<div class="counter">39</div>
+<div class="counter">42</div>
 <p>tests</p>
 </div>
 </td>
@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.244s</div>
+<div class="counter">0.220s</div>
 <p>duration</p>
 </div>
 </td>
@@ -86,12 +86,12 @@
 </tr>
 <tr>
 <td class="success">deductBalance_InsufficientBalance_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">deductBalance_NegativeAmount_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -100,8 +100,13 @@
 <td class="success">passed</td>
 </tr>
 <tr>
+<td class="success">deductBalance_NullDescription_UsesDefaultDescription()</td>
+<td class="success">0.002s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
 <td class="success">deductBalance_Success()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -116,7 +121,12 @@
 </tr>
 <tr>
 <td class="success">getAllTransactions_MissingWallet_ThrowsException()</td>
-<td class="success">0.003s</td>
+<td class="success">0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">getAllTransactions_ReturnsMappedResponses()</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -125,8 +135,8 @@
 <td class="success">passed</td>
 </tr>
 <tr>
-<td class="success">getBalance_WalletNotFound_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">getBalance_WalletNotFound_CreatesWallet()</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -135,8 +145,8 @@
 <td class="success">passed</td>
 </tr>
 <tr>
-<td class="success">getTransactionHistory_WalletNotFound_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">getTransactionHistory_WalletNotFound_CreatesWalletAndReturnsEmpty()</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -146,6 +156,11 @@
 </tr>
 <tr>
 <td class="success">refundBalance_NullAmount_ThrowsException()</td>
+<td class="success">0.001s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">refundBalance_NullDescription_UsesDefaultDescription()</td>
 <td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
@@ -160,38 +175,38 @@
 <td class="success">passed</td>
 </tr>
 <tr>
-<td class="success">refundBalance_WalletNotFound_ThrowsException()</td>
+<td class="success">refundBalance_WalletNotFound_CreatesWalletAndProceeds()</td>
 <td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">refundBalance_ZeroAmount_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">topUp_NegativeAmount_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">topUp_NullAmount_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">topUp_Success()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
-<td class="success">topUp_WalletNotFound_ThrowsException()</td>
+<td class="success">topUp_WalletNotFound_CreatesWalletAndProceeds()</td>
 <td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">topUp_ZeroAmount_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -201,7 +216,7 @@
 </tr>
 <tr>
 <td class="success">verifyTransaction_Failed_DoesNotChangeBalance()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -231,22 +246,22 @@
 </tr>
 <tr>
 <td class="success">verifyTransaction_WalletNotFound_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">verifyTransaction_WithdrawalInsufficientBalance_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">verifyTransaction_WithdrawalSuccess_SubtractsBalance()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">withdrawBalance_InsufficientBalance_ThrowsException()</td>
-<td class="success">0.183s</td>
+<td class="success">0.162s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -261,12 +276,12 @@
 </tr>
 <tr>
 <td class="success">withdrawBalance_NullDestination_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">withdrawBalance_Success()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -279,7 +294,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 8, 2026, 3:54:05 PM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 17, 2026, 6:36:10 AM</p>
 </div>
 </div>
 </body>
