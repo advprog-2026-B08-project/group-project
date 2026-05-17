@@ -146,6 +146,19 @@ class AdminControllerTest {
     }
 
     @Test
+    public void testLiftBan() {
+        User admin = new User();
+        UUID id = UUID.randomUUID();
+
+        doNothing().when(userDetailService).liftBan(admin, id);
+
+        String view = adminController.liftBan(admin, id);
+
+        assertEquals("redirect:/admin/userList", view);
+        verify(userDetailService).liftBan(admin, id);
+    }
+
+    @Test
     public void testAcceptKycRequest() {
         User admin = new User();
         UUID id = UUID.randomUUID();

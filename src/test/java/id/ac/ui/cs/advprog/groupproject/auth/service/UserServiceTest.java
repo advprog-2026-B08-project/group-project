@@ -267,7 +267,63 @@ public class UserServiceTest {
 
         when(userRepository.findById(id)).thenReturn(Optional.of(target));
 
-        userDetailService.demote(fakeAdmin, id);
+        userDetailService.ban(fakeAdmin, id);
+
+        verify(logService).log(
+                eq("Unauthorized action"),
+                eq("user"),
+                eq("ROLE_TITIPER"),
+                eq(null),
+                contains("unauthorized"),
+                eq(LogType.DANGER)
+        );
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void testLiftBanSuccess() {
+        UUID id = UUID.randomUUID();
+
+        User admin = new User();
+        admin.setRole("ROLE_ADMIN");
+        admin.setUsername("admin");
+        admin.setStatus(Status.ACTIVE.toString());
+
+        User user = new User();
+        user.setRole("ROLE_TITIPER");
+        user.setUsername("user");
+        user.setStatus(Status.BANNED.toString());
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        userDetailService.liftBan(admin, id);
+
+        assertEquals(Role.ROLE_TITIPER.toString(), user.getRole());
+        verify(userRepository).save(user);
+        verify(logService).log(
+                eq("lifted a ban"),
+                eq("admin"),
+                eq("ROLE_ADMIN"),
+                eq("user"),
+                contains("lifted the ban"),
+                eq(LogType.WARN)
+        );
+    }
+
+    @Test
+    void testLiftBanUnauthorized() {
+        UUID id = UUID.randomUUID();
+
+        User fakeAdmin = new User();
+        fakeAdmin.setRole("ROLE_TITIPER");
+        fakeAdmin.setUsername("user");
+
+        User target = new User();
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(target));
+
+        userDetailService.liftBan(fakeAdmin, id);
 
         verify(logService).log(
                 eq("Unauthorized action"),
