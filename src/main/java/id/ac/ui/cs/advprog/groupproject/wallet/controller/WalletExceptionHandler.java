@@ -34,11 +34,11 @@ public class WalletExceptionHandler {
     public ResponseEntity<ApiError> handleValidation(
             MethodArgumentNotValidException ex,
             HttpServletRequest request) {
-        String message = "Validation failed";
-        var fieldError = ex.getBindingResult().getFieldError();
-        if (fieldError != null && fieldError.getDefaultMessage() != null) {
-            message = fieldError.getDefaultMessage();
-        }
+        String message = java.util.Optional.ofNullable(ex.getBindingResult().getFieldError())
+                .map(fe -> fe.getDefaultMessage())
+                .filter(m -> m != null && !m.isBlank())
+                .orElse("Validation failed");
+
         return buildError(HttpStatus.BAD_REQUEST, message, request);
     }
 
@@ -53,7 +53,7 @@ public class WalletExceptionHandler {
     public ResponseEntity<ApiError> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex,
             HttpServletRequest request) {
-        String parameter = ex.getName() != null ? ex.getName() : "parameter";
+        String parameter = ex.getName();
         return buildError(HttpStatus.BAD_REQUEST, "Invalid parameter: " + parameter, request);
     }
 

@@ -14,9 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mockito;
 import org.springframework.test.web.servlet.MockMvc;
 
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
@@ -29,8 +32,16 @@ class WalletValidationWebMvcTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private WalletService walletService;
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public WalletService walletService() {
+            return Mockito.mock(WalletService.class);
+        }
+    }
 
     @Test
     void topUp_InvalidAmount_ReturnsBadRequest() throws Exception {
