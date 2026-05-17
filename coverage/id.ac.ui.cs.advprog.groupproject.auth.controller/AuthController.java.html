@@ -21,11 +21,11 @@ public class AuthController {
                            @RequestParam String email,
                            @RequestParam String fullName) {
 
-<span class="nc bnc" id="L24" title="All 2 branches missed.">        if (service.emailExists(email)) return &quot;redirect:/register?userExists&quot;;</span>
-<span class="nc bnc" id="L25" title="All 2 branches missed.">        if (!service.confirmPassword(password, confirmPassword)) return &quot;redirect:/register?error&quot;;</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (service.emailExists(email)) return &quot;redirect:/register?userExists&quot;;</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (!service.confirmPassword(password, confirmPassword)) return &quot;redirect:/register?error&quot;;</span>
 
-<span class="nc" id="L27">        service.createUser(email, password, username, fullName);</span>
-<span class="nc" id="L28">        return &quot;redirect:/login?registered&quot;;</span>
+<span class="fc" id="L27">        service.createUser(email, password, username, fullName);</span>
+<span class="fc" id="L28">        return &quot;redirect:/login?registered&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

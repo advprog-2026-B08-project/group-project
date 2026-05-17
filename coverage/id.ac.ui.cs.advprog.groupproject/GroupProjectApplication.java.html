@@ -2,26 +2,39 @@
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
-<span class="fc" id="L9">public class GroupProjectApplication {</span>
+@EntityScan(basePackages = {
+    &quot;id.ac.ui.cs.advprog.groupproject.auth.model&quot;,
+    &quot;id.ac.ui.cs.advprog.groupproject.catalog.model&quot;,
+    &quot;id.ac.ui.cs.advprog.groupproject.wallet.model&quot;,
+    &quot;id.ac.ui.cs.advprog.groupproject.order.model&quot;
+})
+@EnableJpaRepositories(basePackages = {
+    &quot;id.ac.ui.cs.advprog.groupproject.auth.repository&quot;,
+    &quot;id.ac.ui.cs.advprog.groupproject.catalog.repository&quot;,
+    &quot;id.ac.ui.cs.advprog.groupproject.wallet.repository&quot;,
+    &quot;id.ac.ui.cs.advprog.groupproject.order.repository&quot;
+})
+<span class="fc" id="L22">public class GroupProjectApplication {</span>
     public static void main(String[] args) {
-<span class="nc" id="L11">        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();</span>
-<span class="nc" id="L12">        dotenv.entries().forEach(entry -&gt; </span>
-<span class="nc" id="L13">            System.setProperty(entry.getKey(), entry.getValue())</span>
+<span class="nc" id="L24">        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();</span>
+<span class="nc" id="L25">        dotenv.entries().forEach(entry -&gt; </span>
+<span class="nc" id="L26">            System.setProperty(entry.getKey(), entry.getValue())</span>
         );
         
-<span class="nc" id="L16">        SpringApplication app = new SpringApplication(GroupProjectApplication.class);</span>
+<span class="nc" id="L29">        SpringApplication app = new SpringApplication(GroupProjectApplication.class);</span>
         
-<span class="nc" id="L18">        String defaultProfile = dotenv.get(&quot;SPRING_PROFILES_ACTIVE&quot;);</span>
-<span class="nc bnc" id="L19" title="All 4 branches missed.">        if (defaultProfile != null &amp;&amp; !defaultProfile.isEmpty()) {</span>
-<span class="nc" id="L20">            app.setDefaultProperties(java.util.Collections.singletonMap(</span>
+<span class="nc" id="L31">        String defaultProfile = dotenv.get(&quot;SPRING_PROFILES_ACTIVE&quot;);</span>
+<span class="nc bnc" id="L32" title="All 4 branches missed.">        if (defaultProfile != null &amp;&amp; !defaultProfile.isEmpty()) {</span>
+<span class="nc" id="L33">            app.setDefaultProperties(java.util.Collections.singletonMap(</span>
                 &quot;spring.profiles.default&quot;, defaultProfile
             ));
         }
-<span class="nc" id="L24">        app.run(args);</span>
-<span class="nc" id="L25">    }</span>
+<span class="nc" id="L37">        app.run(args);</span>
+<span class="nc" id="L38">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -2,20 +2,13 @@
 
 import java.math.BigDecimal;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-<span class="fc" id="L13">public class WithdrawalRequest {</span>
-    @NotNull(message = &quot;Amount is required&quot;)
-    @Positive(message = &quot;Amount must be greater than zero&quot;)
+<span class="fc" id="L10">public class WithdrawalRequest {</span>
     private BigDecimal amount;
-
-    @NotBlank(message = &quot;Destination is required&quot;)
     private String destination;
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
