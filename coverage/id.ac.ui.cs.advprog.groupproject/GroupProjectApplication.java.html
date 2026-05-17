@@ -2,25 +2,26 @@
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
-<span class="fc" id="L8">public class GroupProjectApplication {</span>
+<span class="fc" id="L9">public class GroupProjectApplication {</span>
     public static void main(String[] args) {
-<span class="nc" id="L10">        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();</span>
-<span class="nc" id="L11">        dotenv.entries().forEach(entry -&gt; </span>
-<span class="nc" id="L12">            System.setProperty(entry.getKey(), entry.getValue())</span>
+<span class="nc" id="L11">        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();</span>
+<span class="nc" id="L12">        dotenv.entries().forEach(entry -&gt; </span>
+<span class="nc" id="L13">            System.setProperty(entry.getKey(), entry.getValue())</span>
         );
         
-<span class="nc" id="L15">        SpringApplication app = new SpringApplication(GroupProjectApplication.class);</span>
+<span class="nc" id="L16">        SpringApplication app = new SpringApplication(GroupProjectApplication.class);</span>
         
-<span class="nc" id="L17">        String defaultProfile = dotenv.get(&quot;SPRING_PROFILES_ACTIVE&quot;);</span>
-<span class="nc bnc" id="L18" title="All 4 branches missed.">        if (defaultProfile != null &amp;&amp; !defaultProfile.isEmpty()) {</span>
-<span class="nc" id="L19">            app.setDefaultProperties(java.util.Collections.singletonMap(</span>
+<span class="nc" id="L18">        String defaultProfile = dotenv.get(&quot;SPRING_PROFILES_ACTIVE&quot;);</span>
+<span class="nc bnc" id="L19" title="All 4 branches missed.">        if (defaultProfile != null &amp;&amp; !defaultProfile.isEmpty()) {</span>
+<span class="nc" id="L20">            app.setDefaultProperties(java.util.Collections.singletonMap(</span>
                 &quot;spring.profiles.default&quot;, defaultProfile
             ));
         }
-<span class="nc" id="L23">        app.run(args);</span>
-<span class="nc" id="L24">    }</span>
+<span class="nc" id="L24">        app.run(args);</span>
+<span class="nc" id="L25">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

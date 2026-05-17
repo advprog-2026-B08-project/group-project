@@ -34,11 +34,11 @@ import jakarta.servlet.http.HttpServletRequest;
     public ResponseEntity&lt;ApiError&gt; handleValidation(
             MethodArgumentNotValidException ex,
             HttpServletRequest request) {
-<span class="fc" id="L37">        String message = &quot;Validation failed&quot;;</span>
-<span class="fc" id="L38">        var fieldError = ex.getBindingResult().getFieldError();</span>
-<span class="pc bpc" id="L39" title="2 of 4 branches missed.">        if (fieldError != null &amp;&amp; fieldError.getDefaultMessage() != null) {</span>
-<span class="fc" id="L40">            message = fieldError.getDefaultMessage();</span>
-        }
+<span class="fc" id="L37">        String message = java.util.Optional.ofNullable(ex.getBindingResult().getFieldError())</span>
+<span class="fc" id="L38">                .map(fe -&gt; fe.getDefaultMessage())</span>
+<span class="pc bpc" id="L39" title="2 of 4 branches missed.">                .filter(m -&gt; m != null &amp;&amp; !m.isBlank())</span>
+<span class="fc" id="L40">                .orElse(&quot;Validation failed&quot;);</span>
+
 <span class="fc" id="L42">        return buildError(HttpStatus.BAD_REQUEST, message, request);</span>
     }
 
@@ -53,7 +53,7 @@ import jakarta.servlet.http.HttpServletRequest;
     public ResponseEntity&lt;ApiError&gt; handleTypeMismatch(
             MethodArgumentTypeMismatchException ex,
             HttpServletRequest request) {
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        String parameter = ex.getName() != null ? ex.getName() : &quot;parameter&quot;;</span>
+<span class="fc" id="L56">        String parameter = ex.getName();</span>
 <span class="fc" id="L57">        return buildError(HttpStatus.BAD_REQUEST, &quot;Invalid parameter: &quot; + parameter, request);</span>
     }
 
