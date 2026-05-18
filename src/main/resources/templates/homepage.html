@@ -9,24 +9,64 @@
 <body>
     <div th:replace="fragments/navbar :: navbar"></div>
 
-    <h1>Hello There!</h1>
-    <h4>you are logged in!</h4>
+    <section class="hero-section text-center">
+        <h1>Need Items From Overseas?</h1>
 
-    <div style="height:20px"></div>
-    <a href="/catalog">Head to the catalog</a>
+        <p>
+            Connect with trusted jastipers and request products
+            from around the world.
+        </p>
 
-    <br>
-    <a th:if="${user != null and user.role == 'ROLE_JASTIPER'}" href="/catalog/my">Add your product to the catalog</a>
-    <a href="/order/list">Go to Product List</a>
+        <div class="hero-buttons">
+            <a th:href="@{/catalog}" class="btn btn-primary">
+                Browse Catalogs
+            </a>
 
-    <div style="height:20px"></div>
+            <a th:href="@{/kycRequestJastiper}"
+               class="btn btn-outline-light"
+               th:if="${user.role == 'ROLE_TITIPER'}">
+                Become a Jastiper
+            </a>
+        </div>
+    </section>
 
-    <div th:if="${user.role == 'ROLE_TITIPER'}">
-        <p>Want to be a Jastiper?</p><a th:href="@{/kycRequestJastiper}">Click here</a>
+    <div class="container mt-5">
+        <div class="row">
+
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <h3>Trusted Jastipers</h3>
+                    <p>
+                        Verified users through the KYC system.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <h3>Worldwide Products</h3>
+                    <p>
+                        Find products from many countries.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <h3>Secure System</h3>
+                    <p>
+                        Logging and moderation support.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
-<!--    <div th:if="${user.role == 'ROLE_JASTIPER'}">-->
-<!--        <p>Want to be an admin?</p><a th:href="@{/kycRequestAdmin}">Click here</a>-->
-<!--    </div>-->
+
+    <footer class="text-center mt-5 p-4 bg-dark text-light">
+        <p>
+            Group Project - Advanced Programming B08
+        </p>
+    </footer>
 
     <div style="height:20px"></div>
     <div id="unauthorizedAlert" th:if="${unauthorized}" class="alert alert-danger unauthorized">

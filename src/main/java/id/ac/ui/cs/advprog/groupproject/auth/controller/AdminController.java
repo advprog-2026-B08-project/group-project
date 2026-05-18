@@ -35,7 +35,7 @@ public class AdminController {
         return "auth/admin/admin";
     }
 
-    @GetMapping("/admin/userList")
+    @GetMapping("/userList")
     public String userList(Model model) {
         model.addAttribute("userList", userDetailService.getUserList());
         return "auth/admin/userList";
@@ -70,6 +70,13 @@ public class AdminController {
     public String ban(@AuthenticationPrincipal User admin,
                       @RequestParam UUID userId) {
         userDetailService.ban(admin, userId);
+        return "redirect:/admin/userList";
+    }
+
+    @PostMapping("/admin/liftBan")
+    public String liftBan(@AuthenticationPrincipal User admin,
+                      @RequestParam UUID userId) {
+        userDetailService.liftBan(admin, userId);
         return "redirect:/admin/userList";
     }
 

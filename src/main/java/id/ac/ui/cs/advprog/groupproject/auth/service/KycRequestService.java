@@ -13,9 +13,9 @@ import java.util.UUID;
 
 @Service
 public class KycRequestService {
-    KycRequestRepository kycRequestRepository;
-    UserRepository userRepository;
-    ActionLogService logService;
+    private final KycRequestRepository kycRequestRepository;
+    private final UserRepository userRepository;
+    private final ActionLogService logService;
 
     public KycRequestService(KycRequestRepository kycRequestRepository,
                              UserRepository userRepository,
@@ -44,26 +44,6 @@ public class KycRequestService {
                 + " submitted an application to be a jastiper";
         logService.log("Submitted an application", user.getUsername(),
                 user.getRole(), null, description, LogType.INFO);
-
-        return request;
-    }
-
-    public KycRequest createRequestForAdmin(User user, String email, String fullName,
-                                            String phoneNumber, String socials) {
-        KycRequest request = new KycRequest();
-        request.setUser(user);
-        request.setRequestedRole(Role.ROLE_JASTIPER);
-        request.setStatus(Status.ACTIVE);
-
-        request.setEmail(email);
-        request.setFullName(fullName);
-        request.setPhoneNumber(phoneNumber);
-        request.setSocials(socials);
-
-        user.setStatus(Status.PENDING.toString());
-
-        kycRequestRepository.save(request);
-        userRepository.save(user);
 
         return request;
     }
@@ -125,7 +105,7 @@ public class KycRequestService {
                 + "'s application to be a jastiper";
 
         logService.log("Accept kyc application", admin.getUsername(),
-                admin.getRole(), user.getRole(), description, LogType.INFO);
+                admin.getRole(), user.getUsername(), description, LogType.INFO);
     }
 
     public void closeRejectedRequest(User admin, UUID requestId) {

@@ -50,12 +50,17 @@ public class User implements UserDetails {
     private List<Catalog> catalog = new ArrayList<>();
 
     public boolean isJastiper() {
-        return "JASTIPER".equalsIgnoreCase(this.role);
+        return "JASTIPER".equalsIgnoreCase(this.role) || Role.ROLE_JASTIPER.toString().equalsIgnoreCase(this.role);
     }
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.toString()));
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return !this.status.equals(Status.BANNED.toString());
     }
 }

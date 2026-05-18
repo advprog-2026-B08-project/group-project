@@ -15,16 +15,6 @@ public class KycController {
         this.kycRequestService = kycRequestService;
     }
 
-    @PostMapping("/kycRequestAdmin")
-    public String createRequestAdmin(@AuthenticationPrincipal User user,
-                                     @RequestParam String email,
-                                     @RequestParam String fullName,
-                                     @RequestParam String phoneNumber,
-                                     @RequestParam String socials) {
-        kycRequestService.createRequestForAdmin(user, email, fullName, phoneNumber, socials);
-        return "redirect:/kycRequestAdmin";
-    }
-
     @PostMapping("/kycRequestJastiper")
     public String createRequestJastiper(@AuthenticationPrincipal User user,
                                         @RequestParam String email,
