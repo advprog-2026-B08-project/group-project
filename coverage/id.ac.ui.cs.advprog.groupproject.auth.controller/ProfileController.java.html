@@ -19,14 +19,14 @@ public class ProfileController {
 
     @GetMapping(&quot;/profile&quot;)
     public String profile(@AuthenticationPrincipal User user, Model model) {
-<span class="fc" id="L22">        model.addAttribute(&quot;user&quot;, user);</span>
-<span class="fc" id="L23">        return &quot;auth/profile/profile&quot;;</span>
+<span class="nc" id="L22">        model.addAttribute(&quot;user&quot;, user);</span>
+<span class="nc" id="L23">        return &quot;auth/profile/profile&quot;;</span>
     }
 
     @GetMapping(&quot;/profile/edit&quot;)
     public String profileEdit(@AuthenticationPrincipal User user, Model model) {
-<span class="fc" id="L28">        model.addAttribute(&quot;user&quot;, user);</span>
-<span class="fc" id="L29">        return &quot;auth/profile/profileEdit&quot;;</span>
+<span class="nc" id="L28">        model.addAttribute(&quot;user&quot;, user);</span>
+<span class="nc" id="L29">        return &quot;auth/profile/profileEdit&quot;;</span>
     }
 
     @PostMapping(&quot;/profile/update&quot;)
@@ -36,9 +36,9 @@ public class ProfileController {
                                 @RequestParam (required = false) String fullName,
                                 @RequestParam (required = false) String profilePictureURL) {
 
-<span class="fc" id="L39">        userService.updateProfile(user.getId(), username, socials, fullName, profilePictureURL);</span>
+<span class="nc" id="L39">        userService.updateProfile(user.getId(), username, socials, fullName, profilePictureURL);</span>
 
-<span class="fc" id="L41">        return &quot;redirect:/profile&quot;;</span>
+<span class="nc" id="L41">        return &quot;redirect:/profile&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

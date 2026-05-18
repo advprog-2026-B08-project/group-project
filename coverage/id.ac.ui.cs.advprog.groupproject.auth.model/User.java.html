@@ -50,18 +50,13 @@ public class User implements UserDetails {
     private List&lt;Catalog&gt; catalog = new ArrayList&lt;&gt;();
 
     public boolean isJastiper() {
-<span class="fc bfc" id="L53" title="All 4 branches covered.">        return &quot;JASTIPER&quot;.equalsIgnoreCase(this.role) || Role.ROLE_JASTIPER.toString().equalsIgnoreCase(this.role);</span>
+<span class="fc" id="L53">        return &quot;JASTIPER&quot;.equalsIgnoreCase(this.role);</span>
     }
 
 
     @Override
     public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
 <span class="fc" id="L59">        return List.of(new SimpleGrantedAuthority(role.toString()));</span>
-    }
-
-    @Override
-    public boolean isEnabled() {
-<span class="fc bfc" id="L64" title="All 2 branches covered.">        return !this.status.equals(Status.BANNED.toString());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

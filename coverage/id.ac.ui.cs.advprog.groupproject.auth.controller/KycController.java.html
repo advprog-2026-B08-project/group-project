@@ -15,13 +15,23 @@ public class KycController {
 <span class="fc" id="L15">        this.kycRequestService = kycRequestService;</span>
 <span class="fc" id="L16">    }</span>
 
+    @PostMapping(&quot;/kycRequestAdmin&quot;)
+    public String createRequestAdmin(@AuthenticationPrincipal User user,
+                                     @RequestParam String email,
+                                     @RequestParam String fullName,
+                                     @RequestParam String phoneNumber,
+                                     @RequestParam String socials) {
+<span class="nc" id="L24">        kycRequestService.createRequestForAdmin(user, email, fullName, phoneNumber, socials);</span>
+<span class="nc" id="L25">        return &quot;redirect:/kycRequestAdmin&quot;;</span>
+    }
+
     @PostMapping(&quot;/kycRequestJastiper&quot;)
     public String createRequestJastiper(@AuthenticationPrincipal User user,
                                         @RequestParam String email,
                                         @RequestParam String fullName,
                                         @RequestParam String socials) {
-<span class="fc" id="L23">        kycRequestService.createRequestForJastiper(user, email, fullName, socials);</span>
-<span class="fc" id="L24">        return &quot;redirect:/kycRequestJastiper&quot;;</span>
+<span class="nc" id="L33">        kycRequestService.createRequestForJastiper(user, email, fullName, socials);</span>
+<span class="nc" id="L34">        return &quot;redirect:/kycRequestJastiper&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
