@@ -46,11 +46,11 @@ public class User implements UserDetails {
     @Column
     private String socials;
 
-    @Column
-    private int successfully_sold;
+    @Column(name = "successfully_sold")
+    private int successfullySold;
 
-    @Column
-    private int tried_to_sell;
+    @Column(name = "tried_to_sell")
+    private int triedToSell;
 
     @OneToMany(mappedBy = "jastiper", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Catalog> catalog = new ArrayList<>();
@@ -60,8 +60,8 @@ public class User implements UserDetails {
     }
 
     public float getSuccessRate() {
-        if (this.tried_to_sell == 0 || !this.getRole().equals("ROLE_JASTIPER")) return 0;
-        return (float) this.successfully_sold / this.tried_to_sell;
+        if (this.triedToSell == 0 || !this.getRole().equals("ROLE_JASTIPER")) return 0;
+        return (float) this.successfullySold / this.triedToSell;
     }
 
     @Override

@@ -71,13 +71,13 @@ public class UserTest {
 
         User jastiper0TriedToSell = new User();
         jastiper0TriedToSell.setRole(Role.ROLE_JASTIPER.toString());
-        jastiper0TriedToSell.setTried_to_sell(0);
-        jastiper0TriedToSell.setSuccessfully_sold(0);
+        jastiper0TriedToSell.setTriedToSell(0);
+        jastiper0TriedToSell.setSuccessfullySold(0);
 
         User jastiperHasTriedToSell = new User();
         jastiperHasTriedToSell.setRole(Role.ROLE_JASTIPER.toString());
-        jastiperHasTriedToSell.setTried_to_sell(4);
-        jastiperHasTriedToSell.setSuccessfully_sold(3);
+        jastiperHasTriedToSell.setTriedToSell(4);
+        jastiperHasTriedToSell.setSuccessfullySold(3);
 
         User admin = new User();
         admin.setRole(Role.ROLE_ADMIN.toString());
