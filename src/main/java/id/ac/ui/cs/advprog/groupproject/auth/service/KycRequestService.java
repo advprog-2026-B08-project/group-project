@@ -97,6 +97,8 @@ public class KycRequestService {
 
         user.setStatus(Status.ACTIVE.toString());
         user.setRole(Role.ROLE_JASTIPER.toString());
+        user.setSuccessfully_sold(0);
+        user.setTried_to_sell(0);
         userRepository.save(user);
 
         String description = admin.getUsername()

@@ -46,6 +46,12 @@ public class User implements UserDetails {
     @Column
     private String socials;
 
+    @Column
+    private int successfully_sold;
+
+    @Column
+    private int tried_to_sell;
+
     @OneToMany(mappedBy = "jastiper", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Catalog> catalog = new ArrayList<>();
 
@@ -53,6 +59,10 @@ public class User implements UserDetails {
         return "JASTIPER".equalsIgnoreCase(this.role) || Role.ROLE_JASTIPER.toString().equalsIgnoreCase(this.role);
     }
 
+    public float getSuccessRate() {
+        if (this.tried_to_sell == 0 || !this.getRole().equals("ROLE_JASTIPER")) return 0;
+        return (float) this.successfully_sold / this.tried_to_sell;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
