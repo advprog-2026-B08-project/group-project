@@ -1,5 +1,5 @@
-import http from 'k6/http';
 import { check, sleep } from 'k6';
+import http from 'k6/http';
 
 /*
 =================================================================================
@@ -20,8 +20,8 @@ How to Run:
 
 // Configuration parameters
 const BASE_URL = 'http://localhost:8080';
-const BUYER_ID = '33333333-3333-3333-3333-333333333333'; // Replace with a valid user UUID
-const PRODUCT_ID = '44444444-4444-4444-4444-444444444444'; // Replace with a valid product UUID
+const BUYER_ID = 'f9990d45-4a72-4d79-8146-fc6aefc4b294'; // Replace with a valid user UUID
+const PRODUCT_ID = 'f3eb8241-e485-4a46-ad09-4104fa8a5385'; // Replace with a valid product UUID
 
 export const options = {
   stages: [
@@ -30,12 +30,36 @@ export const options = {
     { duration: '5s', target: 0 },   // Ramp down: scale down VUs to 0
   ],
   thresholds: {
-    http_req_failed: ['rate<0.1'],   // Error rate should be less than 10% (under high load, some will fail due to out-of-stock, which is correct)
+    http_req_failed: ['rate<0.1'],   // Error rate should be less than 10%
     http_req_duration: ['p(95)<500'], // 95% of requests should complete within 500ms
   },
 };
 
+// Each Virtual User (VU) will maintain its own logged-in state
+let isLoggedIn = false;
+
 export default function () {
+  // If this VU is not logged in yet, perform login first
+  if (!isLoggedIn) {
+    // 1. Get the login page to extract the CSRF token
+    const loginPageRes = http.get(`${BASE_URL}/login`);
+    
+    // Find the hidden CSRF input field value
+    const csrfToken = loginPageRes.html().find('input[name="_csrf"]').attr('value');
+
+    // 2. Perform POST request to authenticate
+    const loginRes = http.post(`${BASE_URL}/login`, {
+      username: 'titiper@gmail.com', // Default seeded buyer email
+      password: 'titiper',           // Default seeded password
+      _csrf: csrfToken,
+    });
+
+    isLoggedIn = true;
+    
+    // Wait briefly after logging in
+    sleep(0.5);
+  }
+
   const url = `${BASE_URL}/api/orders/checkout`;
   
   const payload = JSON.stringify({
