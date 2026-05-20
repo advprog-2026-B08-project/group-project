@@ -124,6 +124,15 @@ public class OrderServiceImpl implements OrderService {
         history.setStatus(newStatus);
         statusHistoryRepository.save(history);
 
+        // Credit Jastiper's wallet when order is completed
+        if (newStatus == OrderStatus.COMPLETED) {
+            paymentPort.creditSeller(
+                    savedOrder.getJastiperId(),
+                    savedOrder.getTotalPrice(),
+                    "Pendapatan dari pesanan: " + savedOrder.getId()
+            );
+        }
+
         return savedOrder;
     }
 

@@ -176,6 +176,30 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
+    public TransactionResponse creditBalance(UUID userId, BigDecimal amount, String description) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Credit amount must be greater than zero");
+        }
+
+        Wallet wallet = getOrCreateWalletForUpdate(userId);
+
+        wallet.setBalance(wallet.getBalance().add(amount));
+        walletRepository.save(wallet);
+
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.CREDIT)
+                .amount(amount)
+                .status(TransactionStatus.SUCCESS)
+                .description(description == null || description.isBlank() ? "Pendapatan sebesar " + amount : description)
+                .build();
+        walletTransactionRepository.save(transaction);
+
+        return toResponse(transaction);
+    }
+
+    @Override
+    @Transactional
     public TransactionResponse refundBalance(UUID userId, BigDecimal amount, String description, UUID referenceId) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Refund amount must be greater than zero");
