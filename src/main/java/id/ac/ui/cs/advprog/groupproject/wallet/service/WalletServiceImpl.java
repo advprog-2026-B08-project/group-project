@@ -105,12 +105,13 @@ public class WalletServiceImpl implements WalletService {
         Wallet wallet = getOrCreateWallet(userId);
 
         // 3. Catat transaksi pending
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setType(TransactionType.TOP_UP);
-        transaction.setAmount(request.getAmount());
-        transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setDescription("Top-up pending sebesar " + request.getAmount());
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.TOP_UP)
+                .amount(request.getAmount())
+                .status(TransactionStatus.PENDING)
+                .description("Top-up pending sebesar " + request.getAmount())
+                .build();
         walletTransactionRepository.save(transaction);
 
         // 4. Return response
@@ -133,12 +134,13 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Insufficient balance for user: " + userId);
         }
 
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setType(TransactionType.WITHDRAWAL);
-        transaction.setAmount(amount);
-        transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setDescription("Withdrawal pending ke " + destination);
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.WITHDRAWAL)
+                .amount(amount)
+                .status(TransactionStatus.PENDING)
+                .description("Withdrawal pending ke " + destination)
+                .build();
         walletTransactionRepository.save(transaction);
 
         return toResponse(transaction);
@@ -160,16 +162,13 @@ public class WalletServiceImpl implements WalletService {
         wallet.setBalance(wallet.getBalance().subtract(amount));
         walletRepository.save(wallet);
 
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setType(TransactionType.DEBIT);
-        transaction.setAmount(amount);
-        transaction.setStatus(TransactionStatus.SUCCESS);
-        if (description == null || description.isBlank()) {
-            transaction.setDescription("Deduct sebesar " + amount);
-        } else {
-            transaction.setDescription(description);
-        }
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.DEBIT)
+                .amount(amount)
+                .status(TransactionStatus.SUCCESS)
+                .description(description == null || description.isBlank() ? "Deduct sebesar " + amount : description)
+                .build();
         walletTransactionRepository.save(transaction);
 
         return toResponse(transaction);
@@ -190,17 +189,14 @@ public class WalletServiceImpl implements WalletService {
         wallet.setBalance(wallet.getBalance().add(amount));
         walletRepository.save(wallet);
 
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setReferenceId(referenceId);
-        transaction.setType(TransactionType.REFUND);
-        transaction.setAmount(amount);
-        transaction.setStatus(TransactionStatus.SUCCESS);
-        if (description == null || description.isBlank()) {
-            transaction.setDescription("Refund sebesar " + amount);
-        } else {
-            transaction.setDescription(description);
-        }
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .referenceId(referenceId)
+                .type(TransactionType.REFUND)
+                .amount(amount)
+                .status(TransactionStatus.SUCCESS)
+                .description(description == null || description.isBlank() ? "Refund sebesar " + amount : description)
+                .build();
 
         try {
             walletTransactionRepository.saveAndFlush(transaction);
