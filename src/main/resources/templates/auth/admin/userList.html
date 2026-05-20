@@ -43,7 +43,7 @@
                   </div>
                   <div style="height: 10px; color: #606060; padding-right: 40px">
                       <div th:if="${userInList.getRole() == 'ROLE_JASTIPER'}" style="text-align: right">
-                          <span th:text="'Success rate : ' + ${userInList.getSuccessRate()} + '%'"></span>
+                          <span th:text="'Success rate : ' + ${#numbers.formatDecimal(userInList.getSuccessRate() * 100, 0, 'POINT', 0, 'COMMA')} + '%'"></span>
                       </div>
                   </div>
                   <div class="card-body">

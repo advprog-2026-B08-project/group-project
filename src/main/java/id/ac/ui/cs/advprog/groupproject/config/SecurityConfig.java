@@ -14,6 +14,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 auth -> auth
                         .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/userList").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/catalog/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/catalog/add", "/catalog/edit", "/catalog/edit/**" , "/catalog/my")

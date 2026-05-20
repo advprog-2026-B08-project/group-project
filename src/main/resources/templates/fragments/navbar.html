@@ -13,7 +13,7 @@
         </div>
         <a th:href="@{/order/list}">Order</a>
         <a th:href="@{/wallet}">Wallet</a>
-        <a th:href="@{/userList}">User List</a>
+        <a th:if="${user.role == 'ROLE_ADMIN'}" th:href="@{/admin/userList}">User List</a>
     </div>
 
     <div class="nav">
