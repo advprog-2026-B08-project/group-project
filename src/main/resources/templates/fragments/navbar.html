@@ -4,6 +4,7 @@
         <div th:if="${user.role == 'ROLE_ADMIN'}">
             <a th:href="@{/admin}">Admin</a>
             <a th:href="@{/admin/wallet}">Wallet Admin</a>
+            <a th:href="@{/admin/userList}">User List</a>
         </div>
         <div th:if="${user.role == 'ROLE_ADMIN'}">
             <a th:href="@{/catalog/admin/monitoring}">Monitoring Katalog</a>
@@ -13,7 +14,6 @@
         </div>
         <a th:href="@{/order/list}">Order</a>
         <a th:href="@{/wallet}">Wallet</a>
-        <a th:href="@{/userList}">User List</a>
     </div>
 
     <div class="nav">
