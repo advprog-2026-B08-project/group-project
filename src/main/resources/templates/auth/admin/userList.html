@@ -1,92 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User List</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body style="background: #f0f0f0">
-  <div th:replace="fragments/navbar :: navbar"></div>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('User List — JSON')"></head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
 
-  <div class="container mt-4">
-      <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">User List</h1>
-      <div class="row">
-          <div class="col-md-4 mb-4" th:if="${user.role == 'ROLE_ADMIN' or userInList.role != 'ROLE_ADMIN'}"  th:each="userInList : ${userList}">
-              <div class="card h-100 shadow-sm" style="border-radius: 12px;">
-                  <div class="containerRowWhite">
-                      <div>
-                          <img th:src="${userInList.profilePictureURL != null} ? ${userInList.profilePictureURL} : '/images/defaultProfilePicture.png'"
-                               class="card-img-top"
-                               style="height: 64px; width: 64px; object-fit: cover; border-radius: 50%">
-                      </div>
-                      <div class="containerBadge">
-                          <div th:if="${userInList.role == 'ROLE_ADMIN'}">
-                              <p class="pin" style="background: #ddaaff; color: #552277">Admin</p>
-                          </div>
-                          <div th:if="${userInList.role == 'ROLE_JASTIPER'}">
-                              <p class="pin" style="background: #aaddff; color: #225577">Jastiper</p>
-                          </div>
-                          <div th:if="${userInList.role == 'ROLE_TITIPER'}">
-                              <p class="pin" style="background: #ffddaa; color: #775522">Titiper</p>
-                          </div>
-                          <div th:if="${userInList.status == 'ACTIVE'}">
-                              <p class="pin" style="background: #aaffdd; color: #227755">Aktif</p>
-                          </div>
-                          <div th:if="${userInList.status == 'PENDING'}">
-                              <p class="pin" style="background: #ffffcc; color: #777744">Pending</p>
-                          </div>
-                          <div th:if="${userInList.status == 'BANNED'}">
-                              <p class="pin" style="background: #ffbbbb; color: #773333">Banned</p>
-                          </div>
-                      </div>
-                  </div>
-                  <div style="height: 10px; color: #606060; padding-right: 40px">
-                      <div th:if="${userInList.getRole() == 'ROLE_JASTIPER'}" style="text-align: right">
-                          <span th:text="'Success rate : ' + ${userInList.getSuccessRate()} + '%'"></span>
-                      </div>
-                  </div>
-                  <div class="card-body">
-                      <p class="card-text" style="font-family: 'Arial Black'; font-size: 30px; margin-bottom: 0px">
-                          <span th:text="${userInList.username}"></span>
-                      </p>
-                      <span th:text="${userInList.fullName}" style="color: #808080"></span>
-                      <br>
-                      <span th:text="${userInList.email}" style="color: #808080"></span>
-                  </div>
+    <div class="me-container me-page">
+        <div class="me-page-header">
+            <div>
+                <h1>Daftar Pengguna</h1>
+                <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">Kelola akun, role, dan hak akses pengguna aplikasi.</p>
+            </div>
+            <a th:href="@{/admin}" class="me-btn me-btn--secondary me-btn--sm">← Dashboard</a>
+        </div>
 
-                  <div class="containerRowWhite" style="background: #cceeff; height:68px; border-radius: 0px 0px 10px 10px">
-<!--                      TODO: button demote & ban-->
-                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${userInList.role !='ROLE_ADMIN' and userInList.status != 'BANNED' and user.role == 'ROLE_ADMIN'}">
-                          <form th:action="@{/admin/ban}" method="post" onsubmit="return confirm('Are you sure you want to ban this user?');">
-                              <input type="hidden" name="userId" th:value="${userInList.id}" />
-                              <button type="submit" class="btn btn-danger btn-sm" style="color: white; padding: 4px 24px 4px 24px">
-                                  Ban
-                              </button>
-                          </form>
-                      </div>
-                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${userInList.role !='ROLE_ADMIN' and userInList.status == 'BANNED' and user.role == 'ROLE_ADMIN'}">
-                          <form th:action="@{/admin/liftBan}" method="post" onsubmit="return confirm('Are you sure you want to lift the ban from this user?');">
-                              <input type="hidden" name="userId" th:value="${userInList.id}" />
-                              <button type="submit" class="btn btn-danger btn-sm" style="color: white; padding: 4px 24px 4px 24px">
-                                  Lift ban
-                              </button>
-                          </form>
-                      </div>
-                      <div style="padding: 0px 0px 20px 0px; font-family: Arial Black" th:if="${userInList.role == 'ROLE_JASTIPER' and user.role == 'ROLE_ADMIN'}">
-                          <form th:action="@{/admin/demote}" method="post" onsubmit="return confirm('Are you sure you want to demote this user?');">
-                              <input type="hidden" name="userId" th:value="${userInList.id}" />
-                              <button type="submit" class="btn btn-warning btn-sm" style="color: white; padding: 4px 10px 4px 10px">
-                                  Demote
-                              </button>
-                          </form>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
+        <div class="me-grid me-grid--3" style="align-items: stretch; gap: 20px;">
+            <div th:each="userInList : ${userList}" 
+                 th:if="${user.role == 'ROLE_ADMIN' or userInList.role != 'ROLE_ADMIN'}" 
+                 class="me-card me-stack" 
+                 style="justify-content: space-between; padding: 20px; min-height: 280px; position: relative;">
+                
+                <div>
+                    <!-- Top header: avatar and badges -->
+                    <div style="display: flex; gap: 16px; align-items: start; margin-bottom: 16px;">
+                        <img th:src="${userInList.profilePictureURL != null} ? ${userInList.profilePictureURL} : '/images/defaultProfilePicture.png'"
+                             onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
+                             style="height: 64px; width: 64px; object-fit: cover; border-radius: 50%; border: var(--me-border-w) solid var(--me-border);">
+                        
+                        <div class="me-stack" style="gap: 4px; flex: 1;">
+                            <!-- Role Badges -->
+                            <div>
+                                <span th:if="${userInList.role == 'ROLE_ADMIN'}" class="me-badge me-badge--info" style="font-size: 0.65rem; padding: 2px 8px;">Admin</span>
+                                <span th:if="${userInList.role == 'ROLE_JASTIPER'}" class="me-badge me-badge--success" style="font-size: 0.65rem; padding: 2px 8px;">Jastiper</span>
+                                <span th:if="${userInList.role == 'ROLE_TITIPER'}" class="me-badge me-badge--dark" style="font-size: 0.65rem; padding: 2px 8px;">Titiper</span>
+                            </div>
+                            
+                            <!-- Status Badges -->
+                            <div>
+                                <span th:if="${userInList.status == 'ACTIVE'}" class="me-badge me-badge--success" style="font-size: 0.6rem; padding: 1px 6px;">Aktif</span>
+                                <span th:if="${userInList.status == 'PENDING'}" class="me-badge me-badge--warning" style="font-size: 0.6rem; padding: 1px 6px;">Pending</span>
+                                <span th:if="${userInList.status == 'BANNED'}" class="me-badge me-badge--danger" style="font-size: 0.6rem; padding: 1px 6px;">Banned</span>
+                            </div>
+                        </div>
+                    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+                    <!-- User Information -->
+                    <div>
+                        <h2 style="font-size: 1.3rem; margin-bottom: 2px; line-height: 1.2;" th:text="${userInList.username}"></h2>
+                        <p style="font-size: 0.85rem; font-weight: 600; color: var(--me-text-secondary); margin: 0 0 4px 0;" th:text="${userInList.fullName}"></p>
+                        <p style="font-size: 0.8rem; color: var(--me-text-muted); margin: 0;" th:text="${userInList.email}"></p>
+                    </div>
+
+                    <!-- Success rate for Jastipers -->
+                    <div th:if="${userInList.role == 'ROLE_JASTIPER'}" style="margin-top: 12px; border-top: 1px dashed rgba(26,26,26,0.1); padding-top: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary);">
+                            ⭐ Success Rate: <span th:text="${userInList.getSuccessRate()} + '%'">100%</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Admin Action Buttons at the bottom -->
+                <div th:if="${user.role == 'ROLE_ADMIN' && userInList.role != 'ROLE_ADMIN'}" 
+                     style="display: flex; gap: 8px; margin-top: 20px; border-top: 2px solid var(--me-border); padding-top: 16px;">
+                    
+                    <!-- Ban/Lift Ban Button -->
+                    <div style="flex: 1;">
+                        <form th:if="${userInList.status != 'BANNED'}" th:action="@{/admin/ban}" method="post" 
+                              onsubmit="return confirm('Apakah Anda yakin ingin memblokir (ban) pengguna ini?');">
+                            <input type="hidden" name="userId" th:value="${userInList.id}" />
+                            <button type="submit" class="me-btn me-btn--danger me-btn--sm me-btn--block">Ban</button>
+                        </form>
+                        
+                        <form th:if="${userInList.status == 'BANNED'}" th:action="@{/admin/liftBan}" method="post" 
+                              onsubmit="return confirm('Apakah Anda yakin ingin memulihkan (lift ban) pengguna ini?');">
+                            <input type="hidden" name="userId" th:value="${userInList.id}" />
+                            <button type="submit" class="me-btn me-btn--success me-btn--sm me-btn--block">Lift Ban</button>
+                        </form>
+                    </div>
+
+                    <!-- Demote Button (Only for Jastiper to Titiper) -->
+                    <div th:if="${userInList.role == 'ROLE_JASTIPER'}" style="flex: 1;">
+                        <form th:action="@{/admin/demote}" method="post" 
+                              onsubmit="return confirm('Apakah Anda yakin ingin menurunkan pangkat (demote) Jastiper ini menjadi Titiper?');">
+                            <input type="hidden" name="userId" th:value="${userInList.id}" />
+                            <button type="submit" class="me-btn me-btn--warning me-btn--sm me-btn--block">Demote</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>
