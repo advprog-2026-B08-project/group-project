@@ -83,6 +83,9 @@ public class OrderServiceImpl implements OrderService {
         history.setStatus(OrderStatus.PAID);
         statusHistoryRepository.save(history);
 
+        // Increment triedToSell for jastiper (new order = jastiper mencoba menjual)
+        incrementTriedToSell(productInfo.jastiperId());
+
         return savedOrder;
     }
 
@@ -123,6 +126,11 @@ public class OrderServiceImpl implements OrderService {
         history.setOrder(savedOrder);
         history.setStatus(newStatus);
         statusHistoryRepository.save(history);
+
+        // Increment successfullySold when order is completed
+        if (newStatus == OrderStatus.COMPLETED) {
+            incrementSuccessfullySold(savedOrder.getJastiperId());
+        }
 
         return savedOrder;
     }
@@ -217,5 +225,55 @@ public class OrderServiceImpl implements OrderService {
         if (request.getProductId() == null) throw new IllegalArgumentException("Product ID is required");
         if (request.getQuantity() == null || request.getQuantity() < 1) throw new IllegalArgumentException("Invalid quantity");
         if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException("Address required");
+    }
+
+    /**
+     * Increment triedToSell counter for jastiper when a new order is placed.
+     * This affects the jastiper's success rate (successfullySold / triedToSell).
+     */
+    private void incrementTriedToSell(UUID jastiperId) {
+        try {
+            userRepository.findById(jastiperId).ifPresent(jastiper -> {
+                jastiper.setTriedToSell(jastiper.getTriedToSell() + 1);
+                userRepository.save(jastiper);
+            });
+        } catch (Exception e) {
+            // Log but don't fail the checkout if success rate update fails
+        }
+    }
+
+    /**
+     * Increment successfullySold counter for jastiper when an order is completed.
+     * This affects the jastiper's success rate (successfullySold / triedToSell).
+     */
+    private void incrementSuccessfullySold(UUID jastiperId) {
+        try {
+            userRepository.findById(jastiperId).ifPresent(jastiper -> {
+                jastiper.setSuccessfullySold(jastiper.getSuccessfullySold() + 1);
+                userRepository.save(jastiper);
+            });
+        } catch (Exception e) {
+            // Log but don't fail the status update if success rate update fails
+        }
+    }
+
+    /**
+     * Propagate product rating to catalog aggregate.
+     */
+    private void propagateProductRating(Order order, int ratingProduk) {
+        try {
+            User buyer = userRepository.findById(order.getBuyerId())
+                    .orElse(null);
+            if (buyer != null) {
+                ProductRatingUpdateRequest ratingRequest = new ProductRatingUpdateRequest();
+                ratingRequest.setOrderId(order.getId());
+                ratingRequest.setBuyerId(order.getBuyerId());
+                ratingRequest.setProductRating(ratingProduk);
+                catalogService.applyProductRating(order.getProductId(), ratingRequest, buyer);
+            }
+        } catch (Exception e) {
+            // Log but don't fail the order rating if catalog update fails
+            // The order rating is already saved
+        }
     }
 }
