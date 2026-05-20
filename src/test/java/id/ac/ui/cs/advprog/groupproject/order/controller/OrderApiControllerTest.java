@@ -197,22 +197,24 @@ class OrderApiControllerTest {
   void submitRating_success_returns200() {
     sampleOrder.setStatus(OrderStatus.COMPLETED);
     sampleOrder.setRatingProduk(4);
-    when(orderService.submitRating(orderId, 4)).thenReturn(sampleOrder);
+    sampleOrder.setRatingJastiper(5);
+    when(orderService.submitRating(orderId, 4, 5)).thenReturn(sampleOrder);
 
-    RatingRequest request = new RatingRequest(4);
+    RatingRequest request = new RatingRequest(4, 5);
     ResponseEntity<?> response = controller.submitRating(orderId, request);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Order body = (Order) response.getBody();
     assertEquals(4, body.getRatingProduk());
+    assertEquals(5, body.getRatingJastiper());
   }
 
   @Test
   void submitRating_invalidRating_returns400() {
-    when(orderService.submitRating(orderId, 0))
-        .thenThrow(new IllegalArgumentException("Rating harus antara 1 sampai 5"));
+    when(orderService.submitRating(orderId, 0, null))
+        .thenThrow(new IllegalArgumentException("Rating produk harus antara 1 sampai 5"));
 
-    RatingRequest request = new RatingRequest(0);
+    RatingRequest request = new RatingRequest(0, null);
     ResponseEntity<?> response = controller.submitRating(orderId, request);
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -220,10 +222,10 @@ class OrderApiControllerTest {
 
   @Test
   void submitRating_alreadyRated_returns409() {
-    when(orderService.submitRating(orderId, 3))
-        .thenThrow(new IllegalStateException("Order ini sudah diberi rating"));
+    when(orderService.submitRating(orderId, 3, null))
+        .thenThrow(new IllegalStateException("Order ini sudah diberi rating produk"));
 
-    RatingRequest request = new RatingRequest(3);
+    RatingRequest request = new RatingRequest(3, null);
     ResponseEntity<?> response = controller.submitRating(orderId, request);
 
     assertEquals(HttpStatus.CONFLICT, response.getStatusCode());

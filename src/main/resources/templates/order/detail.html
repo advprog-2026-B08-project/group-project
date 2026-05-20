@@ -77,13 +77,23 @@
                 </div>
 
                 <!-- Rating Display (if already rated) -->
-                <div class="rating-display" th:if="${order.ratingProduk != null}">
-                    <h4>⭐ Rating Produk</h4>
-                    <div class="rating-row">
+                <div class="rating-display" th:if="${order.ratingProduk != null or order.ratingJastiper != null}">
+                    <h4>⭐ Rating</h4>
+                    <!-- Rating Produk -->
+                    <div class="rating-row" th:if="${order.ratingProduk != null}">
                         <span class="rating-label">Rating Produk</span>
                         <span class="stars">
                             <span th:each="i : ${#numbers.sequence(1,5)}"
                                   th:classappend="${i <= order.ratingProduk ? 'star-filled' : 'star-empty'}"
+                                  class="star">&#9733;</span>
+                        </span>
+                    </div>
+                    <!-- Rating Jastiper -->
+                    <div class="rating-row" th:if="${order.ratingJastiper != null}">
+                        <span class="rating-label">Rating Jastiper</span>
+                        <span class="stars">
+                            <span th:each="i : ${#numbers.sequence(1,5)}"
+                                  th:classappend="${i <= order.ratingJastiper ? 'star-filled' : 'star-empty'}"
                                   class="star">&#9733;</span>
                         </span>
                     </div>
@@ -122,7 +132,8 @@
                     <input type="hidden" id="jastiperId" th:value="${order.jastiperId}">
                     <input type="hidden" id="buyerId" th:value="${order.buyerId}">
                     <input type="hidden" id="orderStatus" th:value="${order.status}">
-                    <input type="hidden" id="hasRating" th:value="${order.ratingProduk != null ? 'true' : 'false'}">
+                    <input type="hidden" id="hasRatingProduk" th:value="${order.ratingProduk != null ? 'true' : 'false'}">
+                    <input type="hidden" id="hasRatingJastiper" th:value="${order.ratingJastiper != null ? 'true' : 'false'}">
                     <input type="hidden" id="isAdmin" th:value="${isAdmin != null ? isAdmin : false}">
 
                     <button id="btnBuy" class="btn-buy" style="display:none">🛒 Konfirmasi Dibeli</button>
@@ -131,10 +142,12 @@
                     <button id="btnCancel" class="btn-cancel" style="display:none">❌ Batalkan Order</button>
                 </div>
 
+                <!-- Rating Form: Produk + Jastiper -->
                 <div class="rating-form" id="ratingSection" style="display:none">
-                    <h4>⭐ Beri Rating Produk</h4>
+                    <h4>⭐ Beri Rating</h4>
                     <form id="ratingForm">
-                        <div class="rating-group">
+                        <!-- Rating Produk -->
+                        <div class="rating-group" id="ratingProdukGroup">
                             <label>Rating Produk</label>
                             <div class="star-input" id="starProduk">
                                 <input type="radio" name="ratingProduk" value="5" id="p5"><label for="p5">&#9733;</label>
@@ -144,6 +157,19 @@
                                 <input type="radio" name="ratingProduk" value="1" id="p1"><label for="p1">&#9733;</label>
                             </div>
                         </div>
+
+                        <!-- Rating Jastiper -->
+                        <div class="rating-group" id="ratingJastiperGroup">
+                            <label>Rating Jastiper</label>
+                            <div class="star-input" id="starJastiper">
+                                <input type="radio" name="ratingJastiper" value="5" id="j5"><label for="j5">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="4" id="j4"><label for="j4">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="3" id="j3"><label for="j3">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="2" id="j2"><label for="j2">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="1" id="j1"><label for="j1">&#9733;</label>
+                            </div>
+                        </div>
+
                         <button type="submit" class="rating-submit">Kirim Rating</button>
                     </form>
                     <div class="form-status" id="rating-status" aria-live="polite">&nbsp;</div>
@@ -160,7 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const jastiperId = document.getElementById('jastiperId').value;
     const buyerId = document.getElementById('buyerId').value;
     const status = document.getElementById('orderStatus').value;
-    const hasRating = document.getElementById('hasRating').value === 'true';
+    const hasRatingProduk = document.getElementById('hasRatingProduk').value === 'true';
+    const hasRatingJastiper = document.getElementById('hasRatingJastiper').value === 'true';
     const isAdmin = document.getElementById('isAdmin').value === 'true';
 
     const isJastiper = currentUserId === jastiperId;
@@ -174,9 +201,20 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('btnCancel').style.display = '';
     }
 
-    // Show rating form for buyer on COMPLETED orders that haven't been rated
-    if (isBuyer && status === 'COMPLETED' && !hasRating) {
+    // Show rating form for buyer on COMPLETED orders that haven't been fully rated
+    const needsProdukRating = !hasRatingProduk;
+    const needsJastiperRating = !hasRatingJastiper;
+
+    if (isBuyer && status === 'COMPLETED' && (needsProdukRating || needsJastiperRating)) {
         document.getElementById('ratingSection').style.display = '';
+
+        // Hide rating groups that are already rated
+        if (hasRatingProduk) {
+            document.getElementById('ratingProdukGroup').style.display = 'none';
+        }
+        if (hasRatingJastiper) {
+            document.getElementById('ratingJastiperGroup').style.display = 'none';
+        }
     }
 
     // Button handlers
@@ -191,9 +229,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const statusEl = document.getElementById('rating-status');
 
         const ratingProduk = document.querySelector('input[name="ratingProduk"]:checked');
+        const ratingJastiper = document.querySelector('input[name="ratingJastiper"]:checked');
 
-        if (!ratingProduk) {
-            statusEl.textContent = 'Pilih rating untuk produk.';
+        // At least one rating must be selected (only from visible groups)
+        const produkVisible = document.getElementById('ratingProdukGroup').style.display !== 'none';
+        const jastiperVisible = document.getElementById('ratingJastiperGroup').style.display !== 'none';
+
+        if ((produkVisible && !ratingProduk) && (jastiperVisible && !ratingJastiper)) {
+            statusEl.textContent = 'Pilih minimal satu rating.';
             statusEl.className = 'form-status tone-error';
             return;
         }
@@ -201,13 +244,15 @@ document.addEventListener('DOMContentLoaded', function() {
         statusEl.textContent = 'Mengirim rating...';
         statusEl.className = 'form-status tone-warning';
 
+        const body = {};
+        if (ratingProduk) body.ratingProduk = parseInt(ratingProduk.value);
+        if (ratingJastiper) body.ratingJastiper = parseInt(ratingJastiper.value);
+
         try {
             const response = await fetch('/api/orders/' + orderId + '/rating', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ratingProduk: parseInt(ratingProduk.value)
-                })
+                body: JSON.stringify(body)
             });
 
             if (response.ok) {

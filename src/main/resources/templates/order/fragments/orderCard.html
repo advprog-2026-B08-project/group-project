@@ -79,8 +79,25 @@
                 th:data-buyer-id="${order.buyerId}"
                 th:data-jastiper-id="${order.jastiperId}">❌ Batal</button>
 
-        <!-- Completed/Cancelled: no actions -->
-        <span th:if="${order.status.name() == 'COMPLETED' or order.status.name() == 'CANCELLED'}"
+        <!-- Completed: show ratings -->
+        <span th:if="${order.status.name() == 'COMPLETED'}" class="order-card-date" style="font-size: 11px; line-height: 1.5;">
+            <span th:if="${order.ratingProduk != null}" style="display: block;">
+                📦
+                <span th:each="i : ${#numbers.sequence(1,5)}"
+                      th:style="${i <= order.ratingProduk ? 'color: #f5b301;' : 'color: #d0d0d0;'}"
+                      style="font-size: 13px;">&#9733;</span>
+            </span>
+            <span th:if="${order.ratingJastiper != null}" style="display: block;">
+                👤
+                <span th:each="i : ${#numbers.sequence(1,5)}"
+                      th:style="${i <= order.ratingJastiper ? 'color: #f5b301;' : 'color: #d0d0d0;'}"
+                      style="font-size: 13px;">&#9733;</span>
+            </span>
+            <span th:if="${order.ratingProduk == null and order.ratingJastiper == null}">—</span>
+        </span>
+
+        <!-- Cancelled: no actions -->
+        <span th:if="${order.status.name() == 'CANCELLED'}"
               class="order-card-date">—</span>
     </div>
 </div>

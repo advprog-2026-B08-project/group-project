@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.groupproject.order.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,6 +34,7 @@ import id.ac.ui.cs.advprog.groupproject.order.port.StockPort;
 import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,15 +76,24 @@ class OrderServiceImplTest {
         jastiperId, BigDecimal.valueOf(100000), "Produk Test");
   }
 
+  // ─── Checkout tests ─────────────────────────────────────────────────────
+
   @Test
   void checkout_success_returnsOrderWithStatusPaid() {
     when(stockPort.reserveStock(productId, 2)).thenReturn(productSnapshot);
     Order savedOrder = new Order();
     savedOrder.setId(UUID.randomUUID());
     savedOrder.setStatus(OrderStatus.PAID);
+    savedOrder.setJastiperId(jastiperId);
     when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
     when(statusHistoryRepository.save(any(StatusHistory.class)))
         .thenReturn(new StatusHistory());
+
+    User jastiperUser = new User();
+    jastiperUser.setId(jastiperId);
+    jastiperUser.setTriedToSell(0);
+    when(userRepository.findById(jastiperId)).thenReturn(Optional.of(jastiperUser));
+
     CheckoutRequest request = new CheckoutRequest(buyerId, productId, 2, "Jl. Merdeka No. 1");
 
     Order result = orderService.checkout(request);
@@ -92,6 +103,47 @@ class OrderServiceImplTest {
     verify(paymentPort).pay(eq(buyerId), eq(BigDecimal.valueOf(200000)), anyString());
     verify(orderRepository).save(any(Order.class));
     verify(statusHistoryRepository).save(any(StatusHistory.class));
+  }
+
+  @Test
+  void checkout_success_incrementsTriedToSell() {
+    when(stockPort.reserveStock(productId, 1)).thenReturn(productSnapshot);
+    Order savedOrder = new Order();
+    savedOrder.setId(UUID.randomUUID());
+    savedOrder.setStatus(OrderStatus.PAID);
+    savedOrder.setJastiperId(jastiperId);
+    when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
+    when(statusHistoryRepository.save(any(StatusHistory.class)))
+        .thenReturn(new StatusHistory());
+
+    User jastiperUser = new User();
+    jastiperUser.setId(jastiperId);
+    jastiperUser.setTriedToSell(5);
+    when(userRepository.findById(jastiperId)).thenReturn(Optional.of(jastiperUser));
+
+    CheckoutRequest request = new CheckoutRequest(buyerId, productId, 1, "Jl. Test No. 1");
+    orderService.checkout(request);
+
+    assertEquals(6, jastiperUser.getTriedToSell());
+    verify(userRepository).save(jastiperUser);
+  }
+
+  @Test
+  void checkout_triedToSellUpdateFails_doesNotThrow() {
+    when(stockPort.reserveStock(productId, 1)).thenReturn(productSnapshot);
+    Order savedOrder = new Order();
+    savedOrder.setId(UUID.randomUUID());
+    savedOrder.setStatus(OrderStatus.PAID);
+    savedOrder.setJastiperId(jastiperId);
+    when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
+    when(statusHistoryRepository.save(any(StatusHistory.class)))
+        .thenReturn(new StatusHistory());
+    when(userRepository.findById(jastiperId)).thenThrow(new RuntimeException("DB error"));
+
+    CheckoutRequest request = new CheckoutRequest(buyerId, productId, 1, "Jl. Test No. 1");
+    Order result = orderService.checkout(request);
+
+    assertEquals(OrderStatus.PAID, result.getStatus());
   }
 
   @Test
@@ -167,6 +219,14 @@ class OrderServiceImplTest {
   }
 
   @Test
+  void checkout_nullQuantity_throws() {
+    CheckoutRequest request = new CheckoutRequest(buyerId, productId, null, "Jl. Test");
+    assertThrows(IllegalArgumentException.class, () -> orderService.checkout(request));
+  }
+
+  // ─── Find tests ─────────────────────────────────────────────────────────
+
+  @Test
   void findAll_returnsAllOrdersFromRepository() {
     List<Order> orders = List.of(new Order(), new Order());
     when(orderRepository.findAll()).thenReturn(orders);
@@ -213,6 +273,8 @@ class OrderServiceImplTest {
     assertEquals(2, orderService.findByJastiperId(jastiperId).size());
   }
 
+  // ─── UpdateStatus tests ─────────────────────────────────────────────────
+
   @Test
   void updateStatus_validTransition_paidToPurchased() {
     UUID orderId = UUID.randomUUID();
@@ -229,6 +291,65 @@ class OrderServiceImplTest {
     verify(orderRepository).save(order);
     verify(statusHistoryRepository).save(any(StatusHistory.class));
     assertEquals(OrderStatus.PURCHASED, order.getStatus());
+  }
+
+  @Test
+  void updateStatus_toCompleted_incrementsSuccessfullySold() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setJastiperId(jastiperId);
+    order.setStatus(OrderStatus.SHIPPED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+    when(statusHistoryRepository.save(any(StatusHistory.class)))
+        .thenReturn(new StatusHistory());
+
+    User jastiperUser = new User();
+    jastiperUser.setId(jastiperId);
+    jastiperUser.setSuccessfullySold(3);
+    when(userRepository.findById(jastiperId)).thenReturn(Optional.of(jastiperUser));
+
+    orderService.updateStatus(orderId, OrderStatus.COMPLETED);
+
+    assertEquals(4, jastiperUser.getSuccessfullySold());
+    verify(userRepository).save(jastiperUser);
+  }
+
+  @Test
+  void updateStatus_toNonCompleted_doesNotIncrementSuccessfullySold() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setJastiperId(jastiperId);
+    order.setStatus(OrderStatus.PURCHASED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+    when(statusHistoryRepository.save(any(StatusHistory.class)))
+        .thenReturn(new StatusHistory());
+
+    orderService.updateStatus(orderId, OrderStatus.SHIPPED);
+
+    verify(userRepository, never()).findById(any());
+    verify(userRepository, never()).save(any());
+  }
+
+  @Test
+  void updateStatus_successRateUpdateFails_doesNotThrow() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setJastiperId(jastiperId);
+    order.setStatus(OrderStatus.SHIPPED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+    when(statusHistoryRepository.save(any(StatusHistory.class)))
+        .thenReturn(new StatusHistory());
+    when(userRepository.findById(jastiperId)).thenThrow(new RuntimeException("DB error"));
+
+    Order result = orderService.updateStatus(orderId, OrderStatus.COMPLETED);
+
+    assertEquals(OrderStatus.COMPLETED, result.getStatus());
   }
 
   @Test
@@ -253,6 +374,8 @@ class OrderServiceImplTest {
         () -> orderService.updateStatus(orderId, OrderStatus.PURCHASED));
   }
 
+  // ─── CancelOrder tests ─────────────────────────────────────────────────
+
   @Test
   void cancelOrder_releasesStockAndSetsStatusCancelled() {
     UUID orderId = UUID.randomUUID();
@@ -275,7 +398,18 @@ class OrderServiceImplTest {
   }
 
   @Test
-  void submitRating_success_setsRatingAndPropagates() {
+  void cancelOrder_orderNotFound_throws() {
+    UUID orderId = UUID.randomUUID();
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+    assertThrows(IllegalArgumentException.class,
+        () -> orderService.cancelOrder(orderId));
+  }
+
+  // ─── SubmitRating tests (produk + jastiper) ─────────────────────────────
+
+  @Test
+  void submitRating_produkOnly_success() {
     UUID orderId = UUID.randomUUID();
     Order order = new Order();
     order.setId(orderId);
@@ -285,17 +419,71 @@ class OrderServiceImplTest {
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
     when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-    id.ac.ui.cs.advprog.groupproject.auth.model.User buyer =
-        new id.ac.ui.cs.advprog.groupproject.auth.model.User();
+    User buyer = new User();
     buyer.setId(buyerId);
     buyer.setUsername("testbuyer");
     when(userRepository.findById(buyerId)).thenReturn(Optional.of(buyer));
 
-    Order result = orderService.submitRating(orderId, 4);
+    Order result = orderService.submitRating(orderId, 4, null);
 
     assertEquals(4, result.getRatingProduk());
+    assertNull(result.getRatingJastiper());
     verify(orderRepository).save(order);
     verify(catalogService).applyProductRating(eq(productId), any(), eq(buyer));
+  }
+
+  @Test
+  void submitRating_jastiperOnly_success() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+    Order result = orderService.submitRating(orderId, null, 5);
+
+    assertNull(result.getRatingProduk());
+    assertEquals(5, result.getRatingJastiper());
+    verify(orderRepository).save(order);
+    verify(catalogService, never()).applyProductRating(any(), any(), any());
+  }
+
+  @Test
+  void submitRating_bothRatings_success() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+    User buyer = new User();
+    buyer.setId(buyerId);
+    when(userRepository.findById(buyerId)).thenReturn(Optional.of(buyer));
+
+    Order result = orderService.submitRating(orderId, 4, 5);
+
+    assertEquals(4, result.getRatingProduk());
+    assertEquals(5, result.getRatingJastiper());
+    verify(catalogService).applyProductRating(eq(productId), any(), eq(buyer));
+  }
+
+  @Test
+  void submitRating_bothNull_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalArgumentException.class,
+        () -> orderService.submitRating(orderId, null, null));
+    verify(orderRepository, never()).save(any());
   }
 
   @Test
@@ -306,12 +494,12 @@ class OrderServiceImplTest {
     order.setStatus(OrderStatus.PAID);
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4));
+    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4, null));
     verify(orderRepository, never()).save(any());
   }
 
   @Test
-  void submitRating_alreadyRated_throws() {
+  void submitRating_produkAlreadyRated_throws() {
     UUID orderId = UUID.randomUUID();
     Order order = new Order();
     order.setId(orderId);
@@ -319,20 +507,46 @@ class OrderServiceImplTest {
     order.setRatingProduk(3);
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4));
+    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, 4, null));
     verify(orderRepository, never()).save(any());
   }
 
   @Test
-  void submitRating_invalidRating_throws() {
+  void submitRating_jastiperAlreadyRated_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setRatingJastiper(4);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalStateException.class, () -> orderService.submitRating(orderId, null, 3));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_invalidProdukRating_throws() {
     UUID orderId = UUID.randomUUID();
     Order order = new Order();
     order.setId(orderId);
     order.setStatus(OrderStatus.COMPLETED);
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 0));
-    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 6));
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 0, null));
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 6, null));
+    verify(orderRepository, never()).save(any());
+  }
+
+  @Test
+  void submitRating_invalidJastiperRating_throws() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, null, 0));
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, null, 6));
     verify(orderRepository, never()).save(any());
   }
 
@@ -341,7 +555,7 @@ class OrderServiceImplTest {
     UUID orderId = UUID.randomUUID();
     when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 4));
+    assertThrows(IllegalArgumentException.class, () -> orderService.submitRating(orderId, 4, null));
   }
 
   @Test
@@ -355,18 +569,38 @@ class OrderServiceImplTest {
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
     when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-    id.ac.ui.cs.advprog.groupproject.auth.model.User buyer =
-        new id.ac.ui.cs.advprog.groupproject.auth.model.User();
+    User buyer = new User();
     buyer.setId(buyerId);
     when(userRepository.findById(buyerId)).thenReturn(Optional.of(buyer));
     doThrow(new RuntimeException("Catalog down")).when(catalogService)
         .applyProductRating(any(), any(), any());
 
-    Order result = orderService.submitRating(orderId, 5);
+    Order result = orderService.submitRating(orderId, 5, null);
 
     assertEquals(5, result.getRatingProduk());
     verify(orderRepository).save(order);
   }
+
+  @Test
+  void submitRating_buyerNotFound_skipsCatalogPropagation() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+    when(userRepository.findById(buyerId)).thenReturn(Optional.empty());
+
+    Order result = orderService.submitRating(orderId, 3, null);
+
+    assertEquals(3, result.getRatingProduk());
+    verify(orderRepository).save(order);
+    verify(catalogService, never()).applyProductRating(any(), any(), any());
+  }
+
+  // ─── Role-specific query tests ──────────────────────────────────────────
 
   @Test
   void findBuyerActiveOrders_returnsCorrectOrders() {
@@ -411,40 +645,4 @@ class OrderServiceImplTest {
     List<Order> result = orderService.findJastiperCompletedOrders(jastiperId);
     assertEquals(expected, result);
   }
-
-  @Test
-  void submitRating_buyerNotFound_skipsCatalogPropagation() {
-    UUID orderId = UUID.randomUUID();
-    Order order = new Order();
-    order.setId(orderId);
-    order.setStatus(OrderStatus.COMPLETED);
-    order.setBuyerId(buyerId);
-    order.setProductId(productId);
-    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-    when(orderRepository.save(any(Order.class))).thenReturn(order);
-    // buyer tidak ditemukan → null branch → catalogService tidak dipanggil
-    when(userRepository.findById(buyerId)).thenReturn(Optional.empty());
-
-    Order result = orderService.submitRating(orderId, 3);
-
-    assertEquals(3, result.getRatingProduk());
-    verify(orderRepository).save(order);
-    verify(catalogService, never()).applyProductRating(any(), any(), any());
-  }
-
-  @Test
-  void checkout_nullQuantity_throws() {
-    CheckoutRequest request = new CheckoutRequest(buyerId, productId, null, "Jl. Test");
-    assertThrows(IllegalArgumentException.class, () -> orderService.checkout(request));
-  }
-
-  @Test
-  void cancelOrder_orderNotFound_throws() {
-    UUID orderId = UUID.randomUUID();
-    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
-
-    assertThrows(IllegalArgumentException.class,
-        () -> orderService.cancelOrder(orderId));
-  }
 }
-

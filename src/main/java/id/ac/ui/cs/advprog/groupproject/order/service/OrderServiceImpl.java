@@ -153,7 +153,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order submitRating(UUID orderId, int ratingProduk) {
+    public Order submitRating(UUID orderId, Integer ratingProduk, Integer ratingJastiper) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
@@ -161,32 +161,37 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalStateException("Rating hanya bisa diberikan untuk order yang sudah COMPLETED");
         }
 
-        if (order.getRatingProduk() != null) {
-            throw new IllegalStateException("Order ini sudah diberi rating");
+        if (ratingProduk == null && ratingJastiper == null) {
+            throw new IllegalArgumentException("Minimal satu rating (produk atau jastiper) harus diisi");
         }
 
-        if (ratingProduk < 1 || ratingProduk > 5) {
-            throw new IllegalArgumentException("Rating harus antara 1 sampai 5");
+        // Handle rating produk
+        if (ratingProduk != null) {
+            if (order.getRatingProduk() != null) {
+                throw new IllegalStateException("Order ini sudah diberi rating produk");
+            }
+            if (ratingProduk < 1 || ratingProduk > 5) {
+                throw new IllegalArgumentException("Rating produk harus antara 1 sampai 5");
+            }
+            order.setRatingProduk(ratingProduk);
         }
 
-        order.setRatingProduk(ratingProduk);
+        // Handle rating jastiper
+        if (ratingJastiper != null) {
+            if (order.getRatingJastiper() != null) {
+                throw new IllegalStateException("Order ini sudah diberi rating jastiper");
+            }
+            if (ratingJastiper < 1 || ratingJastiper > 5) {
+                throw new IllegalArgumentException("Rating jastiper harus antara 1 sampai 5");
+            }
+            order.setRatingJastiper(ratingJastiper);
+        }
 
         Order savedOrder = orderRepository.save(order);
 
         // Propagate product rating to catalog aggregate
-        try {
-            User buyer = userRepository.findById(order.getBuyerId())
-                    .orElse(null);
-            if (buyer != null) {
-                ProductRatingUpdateRequest ratingRequest = new ProductRatingUpdateRequest();
-                ratingRequest.setOrderId(orderId);
-                ratingRequest.setBuyerId(order.getBuyerId());
-                ratingRequest.setProductRating(ratingProduk);
-                catalogService.applyProductRating(order.getProductId(), ratingRequest, buyer);
-            }
-        } catch (Exception e) {
-            // Log but don't fail the order rating if catalog update fails
-            // The order rating is already saved
+        if (ratingProduk != null) {
+            propagateProductRating(savedOrder, ratingProduk);
         }
 
         return savedOrder;

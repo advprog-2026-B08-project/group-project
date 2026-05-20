@@ -22,6 +22,7 @@ public class OrderDisplayDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer ratingProduk;
+    private Integer ratingJastiper;
 
     // Enriched fields
     private String productName;
@@ -42,6 +43,7 @@ public class OrderDisplayDto {
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUpdatedAt(order.getUpdatedAt());
         dto.setRatingProduk(order.getRatingProduk());
+        dto.setRatingJastiper(order.getRatingJastiper());
         return dto;
     }
 }
