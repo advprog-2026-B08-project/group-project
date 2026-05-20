@@ -35,7 +35,7 @@ public class AdminController {
 <span class="fc" id="L35">        return &quot;auth/admin/admin&quot;;</span>
     }
 
-    @GetMapping(&quot;/userList&quot;)
+    @GetMapping(&quot;/admin/userList&quot;)
     public String userList(Model model) {
 <span class="fc" id="L40">        model.addAttribute(&quot;userList&quot;, userDetailService.getUserList());</span>
 <span class="fc" id="L41">        return &quot;auth/admin/userList&quot;;</span>

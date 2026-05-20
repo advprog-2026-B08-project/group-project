@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WalletTransaction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.wallet.model</a> &gt; <span class="el_source">WalletTransaction.java</span></div><h1>WalletTransaction.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.wallet.model;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UuidGenerator;
+
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.groupproject.wallet.enums.TransactionType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(
+    name = &quot;wallet_transactions&quot;,
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = &quot;uq_wallet_transactions_reference&quot;,
+            columnNames = {&quot;wallet_id&quot;, &quot;reference_id&quot;, &quot;type&quot;}
+        )
+    }
+)
+@Getter @Setter
+@NoArgsConstructor
+public class WalletTransaction{
+<span class="fc" id="L37">    public static class Builder {</span>
+        private UUID walletId;
+        private UUID referenceId;
+        private TransactionType type;
+        private BigDecimal amount;
+        private String description;
+        private TransactionStatus status;
+
+        public Builder walletId(UUID walletId) {
+<span class="fc" id="L46">            this.walletId = walletId;</span>
+<span class="fc" id="L47">            return this;</span>
+        }
+
+        public Builder referenceId(UUID referenceId) {
+<span class="fc" id="L51">            this.referenceId = referenceId;</span>
+<span class="fc" id="L52">            return this;</span>
+        }
+
+        public Builder type(TransactionType type) {
+<span class="fc" id="L56">            this.type = type;</span>
+<span class="fc" id="L57">            return this;</span>
+        }
+
+        public Builder amount(BigDecimal amount) {
+<span class="fc" id="L61">            this.amount = amount;</span>
+<span class="fc" id="L62">            return this;</span>
+        }
+
+        public Builder description(String description) {
+<span class="fc" id="L66">            this.description = description;</span>
+<span class="fc" id="L67">            return this;</span>
+        }
+
+        public Builder status(TransactionStatus status) {
+<span class="fc" id="L71">            this.status = status;</span>
+<span class="fc" id="L72">            return this;</span>
+        }
+
+        public WalletTransaction build() {
+<span class="fc" id="L76">            WalletTransaction transaction = new WalletTransaction();</span>
+<span class="fc" id="L77">            transaction.setWalletId(this.walletId);</span>
+<span class="fc" id="L78">            transaction.setReferenceId(this.referenceId);</span>
+<span class="fc" id="L79">            transaction.setType(this.type);</span>
+<span class="fc" id="L80">            transaction.setAmount(this.amount);</span>
+<span class="fc" id="L81">            transaction.setDescription(this.description);</span>
+<span class="fc" id="L82">            transaction.setStatus(this.status);</span>
+<span class="fc" id="L83">            return transaction;</span>
+        }
+    }
+
+    public static Builder builder() {
+<span class="fc" id="L88">        return new Builder();</span>
+    }
+
+    @Id
+    @GeneratedValue
+    @UuidGenerator
+    private UUID id;
+
+    @Column(nullable = false)
+    private UUID walletId;
+
+    @Column(name = &quot;reference_id&quot;)
+    private UUID referenceId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TransactionType type;
+
+    @Column(nullable = false)
+    private BigDecimal amount;
+
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TransactionStatus status;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -26,5 +26,10 @@ public class WalletPaymentAdapter implements PaymentPort {
     public void refund(UUID userId, BigDecimal amount, String description, UUID referenceId) {
 <span class="fc" id="L27">        walletService.refundBalance(userId, amount, description, referenceId);</span>
 <span class="fc" id="L28">    }</span>
+
+    @Override
+    public void creditSeller(UUID sellerId, BigDecimal amount, String description) {
+<span class="fc" id="L32">        walletService.creditBalance(sellerId, amount, description);</span>
+<span class="fc" id="L33">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

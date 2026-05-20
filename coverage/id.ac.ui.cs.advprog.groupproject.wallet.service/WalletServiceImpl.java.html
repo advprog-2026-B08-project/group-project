@@ -37,260 +37,295 @@ public class WalletServiceImpl implements WalletService {
     private Wallet getOrCreateWallet(UUID userId) {
 <span class="fc" id="L38">        return walletRepository.findByUserId(userId)</span>
 <span class="fc" id="L39">                .orElseGet(() -&gt; {</span>
-<span class="fc" id="L40">                    Wallet newWallet = new Wallet();</span>
-<span class="fc" id="L41">                    newWallet.setUserId(userId);</span>
-<span class="fc" id="L42">                    newWallet.setBalance(BigDecimal.ZERO);</span>
-<span class="fc" id="L43">                    return walletRepository.save(newWallet);</span>
+                    try {
+<span class="fc" id="L41">                        Wallet newWallet = new Wallet();</span>
+<span class="fc" id="L42">                        newWallet.setUserId(userId);</span>
+<span class="fc" id="L43">                        newWallet.setBalance(BigDecimal.ZERO);</span>
+<span class="fc" id="L44">                        return walletRepository.saveAndFlush(newWallet);</span>
+<span class="nc" id="L45">                    } catch (DataIntegrityViolationException e) {</span>
+<span class="nc" id="L46">                        return walletRepository.findByUserId(userId)</span>
+<span class="nc" id="L47">                                .orElseThrow(() -&gt; new IllegalStateException(&quot;Failed to find or create wallet for user: &quot; + userId, e));</span>
+                    }
                 });
     }
 
     private Wallet getOrCreateWalletForUpdate(UUID userId) {
-<span class="fc" id="L48">        return walletRepository.findByUserIdForUpdate(userId)</span>
-<span class="fc" id="L49">                .orElseGet(() -&gt; {</span>
-<span class="fc" id="L50">                    Wallet newWallet = new Wallet();</span>
-<span class="fc" id="L51">                    newWallet.setUserId(userId);</span>
-<span class="fc" id="L52">                    newWallet.setBalance(BigDecimal.ZERO);</span>
-<span class="fc" id="L53">                    return walletRepository.save(newWallet);</span>
+<span class="fc" id="L53">        return walletRepository.findByUserIdForUpdate(userId)</span>
+<span class="fc" id="L54">                .orElseGet(() -&gt; {</span>
+                    try {
+<span class="fc" id="L56">                        Wallet newWallet = new Wallet();</span>
+<span class="fc" id="L57">                        newWallet.setUserId(userId);</span>
+<span class="fc" id="L58">                        newWallet.setBalance(BigDecimal.ZERO);</span>
+<span class="fc" id="L59">                        return walletRepository.saveAndFlush(newWallet);</span>
+<span class="nc" id="L60">                    } catch (DataIntegrityViolationException e) {</span>
+<span class="nc" id="L61">                        return walletRepository.findByUserIdForUpdate(userId)</span>
+<span class="nc" id="L62">                                .orElseThrow(() -&gt; new IllegalStateException(&quot;Failed to find or create wallet for update for user: &quot; + userId, e));</span>
+                    }
                 });
     }
 
     @Override
+    @Transactional
     public Wallet createWallet(UUID userId) {
         // Cek apakah wallet sudah ada untuk user ini
-<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (walletRepository.findByUserId(userId).isPresent()) {</span>
-<span class="fc" id="L61">            throw new IllegalStateException(&quot;Wallet already exists for user: &quot; + userId);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (walletRepository.findByUserId(userId).isPresent()) {</span>
+<span class="fc" id="L72">            throw new IllegalStateException(&quot;Wallet already exists for user: &quot; + userId);</span>
         }
 
-<span class="fc" id="L64">        Wallet wallet = new Wallet();</span>
-<span class="fc" id="L65">        wallet.setUserId(userId);</span>
-<span class="fc" id="L66">        wallet.setBalance(BigDecimal.ZERO);</span>
-<span class="fc" id="L67">        return walletRepository.save(wallet);</span>
+        try {
+<span class="fc" id="L76">            Wallet wallet = new Wallet();</span>
+<span class="fc" id="L77">            wallet.setUserId(userId);</span>
+<span class="fc" id="L78">            wallet.setBalance(BigDecimal.ZERO);</span>
+<span class="fc" id="L79">            return walletRepository.saveAndFlush(wallet);</span>
+<span class="nc" id="L80">        } catch (DataIntegrityViolationException e) {</span>
+<span class="nc" id="L81">            throw new IllegalStateException(&quot;Wallet already exists for user: &quot; + userId, e);</span>
+        }
     }
 
     @Override
     @Transactional
     public WalletResponse getBalance(UUID userId) {
-<span class="fc" id="L73">        Wallet wallet = getOrCreateWallet(userId);</span>
+<span class="fc" id="L88">        Wallet wallet = getOrCreateWallet(userId);</span>
 
-<span class="fc" id="L75">        return new WalletResponse(</span>
-<span class="fc" id="L76">                wallet.getUserId(),</span>
-<span class="fc" id="L77">                wallet.getBalance(),</span>
-<span class="fc" id="L78">                wallet.getUpdatedAt());</span>
+<span class="fc" id="L90">        return new WalletResponse(</span>
+<span class="fc" id="L91">                wallet.getUserId(),</span>
+<span class="fc" id="L92">                wallet.getBalance(),</span>
+<span class="fc" id="L93">                wallet.getUpdatedAt());</span>
     }
 
     @Override
     @Transactional
     public TransactionResponse topUp(UUID userId, TopUpRequest request) {
         // 1. Validasi amount
-<span class="fc bfc" id="L85" title="All 4 branches covered.">        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L86">            throw new IllegalArgumentException(&quot;Top-up amount must be greater than zero&quot;);</span>
+<span class="fc bfc" id="L100" title="All 4 branches covered.">        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L101">            throw new IllegalArgumentException(&quot;Top-up amount must be greater than zero&quot;);</span>
         }
 
         // 2. Cari atau buat wallet
-<span class="fc" id="L90">        Wallet wallet = getOrCreateWallet(userId);</span>
+<span class="fc" id="L105">        Wallet wallet = getOrCreateWallet(userId);</span>
 
         // 3. Catat transaksi pending
-<span class="fc" id="L93">        WalletTransaction transaction = new WalletTransaction();</span>
-<span class="fc" id="L94">        transaction.setWalletId(wallet.getId());</span>
-<span class="fc" id="L95">        transaction.setType(TransactionType.TOP_UP);</span>
-<span class="fc" id="L96">        transaction.setAmount(request.getAmount());</span>
-<span class="fc" id="L97">        transaction.setStatus(TransactionStatus.PENDING);</span>
-<span class="fc" id="L98">        transaction.setDescription(&quot;Top-up pending sebesar &quot; + request.getAmount());</span>
-<span class="fc" id="L99">        walletTransactionRepository.save(transaction);</span>
+<span class="fc" id="L108">        WalletTransaction transaction = WalletTransaction.builder()</span>
+<span class="fc" id="L109">                .walletId(wallet.getId())</span>
+<span class="fc" id="L110">                .type(TransactionType.TOP_UP)</span>
+<span class="fc" id="L111">                .amount(request.getAmount())</span>
+<span class="fc" id="L112">                .status(TransactionStatus.PENDING)</span>
+<span class="fc" id="L113">                .description(&quot;Top-up pending sebesar &quot; + request.getAmount())</span>
+<span class="fc" id="L114">                .build();</span>
+<span class="fc" id="L115">        walletTransactionRepository.save(transaction);</span>
 
         // 4. Return response
-<span class="fc" id="L102">        return toResponse(transaction);</span>
+<span class="fc" id="L118">        return toResponse(transaction);</span>
     }
 
     @Override
     @Transactional
     public TransactionResponse withdrawBalance(UUID userId, BigDecimal amount, String destination) {
-<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        if (amount == null || amount.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L109">            throw new IllegalArgumentException(&quot;Withdrawal amount must be greater than zero&quot;);</span>
+<span class="pc bpc" id="L124" title="1 of 4 branches missed.">        if (amount == null || amount.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L125">            throw new IllegalArgumentException(&quot;Withdrawal amount must be greater than zero&quot;);</span>
         }
-<span class="fc bfc" id="L111" title="All 4 branches covered.">        if (destination == null || destination.isBlank()) {</span>
-<span class="fc" id="L112">            throw new IllegalArgumentException(&quot;Withdrawal destination is required&quot;);</span>
-        }
-
-<span class="fc" id="L115">        Wallet wallet = getOrCreateWalletForUpdate(userId);</span>
-
-<span class="fc bfc" id="L117" title="All 2 branches covered.">        if (wallet.getBalance().compareTo(amount) &lt; 0) {</span>
-<span class="fc" id="L118">            throw new IllegalArgumentException(&quot;Insufficient balance for user: &quot; + userId);</span>
+<span class="fc bfc" id="L127" title="All 4 branches covered.">        if (destination == null || destination.isBlank()) {</span>
+<span class="fc" id="L128">            throw new IllegalArgumentException(&quot;Withdrawal destination is required&quot;);</span>
         }
 
-<span class="fc" id="L121">        WalletTransaction transaction = new WalletTransaction();</span>
-<span class="fc" id="L122">        transaction.setWalletId(wallet.getId());</span>
-<span class="fc" id="L123">        transaction.setType(TransactionType.WITHDRAWAL);</span>
-<span class="fc" id="L124">        transaction.setAmount(amount);</span>
-<span class="fc" id="L125">        transaction.setStatus(TransactionStatus.PENDING);</span>
-<span class="fc" id="L126">        transaction.setDescription(&quot;Withdrawal pending ke &quot; + destination);</span>
-<span class="fc" id="L127">        walletTransactionRepository.save(transaction);</span>
+<span class="fc" id="L131">        Wallet wallet = getOrCreateWalletForUpdate(userId);</span>
 
-<span class="fc" id="L129">        return toResponse(transaction);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (wallet.getBalance().compareTo(amount) &lt; 0) {</span>
+<span class="fc" id="L134">            throw new IllegalArgumentException(&quot;Insufficient balance for user: &quot; + userId);</span>
+        }
+
+<span class="fc" id="L137">        WalletTransaction transaction = WalletTransaction.builder()</span>
+<span class="fc" id="L138">                .walletId(wallet.getId())</span>
+<span class="fc" id="L139">                .type(TransactionType.WITHDRAWAL)</span>
+<span class="fc" id="L140">                .amount(amount)</span>
+<span class="fc" id="L141">                .status(TransactionStatus.PENDING)</span>
+<span class="fc" id="L142">                .description(&quot;Withdrawal pending ke &quot; + destination)</span>
+<span class="fc" id="L143">                .build();</span>
+<span class="fc" id="L144">        walletTransactionRepository.save(transaction);</span>
+
+<span class="fc" id="L146">        return toResponse(transaction);</span>
     }
 
     @Override
     @Transactional
     public TransactionResponse deductBalance(UUID userId, BigDecimal amount, String description) {
-<span class="fc bfc" id="L135" title="All 4 branches covered.">        if (amount == null || amount.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L136">            throw new IllegalArgumentException(&quot;Deduct amount must be greater than zero&quot;);</span>
+<span class="fc bfc" id="L152" title="All 4 branches covered.">        if (amount == null || amount.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L153">            throw new IllegalArgumentException(&quot;Deduct amount must be greater than zero&quot;);</span>
         }
 
-<span class="fc" id="L139">        Wallet wallet = getOrCreateWalletForUpdate(userId);</span>
+<span class="fc" id="L156">        Wallet wallet = getOrCreateWalletForUpdate(userId);</span>
 
-<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (wallet.getBalance().compareTo(amount) &lt; 0) {</span>
-<span class="fc" id="L142">            throw new IllegalArgumentException(&quot;Insufficient balance for user: &quot; + userId);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (wallet.getBalance().compareTo(amount) &lt; 0) {</span>
+<span class="fc" id="L159">            throw new IllegalArgumentException(&quot;Insufficient balance for user: &quot; + userId);</span>
         }
 
-<span class="fc" id="L145">        wallet.setBalance(wallet.getBalance().subtract(amount));</span>
-<span class="fc" id="L146">        walletRepository.save(wallet);</span>
+<span class="fc" id="L162">        wallet.setBalance(wallet.getBalance().subtract(amount));</span>
+<span class="fc" id="L163">        walletRepository.save(wallet);</span>
 
-<span class="fc" id="L148">        WalletTransaction transaction = new WalletTransaction();</span>
-<span class="fc" id="L149">        transaction.setWalletId(wallet.getId());</span>
-<span class="fc" id="L150">        transaction.setType(TransactionType.DEBIT);</span>
-<span class="fc" id="L151">        transaction.setAmount(amount);</span>
-<span class="fc" id="L152">        transaction.setStatus(TransactionStatus.SUCCESS);</span>
-<span class="pc bpc" id="L153" title="1 of 4 branches missed.">        if (description == null || description.isBlank()) {</span>
-<span class="fc" id="L154">            transaction.setDescription(&quot;Deduct sebesar &quot; + amount);</span>
-        } else {
-<span class="fc" id="L156">            transaction.setDescription(description);</span>
+<span class="fc" id="L165">        WalletTransaction transaction = WalletTransaction.builder()</span>
+<span class="fc" id="L166">                .walletId(wallet.getId())</span>
+<span class="fc" id="L167">                .type(TransactionType.DEBIT)</span>
+<span class="fc" id="L168">                .amount(amount)</span>
+<span class="fc" id="L169">                .status(TransactionStatus.SUCCESS)</span>
+<span class="pc bpc" id="L170" title="1 of 4 branches missed.">                .description(description == null || description.isBlank() ? &quot;Deduct sebesar &quot; + amount : description)</span>
+<span class="fc" id="L171">                .build();</span>
+<span class="fc" id="L172">        walletTransactionRepository.save(transaction);</span>
+
+<span class="fc" id="L174">        return toResponse(transaction);</span>
+    }
+
+    @Override
+    @Transactional
+    public TransactionResponse creditBalance(UUID userId, BigDecimal amount, String description) {
+<span class="fc bfc" id="L180" title="All 4 branches covered.">        if (amount == null || amount.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L181">            throw new IllegalArgumentException(&quot;Credit amount must be greater than zero&quot;);</span>
         }
-<span class="fc" id="L158">        walletTransactionRepository.save(transaction);</span>
 
-<span class="fc" id="L160">        return toResponse(transaction);</span>
+<span class="fc" id="L184">        Wallet wallet = getOrCreateWalletForUpdate(userId);</span>
+
+<span class="fc" id="L186">        wallet.setBalance(wallet.getBalance().add(amount));</span>
+<span class="fc" id="L187">        walletRepository.save(wallet);</span>
+
+<span class="fc" id="L189">        WalletTransaction transaction = WalletTransaction.builder()</span>
+<span class="fc" id="L190">                .walletId(wallet.getId())</span>
+<span class="fc" id="L191">                .type(TransactionType.CREDIT)</span>
+<span class="fc" id="L192">                .amount(amount)</span>
+<span class="fc" id="L193">                .status(TransactionStatus.SUCCESS)</span>
+<span class="pc bpc" id="L194" title="1 of 4 branches missed.">                .description(description == null || description.isBlank() ? &quot;Pendapatan sebesar &quot; + amount : description)</span>
+<span class="fc" id="L195">                .build();</span>
+<span class="fc" id="L196">        walletTransactionRepository.save(transaction);</span>
+
+<span class="fc" id="L198">        return toResponse(transaction);</span>
     }
 
     @Override
     @Transactional
     public TransactionResponse refundBalance(UUID userId, BigDecimal amount, String description, UUID referenceId) {
-<span class="fc bfc" id="L166" title="All 4 branches covered.">        if (amount == null || amount.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
-<span class="fc" id="L167">            throw new IllegalArgumentException(&quot;Refund amount must be greater than zero&quot;);</span>
+<span class="fc bfc" id="L204" title="All 4 branches covered.">        if (amount == null || amount.compareTo(BigDecimal.ZERO) &lt;= 0) {</span>
+<span class="fc" id="L205">            throw new IllegalArgumentException(&quot;Refund amount must be greater than zero&quot;);</span>
         }
-<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (referenceId == null) {</span>
-<span class="fc" id="L170">            throw new IllegalArgumentException(&quot;Reference ID is required for refund&quot;);</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        if (referenceId == null) {</span>
+<span class="fc" id="L208">            throw new IllegalArgumentException(&quot;Reference ID is required for refund&quot;);</span>
         }
 
-<span class="fc" id="L173">        Wallet wallet = getOrCreateWalletForUpdate(userId);</span>
+<span class="fc" id="L211">        Wallet wallet = getOrCreateWalletForUpdate(userId);</span>
 
-<span class="fc" id="L175">        wallet.setBalance(wallet.getBalance().add(amount));</span>
-<span class="fc" id="L176">        walletRepository.save(wallet);</span>
+<span class="fc" id="L213">        wallet.setBalance(wallet.getBalance().add(amount));</span>
+<span class="fc" id="L214">        walletRepository.save(wallet);</span>
 
-<span class="fc" id="L178">        WalletTransaction transaction = new WalletTransaction();</span>
-<span class="fc" id="L179">        transaction.setWalletId(wallet.getId());</span>
-<span class="fc" id="L180">        transaction.setReferenceId(referenceId);</span>
-<span class="fc" id="L181">        transaction.setType(TransactionType.REFUND);</span>
-<span class="fc" id="L182">        transaction.setAmount(amount);</span>
-<span class="fc" id="L183">        transaction.setStatus(TransactionStatus.SUCCESS);</span>
-<span class="pc bpc" id="L184" title="1 of 4 branches missed.">        if (description == null || description.isBlank()) {</span>
-<span class="fc" id="L185">            transaction.setDescription(&quot;Refund sebesar &quot; + amount);</span>
-        } else {
-<span class="fc" id="L187">            transaction.setDescription(description);</span>
-        }
+<span class="fc" id="L216">        WalletTransaction transaction = WalletTransaction.builder()</span>
+<span class="fc" id="L217">                .walletId(wallet.getId())</span>
+<span class="fc" id="L218">                .referenceId(referenceId)</span>
+<span class="fc" id="L219">                .type(TransactionType.REFUND)</span>
+<span class="fc" id="L220">                .amount(amount)</span>
+<span class="fc" id="L221">                .status(TransactionStatus.SUCCESS)</span>
+<span class="pc bpc" id="L222" title="1 of 4 branches missed.">                .description(description == null || description.isBlank() ? &quot;Refund sebesar &quot; + amount : description)</span>
+<span class="fc" id="L223">                .build();</span>
 
         try {
-<span class="fc" id="L191">            walletTransactionRepository.saveAndFlush(transaction);</span>
-<span class="fc" id="L192">        } catch (DataIntegrityViolationException ex) {</span>
-<span class="fc" id="L193">            throw new IllegalStateException(&quot;Refund already processed for reference: &quot; + referenceId, ex);</span>
-<span class="fc" id="L194">        }</span>
+<span class="fc" id="L226">            walletTransactionRepository.saveAndFlush(transaction);</span>
+<span class="fc" id="L227">        } catch (DataIntegrityViolationException ex) {</span>
+<span class="fc" id="L228">            throw new IllegalStateException(&quot;Refund already processed for reference: &quot; + referenceId, ex);</span>
+<span class="fc" id="L229">        }</span>
 
-<span class="fc" id="L196">        return toResponse(transaction);</span>
+<span class="fc" id="L231">        return toResponse(transaction);</span>
     }
 
     @Override
     @Transactional
     public TransactionResponse verifyTransaction(UUID transactionId, TransactionStatus status) {
-<span class="fc bfc" id="L202" title="All 4 branches covered.">        if (status == null || status == TransactionStatus.PENDING) {</span>
-<span class="fc" id="L203">            throw new IllegalArgumentException(&quot;Status must be SUCCESS or FAILED&quot;);</span>
+<span class="fc bfc" id="L237" title="All 4 branches covered.">        if (status == null || status == TransactionStatus.PENDING) {</span>
+<span class="fc" id="L238">            throw new IllegalArgumentException(&quot;Status must be SUCCESS or FAILED&quot;);</span>
         }
 
-<span class="fc" id="L206">        WalletTransaction transaction = walletTransactionRepository.findByIdForUpdate(transactionId)</span>
-<span class="fc" id="L207">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Transaction not found: &quot; + transactionId));</span>
+<span class="fc" id="L241">        WalletTransaction transaction = walletTransactionRepository.findByIdForUpdate(transactionId)</span>
+<span class="fc" id="L242">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Transaction not found: &quot; + transactionId));</span>
 
-<span class="fc bfc" id="L209" title="All 2 branches covered.">        if (transaction.getStatus() != TransactionStatus.PENDING) {</span>
-<span class="fc" id="L210">            throw new IllegalStateException(&quot;Transaction already processed: &quot; + transactionId);</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">        if (transaction.getStatus() != TransactionStatus.PENDING) {</span>
+<span class="fc" id="L245">            throw new IllegalStateException(&quot;Transaction already processed: &quot; + transactionId);</span>
         }
 
-<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (transaction.getType() != TransactionType.TOP_UP</span>
-<span class="fc bfc" id="L214" title="All 2 branches covered.">                &amp;&amp; transaction.getType() != TransactionType.WITHDRAWAL) {</span>
-<span class="fc" id="L215">            throw new IllegalArgumentException(&quot;Transaction type cannot be verified: &quot; + transaction.getType());</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        if (transaction.getType() != TransactionType.TOP_UP</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">                &amp;&amp; transaction.getType() != TransactionType.WITHDRAWAL) {</span>
+<span class="fc" id="L250">            throw new IllegalArgumentException(&quot;Transaction type cannot be verified: &quot; + transaction.getType());</span>
         }
 
-<span class="fc bfc" id="L218" title="All 2 branches covered.">        if (status == TransactionStatus.SUCCESS) {</span>
-<span class="fc" id="L219">            Wallet wallet = walletRepository.findByIdForUpdate(transaction.getWalletId())</span>
-<span class="fc" id="L220">                    .orElseThrow(() -&gt; new IllegalStateException(&quot;Wallet not found for transaction: &quot; + transactionId));</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">        if (status == TransactionStatus.SUCCESS) {</span>
+<span class="fc" id="L254">            Wallet wallet = walletRepository.findByIdForUpdate(transaction.getWalletId())</span>
+<span class="fc" id="L255">                    .orElseThrow(() -&gt; new IllegalStateException(&quot;Wallet not found for transaction: &quot; + transactionId));</span>
 
-<span class="fc bfc" id="L222" title="All 2 branches covered.">            if (transaction.getType() == TransactionType.TOP_UP) {</span>
-<span class="fc" id="L223">                wallet.setBalance(wallet.getBalance().add(transaction.getAmount()));</span>
+<span class="fc bfc" id="L257" title="All 2 branches covered.">            if (transaction.getType() == TransactionType.TOP_UP) {</span>
+<span class="fc" id="L258">                wallet.setBalance(wallet.getBalance().add(transaction.getAmount()));</span>
             } else {
-<span class="fc bfc" id="L225" title="All 2 branches covered.">                if (wallet.getBalance().compareTo(transaction.getAmount()) &lt; 0) {</span>
-<span class="fc" id="L226">                    throw new IllegalStateException(&quot;Insufficient balance for withdrawal: &quot; + wallet.getUserId());</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">                if (wallet.getBalance().compareTo(transaction.getAmount()) &lt; 0) {</span>
+<span class="fc" id="L261">                    throw new IllegalStateException(&quot;Insufficient balance for withdrawal: &quot; + wallet.getUserId());</span>
                 }
-<span class="fc" id="L228">                wallet.setBalance(wallet.getBalance().subtract(transaction.getAmount()));</span>
+<span class="fc" id="L263">                wallet.setBalance(wallet.getBalance().subtract(transaction.getAmount()));</span>
             }
 
-<span class="fc" id="L231">            walletRepository.save(wallet);</span>
+<span class="fc" id="L266">            walletRepository.save(wallet);</span>
         }
 
-<span class="fc" id="L234">        transaction.setStatus(status);</span>
-<span class="fc" id="L235">        walletTransactionRepository.save(transaction);</span>
-<span class="fc" id="L236">        return toResponse(transaction);</span>
+<span class="fc" id="L269">        transaction.setStatus(status);</span>
+<span class="fc" id="L270">        walletTransactionRepository.save(transaction);</span>
+<span class="fc" id="L271">        return toResponse(transaction);</span>
     }
 
     @Override
     @Transactional
     public List&lt;TransactionResponse&gt; getTransactionHistory(UUID userId) {
-<span class="fc" id="L242">        Wallet wallet = getOrCreateWallet(userId);</span>
+<span class="fc" id="L277">        Wallet wallet = getOrCreateWallet(userId);</span>
 
-<span class="fc" id="L244">        return walletTransactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId())</span>
-<span class="fc" id="L245">                .stream()</span>
-<span class="fc" id="L246">                .map(this::toResponse)</span>
-<span class="fc" id="L247">                .toList();</span>
+<span class="fc" id="L279">        return walletTransactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId())</span>
+<span class="fc" id="L280">                .stream()</span>
+<span class="fc" id="L281">                .map(this::toResponse)</span>
+<span class="fc" id="L282">                .toList();</span>
     }
 
     @Override
     @Transactional(readOnly = true)
     public List&lt;AdminTransactionResponse&gt; getAllTransactions() {
-<span class="fc" id="L253">        List&lt;WalletTransaction&gt; transactions = walletTransactionRepository.findAllByOrderByCreatedAtDesc();</span>
-<span class="fc" id="L254">        Set&lt;UUID&gt; walletIds = transactions.stream()</span>
-<span class="fc" id="L255">                .map(WalletTransaction::getWalletId)</span>
-<span class="fc" id="L256">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L288">        List&lt;WalletTransaction&gt; transactions = walletTransactionRepository.findAllByOrderByCreatedAtDesc();</span>
+<span class="fc" id="L289">        Set&lt;UUID&gt; walletIds = transactions.stream()</span>
+<span class="fc" id="L290">                .map(WalletTransaction::getWalletId)</span>
+<span class="fc" id="L291">                .collect(Collectors.toSet());</span>
 
-<span class="fc" id="L258">        Map&lt;UUID, UUID&gt; walletUserMap = walletRepository.findAllById(walletIds)</span>
-<span class="fc" id="L259">                .stream()</span>
-<span class="fc" id="L260">                .collect(Collectors.toMap(Wallet::getId, Wallet::getUserId));</span>
+<span class="fc" id="L293">        Map&lt;UUID, UUID&gt; walletUserMap = walletRepository.findAllById(walletIds)</span>
+<span class="fc" id="L294">                .stream()</span>
+<span class="fc" id="L295">                .collect(Collectors.toMap(Wallet::getId, Wallet::getUserId));</span>
 
-<span class="fc" id="L262">        return transactions.stream()</span>
-<span class="fc" id="L263">                .map(transaction -&gt; {</span>
-<span class="fc" id="L264">                    UUID userId = walletUserMap.get(transaction.getWalletId());</span>
-<span class="fc bfc" id="L265" title="All 2 branches covered.">                    if (userId == null) {</span>
-<span class="fc" id="L266">                        throw new IllegalStateException(&quot;Wallet not found for transaction: &quot; + transaction.getId());</span>
+<span class="fc" id="L297">        return transactions.stream()</span>
+<span class="fc" id="L298">                .map(transaction -&gt; {</span>
+<span class="fc" id="L299">                    UUID userId = walletUserMap.get(transaction.getWalletId());</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">                    if (userId == null) {</span>
+<span class="fc" id="L301">                        throw new IllegalStateException(&quot;Wallet not found for transaction: &quot; + transaction.getId());</span>
                     }
-<span class="fc" id="L268">                    return toAdminResponse(transaction, userId);</span>
+<span class="fc" id="L303">                    return toAdminResponse(transaction, userId);</span>
                 })
-<span class="fc" id="L270">                .toList();</span>
+<span class="fc" id="L305">                .toList();</span>
     }
 
     private TransactionResponse toResponse(WalletTransaction transaction) {
-<span class="fc" id="L274">        return new TransactionResponse(</span>
-<span class="fc" id="L275">                transaction.getId(),</span>
-<span class="fc" id="L276">                transaction.getType().name(),</span>
-<span class="fc" id="L277">                transaction.getAmount(),</span>
-<span class="fc" id="L278">                transaction.getStatus().name(),</span>
-<span class="fc" id="L279">                transaction.getDescription(),</span>
-<span class="fc" id="L280">                transaction.getCreatedAt());</span>
+<span class="fc" id="L309">        return new TransactionResponse(</span>
+<span class="fc" id="L310">                transaction.getId(),</span>
+<span class="fc" id="L311">                transaction.getType().name(),</span>
+<span class="fc" id="L312">                transaction.getAmount(),</span>
+<span class="fc" id="L313">                transaction.getStatus().name(),</span>
+<span class="fc" id="L314">                transaction.getDescription(),</span>
+<span class="fc" id="L315">                transaction.getCreatedAt());</span>
     }
 
     private AdminTransactionResponse toAdminResponse(WalletTransaction transaction, UUID userId) {
-<span class="fc" id="L284">        return new AdminTransactionResponse(</span>
-<span class="fc" id="L285">                transaction.getId(),</span>
-<span class="fc" id="L286">                transaction.getWalletId(),</span>
+<span class="fc" id="L319">        return new AdminTransactionResponse(</span>
+<span class="fc" id="L320">                transaction.getId(),</span>
+<span class="fc" id="L321">                transaction.getWalletId(),</span>
                 userId,
-<span class="fc" id="L288">                transaction.getType().name(),</span>
-<span class="fc" id="L289">                transaction.getAmount(),</span>
-<span class="fc" id="L290">                transaction.getStatus().name(),</span>
-<span class="fc" id="L291">                transaction.getDescription(),</span>
-<span class="fc" id="L292">                transaction.getReferenceId(),</span>
-<span class="fc" id="L293">                transaction.getCreatedAt());</span>
+<span class="fc" id="L323">                transaction.getType().name(),</span>
+<span class="fc" id="L324">                transaction.getAmount(),</span>
+<span class="fc" id="L325">                transaction.getStatus().name(),</span>
+<span class="fc" id="L326">                transaction.getDescription(),</span>
+<span class="fc" id="L327">                transaction.getReferenceId(),</span>
+<span class="fc" id="L328">                transaction.getCreatedAt());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

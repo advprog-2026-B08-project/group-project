@@ -3,14 +3,18 @@
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
@@ -24,39 +28,58 @@ public class WalletController {
 
     private final WalletService walletService;
 
-<span class="fc" id="L27">    public WalletController(WalletService walletService) {</span>
-<span class="fc" id="L28">        this.walletService = walletService;</span>
-<span class="fc" id="L29">    }</span>
+<span class="fc" id="L31">    public WalletController(WalletService walletService) {</span>
+<span class="fc" id="L32">        this.walletService = walletService;</span>
+<span class="fc" id="L33">    }</span>
 
     @GetMapping(&quot;/balance/{userId}&quot;)
-    public ResponseEntity&lt;WalletResponse&gt; getBalance(@PathVariable UUID userId) {
-<span class="fc" id="L33">        WalletResponse response = walletService.getBalance(userId);</span>
-<span class="fc" id="L34">        return ResponseEntity.ok(response);</span>
+    public ResponseEntity&lt;WalletResponse&gt; getBalance(
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal User principal) {
+<span class="fc" id="L39">        validateUserOwnership(userId, principal);</span>
+<span class="fc" id="L40">        WalletResponse response = walletService.getBalance(userId);</span>
+<span class="fc" id="L41">        return ResponseEntity.ok(response);</span>
     }
 
     @PostMapping(&quot;/top-up/{userId}&quot;)
     public ResponseEntity&lt;TransactionResponse&gt; topUp(
             @PathVariable UUID userId,
-            @Valid @RequestBody TopUpRequest request) {
-<span class="fc" id="L41">        TransactionResponse response = walletService.topUp(userId, request);</span>
-<span class="fc" id="L42">        return ResponseEntity.ok(response);</span>
+            @Valid @RequestBody TopUpRequest request,
+            @AuthenticationPrincipal User principal) {
+<span class="fc" id="L49">        validateUserOwnership(userId, principal);</span>
+<span class="fc" id="L50">        TransactionResponse response = walletService.topUp(userId, request);</span>
+<span class="fc" id="L51">        return ResponseEntity.ok(response);</span>
     }
 
     @PostMapping(&quot;/withdraw/{userId}&quot;)
     public ResponseEntity&lt;TransactionResponse&gt; withdraw(
             @PathVariable UUID userId,
-            @Valid @RequestBody WithdrawalRequest request) {
-<span class="fc" id="L49">        TransactionResponse response = walletService.withdrawBalance(</span>
+            @Valid @RequestBody WithdrawalRequest request,
+            @AuthenticationPrincipal User principal) {
+<span class="fc" id="L59">        validateUserOwnership(userId, principal);</span>
+<span class="fc" id="L60">        TransactionResponse response = walletService.withdrawBalance(</span>
                 userId,
-<span class="fc" id="L51">                request.getAmount(),</span>
-<span class="fc" id="L52">                request.getDestination());</span>
-<span class="fc" id="L53">        return ResponseEntity.ok(response);</span>
+<span class="fc" id="L62">                request.getAmount(),</span>
+<span class="fc" id="L63">                request.getDestination());</span>
+<span class="fc" id="L64">        return ResponseEntity.ok(response);</span>
     }
 
     @GetMapping(&quot;/history/{userId}&quot;)
-    public ResponseEntity&lt;List&lt;TransactionResponse&gt;&gt; getTransactionHistory(@PathVariable UUID userId) {
-<span class="fc" id="L58">        List&lt;TransactionResponse&gt; response = walletService.getTransactionHistory(userId);</span>
-<span class="fc" id="L59">        return ResponseEntity.ok(response);</span>
+    public ResponseEntity&lt;List&lt;TransactionResponse&gt;&gt; getTransactionHistory(
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal User principal) {
+<span class="fc" id="L71">        validateUserOwnership(userId, principal);</span>
+<span class="fc" id="L72">        List&lt;TransactionResponse&gt; response = walletService.getTransactionHistory(userId);</span>
+<span class="fc" id="L73">        return ResponseEntity.ok(response);</span>
     }
+
+    private void validateUserOwnership(UUID userId, User principal) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (principal == null) {</span>
+<span class="nc" id="L78">            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, &quot;User is not authenticated&quot;);</span>
+        }
+<span class="fc bfc" id="L80" title="All 4 branches covered.">        if (!userId.equals(principal.getId()) &amp;&amp; !&quot;ROLE_ADMIN&quot;.equals(principal.getRole())) {</span>
+<span class="fc" id="L81">            throw new ResponseStatusException(HttpStatus.FORBIDDEN, &quot;You are not authorized to access this resource&quot;);</span>
+        }
+<span class="fc" id="L83">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
