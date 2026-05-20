@@ -1,0 +1,142 @@
+@startuml
+title Order Module — Component Diagram
+
+' ─── Skin / Color Palette (matches the Catalog module style) ───
+skinparam componentStyle uml2
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+
+skinparam package {
+    BorderColor       #181818
+    BorderThickness   1.5
+    FontStyle         Bold
+    FontSize          14
+}
+
+skinparam component {
+    BackgroundColor   #F1F1F1
+    BorderColor       #181818
+    BorderThickness   0.5
+    FontSize          13
+}
+
+skinparam interface {
+    BackgroundColor   #F1F1F1
+    BorderColor       #181818
+}
+
+skinparam database {
+    BackgroundColor   #EBF5FB
+    BorderColor       #181818
+}
+
+skinparam arrow {
+    Color             #181818
+}
+
+' ─── Order Module ───────────────────────────────────────────────
+package "Order Module" #E8F4FD {
+
+    package "controller" #EBF5FB {
+        [OrderWebController]  as WebCtrl
+        [OrderApiController]  as ApiCtrl
+    }
+
+    package "service" #FDEBD0 {
+        [OrderService\n«interface»]  as SvcIface
+        [OrderServiceImpl]           as SvcImpl
+    }
+
+    package "port" #F5EEF8 {
+        [StockPort\n«interface»]    as StockPort
+        [PaymentPort\n«interface»]  as PaymentPort
+    }
+
+    package "adapter" #E8DAEF {
+        [CatalogStockAdapter]    as StockAdapter
+        [WalletPaymentAdapter]   as PaymentAdapter
+    }
+
+    package "repository" #EAF7EA {
+        [OrderRepository]         as OrderRepo
+        [StatusHistoryRepository] as StatusRepo
+    }
+
+    package "model" #E8F4FD {
+        [Order]         as OrderModel
+        [OrderStatus]   as OrderStatus
+        [StatusHistory] as StatusHistory
+    }
+
+    package "dto" #FEF9E7 {
+        [CheckoutRequest]   as CheckoutReq
+        [OrderDisplayDto]   as DisplayDto
+        [ProductSnapshot]   as ProdSnapshot
+        [RatingRequest]     as RatingReq
+    }
+}
+
+' ─── External Modules ───────────────────────────────────────────
+package "Catalog Module" #EAF7EA {
+    [CatalogRepository]  as CatRepo
+}
+
+package "Wallet Module" #FEF9E7 {
+    [WalletService]  as WalletSvc
+}
+
+package "Auth Module" #FDEBD0 {
+    [UserRepository]  as UserRepo
+}
+
+database "orders DB" as OrderDB
+
+' ─── Relationships ──────────────────────────────────────────────
+
+' Controllers → Service
+WebCtrl  --> SvcIface  : uses
+ApiCtrl  --> SvcIface  : uses
+
+' Controller → Repositories (direct enrich)
+WebCtrl  ..> CatRepo   : uses
+WebCtrl  ..> UserRepo  : uses
+WebCtrl  ..> StatusRepo : uses
+WebCtrl  ..> WalletSvc : uses
+
+' Service implementation → interface
+SvcImpl  ..|> SvcIface : implements
+
+' Service → Ports
+SvcImpl  --> StockPort   : uses
+SvcImpl  --> PaymentPort : uses
+
+' Service → Repositories
+SvcImpl  --> OrderRepo   : uses
+SvcImpl  --> StatusRepo  : uses
+
+' Adapters implement Ports
+StockAdapter   ..|> StockPort   : implements
+PaymentAdapter ..|> PaymentPort : implements
+
+' Adapters → External Modules
+StockAdapter   --> CatRepo  : uses
+PaymentAdapter --> WalletSvc : uses
+
+' Repository → DB
+OrderRepo  --> OrderDB : reads/writes
+StatusRepo --> OrderDB : reads/writes
+
+' Service → DTOs (usage)
+SvcImpl ..> CheckoutReq  : uses
+SvcImpl ..> ProdSnapshot : uses
+SvcImpl ..> RatingReq    : uses
+
+' Controller → DTOs
+WebCtrl ..> DisplayDto  : uses
+ApiCtrl ..> CheckoutReq : uses
+
+' Model relationships
+OrderModel --> OrderStatus   : has
+OrderModel --> StatusHistory : tracks
+
+@enduml

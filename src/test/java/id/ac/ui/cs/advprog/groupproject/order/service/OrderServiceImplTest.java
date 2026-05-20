@@ -161,6 +161,12 @@ class OrderServiceImplTest {
   }
 
   @Test
+  void checkout_nullAddress_throws() {
+    CheckoutRequest request = new CheckoutRequest(buyerId, productId, 1, null);
+    assertThrows(IllegalArgumentException.class, () -> orderService.checkout(request));
+  }
+
+  @Test
   void findAll_returnsAllOrdersFromRepository() {
     List<Order> orders = List.of(new Order(), new Order());
     when(orderRepository.findAll()).thenReturn(orders);
@@ -405,4 +411,40 @@ class OrderServiceImplTest {
     List<Order> result = orderService.findJastiperCompletedOrders(jastiperId);
     assertEquals(expected, result);
   }
+
+  @Test
+  void submitRating_buyerNotFound_skipsCatalogPropagation() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.COMPLETED);
+    order.setBuyerId(buyerId);
+    order.setProductId(productId);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+    // buyer tidak ditemukan → null branch → catalogService tidak dipanggil
+    when(userRepository.findById(buyerId)).thenReturn(Optional.empty());
+
+    Order result = orderService.submitRating(orderId, 3);
+
+    assertEquals(3, result.getRatingProduk());
+    verify(orderRepository).save(order);
+    verify(catalogService, never()).applyProductRating(any(), any(), any());
+  }
+
+  @Test
+  void checkout_nullQuantity_throws() {
+    CheckoutRequest request = new CheckoutRequest(buyerId, productId, null, "Jl. Test");
+    assertThrows(IllegalArgumentException.class, () -> orderService.checkout(request));
+  }
+
+  @Test
+  void cancelOrder_orderNotFound_throws() {
+    UUID orderId = UUID.randomUUID();
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+    assertThrows(IllegalArgumentException.class,
+        () -> orderService.cancelOrder(orderId));
+  }
 }
+

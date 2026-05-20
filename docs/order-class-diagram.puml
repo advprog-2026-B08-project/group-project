@@ -1,0 +1,189 @@
+@startuml
+allowmixing
+title Order Module — Class Diagram
+
+skinparam class {
+    BackgroundColor #F1F1F1
+    BorderColor #181818
+    BorderThickness 0.5
+    FontSize 14
+}
+
+skinparam interface {
+    BackgroundColor #F1F1F1
+    BorderColor #181818
+}
+
+skinparam database {
+    BackgroundColor #EBF5FB
+    BorderColor #181818
+}
+
+skinparam arrow {
+    Color #181818
+}
+
+package "service" #FDEBD0 {
+    interface OrderService {
+    }
+    
+    class OrderServiceImpl {
+        -orderRepository: OrderRepository
+        -statusHistoryRepository: StatusHistoryRepository
+        -stockPort: StockPort
+        -paymentPort: PaymentPort
+        -catalogService: CatalogService
+        -userRepository: UserRepository
+        +checkout(request: CheckoutRequest): Order
+        +findAll(): List<Order>
+        +findById(id: UUID): Optional<Order>
+        +findByBuyerId(buyerId: UUID): List<Order>
+        +findByJastiperId(jastiperId: UUID): List<Order>
+        +updateStatus(orderId: UUID, newStatus: OrderStatus): Order
+        +cancelOrder(orderId: UUID): Order
+        +submitRating(orderId: UUID, ratingProduk: int): Order
+        +findBuyerActiveOrders(buyerId: UUID): List<Order>
+        +findBuyerCompletedOrders(buyerId: UUID): List<Order>
+        +findJastiperTodoOrders(jastiperId: UUID): List<Order>
+        +findJastiperCompletedOrders(jastiperId: UUID): List<Order>
+    }
+    OrderServiceImpl ..|> OrderService : implements
+}
+
+package "controller" #EBF5FB {
+    class OrderApiController {
+        -orderService: OrderService
+        +checkout(request: CheckoutRequest): ResponseEntity
+        +getAllOrders(): ResponseEntity
+        +getOrderById(id: UUID): ResponseEntity
+        +updateStatus(id: UUID, status: OrderStatus): ResponseEntity
+        +cancelOrder(id: UUID): ResponseEntity
+        +submitRating(id: UUID, request: RatingRequest): ResponseEntity
+        +getBuyerActiveOrders(buyerId: UUID): ResponseEntity
+        +getBuyerCompletedOrders(buyerId: UUID): ResponseEntity
+        +getJastiperTodoOrders(jastiperId: UUID): ResponseEntity
+        +getJastiperDoneOrders(jastiperId: UUID): ResponseEntity
+    }
+
+    class OrderWebController {
+        -orderService: OrderService
+        -userRepository: UserRepository
+        -statusHistoryRepository: StatusHistoryRepository
+        -catalogRepository: CatalogRepository
+        -walletService: WalletService
+        +getAllOrders(model: Model, principal: Principal): String
+        +getOrderDetail(id: UUID, model: Model, principal: Principal): String
+        +checkoutForm(productId: UUID, model: Model, principal: Principal): String
+    }
+}
+
+package "adapter" #E8DAEF {
+    class CatalogStockAdapter {
+        -catalogRepository: CatalogRepository
+        +reserveStock(productId: UUID, quantity: int): ProductSnapshot
+        +releaseStock(productId: UUID, quantity: int): void
+    }
+
+    class WalletPaymentAdapter {
+        -walletService: WalletService
+        +pay(userId: UUID, amount: BigDecimal, description: String): void
+        +refund(userId: UUID, amount: BigDecimal, description: String, referenceId: UUID): void
+    }
+}
+
+package "port" #F5EEF8 {
+    interface StockPort {
+    }
+    interface PaymentPort {
+    }
+    
+    CatalogStockAdapter ..|> StockPort : implements
+    WalletPaymentAdapter ..|> PaymentPort : implements
+}
+
+package "repository" #EAF7EA {
+    interface OrderRepository {
+    }
+    interface StatusHistoryRepository {
+    }
+}
+
+package "model" #E8F4FD {
+    class Order {
+        -id: UUID
+        -buyerId: UUID
+        -jastiperId: UUID
+        -productId: UUID
+        -quantity: Integer
+        -shippingAddress: String
+        -totalPrice: BigDecimal
+        -status: OrderStatus
+        -ratingJastiper: Integer
+        -ratingProduk: Integer
+        -createdAt: LocalDateTime
+        -updatedAt: LocalDateTime
+    }
+    enum OrderStatus {
+    }
+    class StatusHistory {
+    }
+    Order --> OrderStatus : has
+    Order --> StatusHistory : tracks
+}
+
+package "dto" #FEF9E7 {
+    class CheckoutRequest {
+    }
+    class OrderDisplayDto {
+    }
+    class ProductSnapshot {
+    }
+    class RatingRequest {
+    }
+}
+
+package "Catalog Module" #EAF7EA {
+    class CatalogRepository {
+    }
+    class CatalogService {
+    }
+}
+
+package "Wallet Module" #FEF9E7 {
+    class WalletService {
+    }
+}
+
+package "Auth Module" #FDEBD0 {
+    class UserRepository {
+    }
+}
+
+database "orders DB" as OrderDB
+
+OrderServiceImpl --> OrderRepository : uses
+OrderServiceImpl --> StatusHistoryRepository : uses
+OrderServiceImpl --> StockPort : uses
+OrderServiceImpl --> PaymentPort : uses
+OrderServiceImpl --> CatalogService : uses
+OrderServiceImpl --> UserRepository : uses
+
+OrderApiController --> OrderService : uses
+OrderWebController --> OrderService : uses
+OrderWebController --> UserRepository : uses
+OrderWebController --> StatusHistoryRepository : uses
+OrderWebController --> CatalogRepository : uses
+OrderWebController --> WalletService : uses
+
+CatalogStockAdapter --> CatalogRepository : uses
+WalletPaymentAdapter --> WalletService : uses
+
+OrderRepository --> OrderDB : reads/writes
+StatusHistoryRepository --> OrderDB : reads/writes
+
+OrderApiController ..> CheckoutRequest : uses
+OrderApiController ..> RatingRequest : uses
+OrderWebController ..> OrderDisplayDto : uses
+OrderServiceImpl ..> ProductSnapshot : uses
+
+@enduml
