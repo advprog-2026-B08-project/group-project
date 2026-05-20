@@ -62,14 +62,14 @@ class WalletServiceImplTest {
     @Test
     void createWallet_Success() {
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenReturn(wallet);
 
         Wallet result = walletService.createWallet(userId);
 
         assertNotNull(result);
         assertEquals(userId, result.getUserId());
         assertEquals(BigDecimal.ZERO, result.getBalance());
-        verify(walletRepository).save(any(Wallet.class));
+        verify(walletRepository).saveAndFlush(any(Wallet.class));
     }
 
     @Test
@@ -96,7 +96,7 @@ class WalletServiceImplTest {
     @Test
     void getBalance_WalletNotFound_CreatesWallet() {
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(walletRepository.save(any(Wallet.class))).thenAnswer(invocation -> {
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
             Object arg = invocation.getArgument(0);
             return arg;
         });
@@ -161,7 +161,7 @@ class WalletServiceImplTest {
         request.setAmount(new BigDecimal("100000"));
 
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(walletRepository.save(any(Wallet.class))).thenAnswer(invocation -> {
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
             Object arg = invocation.getArgument(0);
             return arg;
         });
@@ -246,7 +246,7 @@ class WalletServiceImplTest {
     @Test
     void deductBalance_WalletNotFound_ThrowsException() {
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.empty());
-        when(walletRepository.save(any(Wallet.class))).thenAnswer(invocation -> {
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
             Object arg = invocation.getArgument(0);
             return arg;
         });
@@ -388,7 +388,7 @@ class WalletServiceImplTest {
     @Test
     void refundBalance_WalletNotFound_CreatesWalletAndProceeds() {
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.empty());
-        when(walletRepository.save(any(Wallet.class))).thenAnswer(invocation -> {
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
             Object arg = invocation.getArgument(0);
             return arg;
         });
@@ -594,7 +594,7 @@ class WalletServiceImplTest {
     @Test
     void getTransactionHistory_WalletNotFound_CreatesWalletAndReturnsEmpty() {
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(walletRepository.save(any(Wallet.class))).thenAnswer(invocation -> {
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
             Wallet w = invocation.getArgument(0);
             w.setId(UUID.randomUUID());
             return w;

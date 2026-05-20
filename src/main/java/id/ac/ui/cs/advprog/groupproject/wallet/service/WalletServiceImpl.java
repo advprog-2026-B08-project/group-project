@@ -37,34 +37,49 @@ public class WalletServiceImpl implements WalletService {
     private Wallet getOrCreateWallet(UUID userId) {
         return walletRepository.findByUserId(userId)
                 .orElseGet(() -> {
-                    Wallet newWallet = new Wallet();
-                    newWallet.setUserId(userId);
-                    newWallet.setBalance(BigDecimal.ZERO);
-                    return walletRepository.save(newWallet);
+                    try {
+                        Wallet newWallet = new Wallet();
+                        newWallet.setUserId(userId);
+                        newWallet.setBalance(BigDecimal.ZERO);
+                        return walletRepository.saveAndFlush(newWallet);
+                    } catch (DataIntegrityViolationException e) {
+                        return walletRepository.findByUserId(userId)
+                                .orElseThrow(() -> new IllegalStateException("Failed to find or create wallet for user: " + userId, e));
+                    }
                 });
     }
 
     private Wallet getOrCreateWalletForUpdate(UUID userId) {
         return walletRepository.findByUserIdForUpdate(userId)
                 .orElseGet(() -> {
-                    Wallet newWallet = new Wallet();
-                    newWallet.setUserId(userId);
-                    newWallet.setBalance(BigDecimal.ZERO);
-                    return walletRepository.save(newWallet);
+                    try {
+                        Wallet newWallet = new Wallet();
+                        newWallet.setUserId(userId);
+                        newWallet.setBalance(BigDecimal.ZERO);
+                        return walletRepository.saveAndFlush(newWallet);
+                    } catch (DataIntegrityViolationException e) {
+                        return walletRepository.findByUserIdForUpdate(userId)
+                                .orElseThrow(() -> new IllegalStateException("Failed to find or create wallet for update for user: " + userId, e));
+                    }
                 });
     }
 
     @Override
+    @Transactional
     public Wallet createWallet(UUID userId) {
         // Cek apakah wallet sudah ada untuk user ini
         if (walletRepository.findByUserId(userId).isPresent()) {
             throw new IllegalStateException("Wallet already exists for user: " + userId);
         }
 
-        Wallet wallet = new Wallet();
-        wallet.setUserId(userId);
-        wallet.setBalance(BigDecimal.ZERO);
-        return walletRepository.save(wallet);
+        try {
+            Wallet wallet = new Wallet();
+            wallet.setUserId(userId);
+            wallet.setBalance(BigDecimal.ZERO);
+            return walletRepository.saveAndFlush(wallet);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Wallet already exists for user: " + userId, e);
+        }
     }
 
     @Override
