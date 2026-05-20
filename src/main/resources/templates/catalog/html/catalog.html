@@ -38,6 +38,7 @@
             <th scope="col">Description</th>
             <th scope="col">Price</th>
             <th scope="col">Rating</th>
+            <th scope="col">Rating Jastiper</th>
             <th scope="col">Stock</th>
             <th scope="col">Origin Location</th>
             <th scope="col">Travel Date</th>
@@ -47,7 +48,7 @@
         </thead>
         <tbody id="catalog-table-body">
         <tr th:if="${catalogs.isEmpty()}" id="catalog-empty-row">
-            <td colspan="10" class="text-center text-muted">
+            <td colspan="11" class="text-center text-muted">
                 <em>No products available yet</em>
             </td>
         </tr>
@@ -72,6 +73,19 @@
                 </span>
                 <span class="text-muted"
                       th:text="${' (' + (catalog.ratingCount != null ? catalog.ratingCount : 0) + ')'}"></span>
+            </td>
+            <td>
+                <span th:if="${catalog.jastiperRatingAverage != null}"
+                      th:with="avg=${catalog.jastiperRatingAverage}">
+                    <span th:style="${avg >= 0.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 1.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 2.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 3.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span class="text-muted"
+                          th:text="${' (' + (avg % 1 == 0 ? #numbers.formatInteger(avg, 0) : #numbers.formatDecimal(avg, 0, 'POINT', 1, 'COMMA')) + ')'}"></span>
+                </span>
+                <span th:if="${catalog.jastiperRatingAverage == null}" class="text-muted">-</span>
             </td>
             <td th:id="${'stock-' + catalog.id}" th:text="${catalog.stock}"></td>
             <td th:text="${catalog.originLocation}"></td>

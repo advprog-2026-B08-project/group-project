@@ -16,6 +16,7 @@ public class CatalogMapper {
     if (catalog.getJastiper() != null) {
       dto.setJastiperId(catalog.getJastiper().getId());
       dto.setJastiperUsername(catalog.getJastiper().getUsername());
+      dto.setJastiperSuccessRate(catalog.getJastiper().getSuccessRate());
     }
     dto.setName(catalog.getName());
     dto.setDescription(catalog.getDescription());
