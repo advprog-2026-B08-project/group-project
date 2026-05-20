@@ -35,6 +35,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindByUsername() {
         User user1= new User();
+        user1.setEmail("1@gmail.com");
         user1.setUsername("a");
         user1.setPassword("a");
         user1.setUsername("a");
@@ -54,12 +55,14 @@ public class UserRepositoryTest {
         User user1 = new User();
         user1.setPassword("a");
         user1.setUsername("a");
+        user1.setEmail("a@gmail.com");
         user1.setStatus(Status.ACTIVE.toString());
         user1.setRole(Role.ROLE_TITIPER.toString());
 
         User user2 = new User();
         user2.setPassword("b");
         user2.setUsername("b");
+        user2.setEmail("b@gmail.com");
         user2.setStatus(Status.ACTIVE.toString());
         user2.setRole(Role.ROLE_TITIPER.toString());
 
@@ -67,6 +70,7 @@ public class UserRepositoryTest {
         User user3 = new User();
         user3.setPassword("c");
         user3.setUsername("c");
+        user3.setEmail("c@gmail.com");
         user3.setStatus(Status.ACTIVE.toString());
         user3.setRole(Role.ROLE_JASTIPER.toString());
 
