@@ -32,7 +32,7 @@
                             <div th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}" style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); overflow: hidden; height: 160px;">
                                 <img th:src="${product.imageUrl}" alt="Product" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
-                            <div th:if="${product.imageUrl == null or catalog.imageUrl.isEmpty()}" style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); height: 160px; display: flex; align-items: center; justify-content: center; background: var(--me-bg); font-size: 3rem;">
+                            <div th:if="${product.imageUrl == null or product.imageUrl.isEmpty()}" style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); height: 160px; display: flex; align-items: center; justify-content: center; background: var(--me-bg); font-size: 3rem;">
                                 📷
                             </div>
                         </div>

@@ -34,33 +34,32 @@
             <button type="submit" id="logoutButton" class="me-btn me-btn--danger me-btn--sm">Logout</button>
         </form>
     </div>
+    <script>
+    (() => {
+        const chip = document.querySelector(".balance-chip");
+        if (!chip) return;
+
+        const userId = chip.getAttribute("data-user-id");
+        const valueEl = chip.querySelector(".balance-value");
+        if (!userId || !valueEl) return;
+
+        const formatIdr = (value) => {
+            const numeric = Number(value);
+            if (Number.isNaN(numeric)) return "Rp 0";
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                maximumFractionDigits: 0
+            }).format(numeric);
+        };
+
+        fetch(`/api/wallet/balance/${userId}`)
+            .then((response) => response.ok ? response.json() : null)
+            .then((data) => {
+                if (!data) return;
+                valueEl.textContent = formatIdr(data.balance);
+            })
+            .catch(() => {});
+    })();
+    </script>
 </nav>
-
-<script>
-(() => {
-    const chip = document.querySelector(".balance-chip");
-    if (!chip) return;
-
-    const userId = chip.getAttribute("data-user-id");
-    const valueEl = chip.querySelector(".balance-value");
-    if (!userId || !valueEl) return;
-
-    const formatIdr = (value) => {
-        const numeric = Number(value);
-        if (Number.isNaN(numeric)) return "Rp 0";
-        return new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            maximumFractionDigits: 0
-        }).format(numeric);
-    };
-
-    fetch(`/api/wallet/balance/${userId}`)
-        .then((response) => response.ok ? response.json() : null)
-        .then((data) => {
-            if (!data) return;
-            valueEl.textContent = formatIdr(data.balance);
-        })
-        .catch(() => {});
-})();
-</script>
