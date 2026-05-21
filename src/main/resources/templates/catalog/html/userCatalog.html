@@ -35,17 +35,7 @@
                     </div>
                 </div>
                 <div style="text-align: right;">
-                    <div th:if="${jastiperUser.triedToSell > 0}">
-                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary);">
-                            ⭐ Success Rate:
-                            <span class="me-badge me-badge--success" style="font-size: 0.75rem; padding: 2px 8px;"
-                                  th:text="${#numbers.formatDecimal(jastiperUser.successRate, 0, 'POINT', 0, 'COMMA') + '%'}">0%</span>
-                        </span>
-                    </div>
-                    <div th:if="${jastiperUser.triedToSell == 0}" style="font-size: 0.8rem; color: var(--me-text-muted);">
-                        Belum ada transaksi
-                    </div>
-                    <div th:if="${catalogs != null and !catalogs.isEmpty() and catalogs[0].jastiperRatingAverage != null}" style="margin-top: 4px;">
+                    <div th:if="${catalogs != null and !catalogs.isEmpty() and catalogs[0].jastiperRatingAverage != null}">
                         <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary);">Rating: </span>
                         <span th:with="avg=${catalogs[0].jastiperRatingAverage}">
                             <span th:style="${avg >= 0.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>

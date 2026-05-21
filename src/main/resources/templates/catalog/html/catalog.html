@@ -96,10 +96,6 @@
                                 <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
                             </span>
                             <span th:if="${catalog.jastiperRatingAverage == null}" class="text-muted" style="font-size: 0.8rem;">-</span>
-                            <br th:if="${catalog.jastiperSuccessRate != null and catalog.jastiperSuccessRate > 0}">
-                            <small th:if="${catalog.jastiperSuccessRate != null and catalog.jastiperSuccessRate > 0}"
-                                   style="color: var(--me-success); font-size: 0.7rem; font-weight: 700;"
-                                   th:text="${'✓ ' + #numbers.formatDecimal(catalog.jastiperSuccessRate * 100, 0, 'POINT', 0, 'COMMA') + '% sukses'}"></small>
                         </td>
                         <td style="font-weight: 700;" th:id="${'stock-' + catalog.id}" th:text="${catalog.stock}"></td>
                         <td th:text="${catalog.originLocation}"></td>
