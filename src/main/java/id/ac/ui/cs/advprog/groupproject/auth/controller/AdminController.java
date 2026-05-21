@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,9 +36,23 @@ public class AdminController {
         return "auth/admin/admin";
     }
 
-    @GetMapping("/admin/userList")
-    public String userList(Model model) {
-        model.addAttribute("userList", userDetailService.getUserList());
+    @GetMapping("/userList")
+    public String userList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String role,
+            Model model,
+            User user
+
+    ) {
+
+        Page<User> userPage = userDetailService.getFilteredUsers(user, role, page, 30);
+
+        model.addAttribute("userPage", userPage);
+        model.addAttribute("userList", userPage.getContent());
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", userPage.getTotalPages());
+
         return "auth/admin/userList";
     }
 

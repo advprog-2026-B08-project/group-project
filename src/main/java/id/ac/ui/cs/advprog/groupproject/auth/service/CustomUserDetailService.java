@@ -8,6 +8,9 @@ import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 import id.ac.ui.cs.advprog.groupproject.event.UserRegisteredEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -91,8 +94,24 @@ public class CustomUserDetailService implements UserDetailsService {
         return map;
     }
 
-    public List<User> getUserList() {
-        return userRepository.findAll();
+    public Page<User> getFilteredUsers(User currentUser, String role, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        if (currentUser.getRole().equals("ROLE_ADMIN")) {
+            if (role != null) {
+                if (role.equals("ROLE_ADMIN") || role.equals("ROLE_JASTIPER") || role.equals("ROLE_TITIPER")) {
+                    return  userRepository.findByRole(role, pageable);
+                }
+            }
+            return userRepository.findAll(pageable);
+        }
+
+        if (role != null) {
+            if (role.equals("ROLE_JASTIPER") || role.equals("ROLE_TITIPER")) {
+                return userRepository.findByRole(role, pageable);
+            }
+        }
+        return userRepository.findByRoleNot("ROLE_ADMIN", pageable);
     }
 
     public void demote(User admin, UUID id) {

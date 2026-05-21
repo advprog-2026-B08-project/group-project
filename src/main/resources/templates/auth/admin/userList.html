@@ -8,10 +8,60 @@
         <div class="me-page-header">
             <div>
                 <h1>Daftar Pengguna</h1>
-                <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">Kelola akun, role, dan hak akses pengguna aplikasi.</p>
+                <p th:if="${user.getRole() == 'ROLE_ADMIN'}" style="color: var(--me-text-secondary); margin: 4px 0 0 0;">Kelola akun, role, dan hak akses pengguna aplikasi.</p>
+                <p th:if="${user.getRole() != 'ROLE_ADMIN'}" style="color: var(--me-text-secondary); margin: 4px 0 0 0;">Lihat para pengguna aplikasi lainnya!</p>
             </div>
-            <a th:href="@{/admin}" class="me-btn me-btn--secondary me-btn--sm">← Dashboard</a>
+
+            <div>
+                <form method="get"
+                      th:action="@{/userList}"
+                      style="
+                          display: flex;
+                          gap: 12px;
+                          align-items: center;
+                          margin-bottom: 28px;
+                          flex-wrap: wrap;
+                      ">
+
+                    <select name="role" class="form-select" style="
+                         padding: 0px 14px;
+                         border-radius: 10px;
+                         border: 2px solid var(--me-border);
+                         background: white;
+                         color: black;
+                         font-size: 0.95rem;
+                         font-weight: 600;
+                         min-width: 180px;
+                         outline: none;
+                    ">
+                        <option value="">All Roles</option>
+
+                        <option value="ROLE_TITIPER"
+                                th:selected="${selectedRole == 'ROLE_TITIPER'}">
+                            Titiper
+                        </option>
+
+                        <option value="ROLE_JASTIPER"
+                                th:selected="${selectedRole == 'ROLE_JASTIPER'}">
+                            Jastiper
+                        </option>
+
+                        <option th:if="${user.getRole() == 'ROLE_ADMIN'}" value="ROLE_ADMIN"
+                                th:selected="${selectedRole == 'ROLE_ADMIN'}">
+                            Admin
+                        </option>
+                    </select>
+
+                    <button type="submit"
+                            class="me-btn me-btn--secondary me-btn--sm"
+                            style="margin-top: 8px;">
+                        Filter
+                    </button>
+                </form>
+            </div>
+            <a th:href="@{/homepage}" class="me-btn me-btn--secondary me-btn--sm">← Homepage</a>
         </div>
+
 
         <div class="me-grid me-grid--3" style="align-items: stretch; gap: 20px;">
             <div th:each="userInList : ${userList}"
@@ -87,6 +137,38 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${totalPages > 1}"
+             style="display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:8px;
+            margin-top:32px;
+            flex-wrap:wrap;">
+
+            <!-- Previous -->
+            <a th:if="${currentPage > 0}"
+               th:href="@{/userList(page=${currentPage - 1})}"
+               class="me-btn me-btn--secondary me-btn--sm">
+                ← Previous
+            </a>
+
+            <!-- Page Numbers -->
+            <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+               th:href="@{/userList(page=${i})}"
+               th:text="${i + 1}"
+               class="me-btn me-btn--sm"
+               th:classappend="${i == currentPage} ? ' me-btn--primary' : ' me-btn--secondary'">
+            </a>
+
+            <!-- Next -->
+            <a th:if="${currentPage < totalPages - 1}"
+               th:href="@{/userList(page=${currentPage + 1})}"
+               class="me-btn me-btn--secondary me-btn--sm">
+                Next →
+            </a>
         </div>
     </div>
 

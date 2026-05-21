@@ -12,16 +12,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -159,18 +160,105 @@ public class UserServiceTest {
     }
 
     @Test
-    void testGetUserList() {
-        List<User> users = List.of(
-                new User(),
-                new User()
-        );
+    void testGetFilteredUsersByAdminNull() {
+        User user = new User();
+        user.setRole(Role.ROLE_ADMIN.toString());
 
-        when(userRepository.findAll()).thenReturn(users);
+        List<User> users = List.of(new User());
+        Page<User> userPage = new PageImpl<>(users);
+        Pageable pageable = PageRequest.of(0, 30);
 
-        List<User> result = userDetailService.getUserList();
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
 
-        assertEquals(2, result.size());
-        verify(userRepository).findAll();
+        Page<User> result = userDetailService.getFilteredUsers(user, null, 0, 30);
+
+        assertEquals(userPage, result);
+        verify(userRepository).findAll(pageable);
+    }
+
+    @Test
+    void testGetFilteredUsersByAdminInvalid() {
+        User user = new User();
+        user.setRole(Role.ROLE_ADMIN.toString());
+
+        List<User> users = new ArrayList<>();
+        Page<User> userPage = new PageImpl<>(users);
+        Pageable pageable = PageRequest.of(0, 30);
+
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
+
+        Page<User> result = userDetailService.getFilteredUsers(user, "asdf", 0, 30);
+
+        assertEquals(userPage, result);
+        verify(userRepository).findAll(pageable);
+    }
+
+    @Test
+    void testGetFilteredUsersByAdminValid() {
+        User user = new User();
+        user.setRole(Role.ROLE_ADMIN.toString());
+
+        List<User> users = new ArrayList<>();
+        Page<User> userPage = new PageImpl<>(users);
+        Pageable pageable = PageRequest.of(0, 30);
+
+        when(userRepository.findByRole("ROLE_ADMIN",pageable)).thenReturn(userPage);
+
+        Page<User> result = userDetailService.getFilteredUsers(user, "ROLE_ADMIN", 0, 30);
+
+        assertEquals(userPage, result);
+        verify(userRepository).findByRole("ROLE_ADMIN", pageable);
+    }
+
+    @Test
+    void testGetFilteredUsersByNonAdminNull() {
+        User user = new User();
+        user.setRole(Role.ROLE_JASTIPER.toString());
+
+        List<User> users = new ArrayList<>();
+        Page<User> userPage = new PageImpl<>(users);
+        Pageable pageable = PageRequest.of(0, 30);
+
+        when(userRepository.findByRoleNot("ROLE_ADMIN", pageable)).thenReturn(userPage);
+
+        Page<User> result = userDetailService.getFilteredUsers(user, null, 0, 30);
+
+        assertEquals(userPage, result);
+        verify(userRepository).findByRoleNot("ROLE_ADMIN", pageable);
+    }
+
+    @Test
+    void testGetFilteredUsersByNonAdminInvalid() {
+        User user = new User();
+        user.setRole(Role.ROLE_JASTIPER.toString());
+
+        List<User> users = new ArrayList<>();
+        Page<User> userPage = new PageImpl<>(users);
+        Pageable pageable = PageRequest.of(0, 30);
+
+        when(userRepository.findByRoleNot("ROLE_ADMIN", pageable)).thenReturn(userPage);
+
+        Page<User> result = userDetailService.getFilteredUsers(user, "ROLE_ADMIN", 0, 30);
+
+        assertEquals(userPage, result);
+        verify(userRepository).findByRoleNot("ROLE_ADMIN", pageable);
+    }
+
+    @Test
+    void testGetFilteredUsersByNonAdminValid() {
+        User user = new User();
+        user.setRole(Role.ROLE_JASTIPER.toString());
+
+        List<User> users = new ArrayList<>();
+        Page<User> userPage = new PageImpl<>(users);
+        Pageable pageable = PageRequest.of(0, 30);
+
+        when(userRepository.findByRole("ROLE_JASTIPER", pageable)).thenReturn(userPage);
+
+        Page<User> result = userDetailService.getFilteredUsers(user, "ROLE_JASTIPER", 0, 30);
+
+        assertEquals(userPage, result);
+        verify(userRepository).findByRole("ROLE_JASTIPER", pageable);
     }
 
     @Test
