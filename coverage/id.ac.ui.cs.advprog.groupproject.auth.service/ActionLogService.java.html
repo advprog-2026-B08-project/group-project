@@ -3,6 +3,9 @@
 import id.ac.ui.cs.advprog.groupproject.auth.model.ActionLog;
 import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.ActionLogRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -10,28 +13,36 @@ import java.util.List;
 
 @Service
 public class ActionLogService {
+<span class="fc" id="L16">    private static final Logger LOGGER = LoggerFactory.getLogger(ActionLogService.class);</span>
+
     private final ActionLogRepository logRepository;
 
-<span class="fc" id="L15">    public ActionLogService(ActionLogRepository logRepository) {</span>
-<span class="fc" id="L16">        this.logRepository = logRepository;</span>
-<span class="fc" id="L17">    }</span>
+<span class="fc" id="L20">    public ActionLogService(ActionLogRepository logRepository) {</span>
+<span class="fc" id="L21">        this.logRepository = logRepository;</span>
+<span class="fc" id="L22">    }</span>
 
     public List&lt;ActionLog&gt; getAllLogs() {
-<span class="fc" id="L20">        return logRepository.findAllByOrderByTimestampDesc();</span>
+<span class="fc" id="L25">        return logRepository.findAllByOrderByTimestampDesc();</span>
     }
 
+    @Async(&quot;auditLogExecutor&quot;)
     public void log(String action, String actor, String actorRole,
                     String target, String description, LogType type) {
-<span class="fc" id="L25">        ActionLog log = new ActionLog();</span>
-<span class="fc" id="L26">        log.setAction(action);</span>
-<span class="fc" id="L27">        log.setActor(actor);</span>
-<span class="fc" id="L28">        log.setActorRole(actorRole);</span>
-<span class="fc" id="L29">        log.setTarget(target);</span>
-<span class="fc" id="L30">        log.setDescription(description);</span>
-<span class="fc" id="L31">        log.setTimestamp(LocalDateTime.now());</span>
-<span class="fc" id="L32">        log.setLogType(type);</span>
+        try {
+<span class="fc" id="L32">            ActionLog log = new ActionLog();</span>
+<span class="fc" id="L33">            log.setAction(action);</span>
+<span class="fc" id="L34">            log.setActor(actor);</span>
+<span class="fc" id="L35">            log.setActorRole(actorRole);</span>
+<span class="fc" id="L36">            log.setTarget(target);</span>
+<span class="fc" id="L37">            log.setDescription(description);</span>
+<span class="fc" id="L38">            log.setTimestamp(LocalDateTime.now());</span>
+<span class="fc" id="L39">            log.setLogType(type);</span>
 
-<span class="fc" id="L34">        logRepository.save(log);</span>
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L41">            logRepository.save(log);</span>
+<span class="nc" id="L42">        } catch (Exception ex) {</span>
+<span class="nc" id="L43">            LOGGER.warn(&quot;audit_log_persist_failed action={} actor={} target={} reason={}&quot;,</span>
+<span class="nc" id="L44">                    action, actor, target, ex.getMessage());</span>
+<span class="fc" id="L45">        }</span>
+<span class="fc" id="L46">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

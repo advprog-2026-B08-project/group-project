@@ -2,12 +2,16 @@
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-<span class="fc" id="L10">public class DecreaseStockRequest {</span>
+<span class="fc" id="L11">public class DecreaseStockRequest {</span>
+  @NotNull(message = &quot;requestId is required&quot;)
+  private UUID requestId;
+
   @NotNull(message = &quot;Quantity is required&quot;)
   @Min(value = 1, message = &quot;Quantity must be at least 1&quot;)
   private Integer quantity;

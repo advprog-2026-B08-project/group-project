@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultCatalogStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">group-project</a> &gt; <a href="index.source.html" class="el_package">id.ac.ui.cs.advprog.groupproject.catalog.strategy</a> &gt; <span class="el_source">DefaultCatalogStrategy.java</span></div><h1>DefaultCatalogStrategy.java</h1><pre class="source lang-java linenums">package id.ac.ui.cs.advprog.groupproject.catalog.strategy;
+
+import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
+
+@Component
+<span class="fc" id="L12">public class DefaultCatalogStrategy implements CatalogActionStrategy {</span>
+
+    private static final String ONLY_JASTIPER_CREATE = &quot;Only Jastiper can create catalog&quot;;
+    private static final String ONLY_TITIPER_RATE = &quot;Only Titiper can submit product rating&quot;;
+    private static final String BUYER_MISMATCH = &quot;Buyer mismatch&quot;;
+    private static final String NOT_OWNER = &quot;Auth Failed!&quot;;
+
+    @Override
+    public boolean canCreateCatalog(User user) {
+<span class="fc bfc" id="L21" title="All 4 branches covered.">        return user != null &amp;&amp; Role.ROLE_JASTIPER.matches(user.getRole());</span>
+    }
+
+    @Override
+    public boolean canSubmitRating(User user, UUID buyerId) {
+<span class="pc bpc" id="L26" title="1 of 4 branches missed.">        if (user == null || !Role.ROLE_TITIPER.matches(user.getRole())) {</span>
+<span class="fc" id="L27">            return false;</span>
+        }
+<span class="pc bpc" id="L29" title="1 of 4 branches missed.">        return user.getId() != null &amp;&amp; user.getId().equals(buyerId);</span>
+    }
+
+    @Override
+    public boolean canManageCatalog(User user, Catalog catalog) {
+<span class="pc bpc" id="L34" title="2 of 6 branches missed.">        if (user == null || catalog == null || catalog.getJastiper() == null) {</span>
+<span class="fc" id="L35">            return false;</span>
+        }
+<span class="fc" id="L37">        return catalog.getJastiper().getId().equals(user.getId());</span>
+    }
+
+    @Override
+    public void requireCanCreateCatalog(User user) {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (!canCreateCatalog(user)) {</span>
+<span class="fc" id="L43">            throw new ResponseStatusException(HttpStatus.FORBIDDEN, ONLY_JASTIPER_CREATE);</span>
+        }
+<span class="fc" id="L45">    }</span>
+
+    @Override
+    public void requireCanSubmitRating(User user, UUID buyerId) {
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">        if (user == null || !Role.ROLE_TITIPER.matches(user.getRole())) {</span>
+<span class="fc" id="L50">            throw new ResponseStatusException(HttpStatus.FORBIDDEN, ONLY_TITIPER_RATE);</span>
+        }
+<span class="pc bpc" id="L52" title="2 of 4 branches missed.">        if (user.getId() == null || !user.getId().equals(buyerId)) {</span>
+<span class="fc" id="L53">            throw new ResponseStatusException(HttpStatus.FORBIDDEN, BUYER_MISMATCH);</span>
+        }
+<span class="nc" id="L55">    }</span>
+
+    @Override
+    public void requireCanManageCatalog(User user, Catalog catalog) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (!canManageCatalog(user, catalog)) {</span>
+<span class="fc" id="L60">            throw new ResponseStatusException(HttpStatus.FORBIDDEN, NOT_OWNER);</span>
+        }
+<span class="fc" id="L62">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

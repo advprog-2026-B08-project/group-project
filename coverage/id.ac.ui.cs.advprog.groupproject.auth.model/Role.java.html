@@ -3,6 +3,22 @@
 <span class="fc" id="L3">public enum Role {</span>
 <span class="fc" id="L4">    ROLE_ADMIN,</span>
 <span class="fc" id="L5">    ROLE_JASTIPER,</span>
-<span class="fc" id="L6">    ROLE_TITIPER</span>
+<span class="fc" id="L6">    ROLE_TITIPER;</span>
+
+    /**
+     * Returns true when the given role string matches this enum constant,
+     * accepting both the canonical {@code ROLE_X} form and the bare {@code X} form
+     * (case-insensitive). Returns false for {@code null} or empty input.
+     */
+    public boolean matches(String roleString) {
+<span class="fc bfc" id="L14" title="All 4 branches covered.">        if (roleString == null || roleString.isBlank()) {</span>
+<span class="fc" id="L15">            return false;</span>
+        }
+<span class="fc" id="L17">        String normalized = roleString.trim().toUpperCase();</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">        if (!normalized.startsWith(&quot;ROLE_&quot;)) {</span>
+<span class="fc" id="L19">            normalized = &quot;ROLE_&quot; + normalized;</span>
+        }
+<span class="fc" id="L21">        return name().equals(normalized);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
