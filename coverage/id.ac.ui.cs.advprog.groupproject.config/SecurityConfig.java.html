@@ -9,40 +9,42 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 <span class="fc" id="L10">public class SecurityConfig {</span>
 
+    private static final String ROLE_ADMIN = &quot;ROLE_ADMIN&quot;;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-<span class="fc" id="L14">        http.authorizeHttpRequests(</span>
+<span class="fc" id="L16">        http.authorizeHttpRequests(</span>
                 auth -&gt; auth
-<span class="fc" id="L16">                        .requestMatchers(&quot;/login&quot;, &quot;/register&quot;, &quot;/actuator/health&quot;, &quot;/actuator/health/**&quot;, &quot;/actuator/prometheus&quot;).permitAll()</span>
-<span class="fc" id="L17">                        .requestMatchers(&quot;/actuator/**&quot;).hasAuthority(&quot;ROLE_ADMIN&quot;)</span>
-<span class="fc" id="L18">                        .requestMatchers(&quot;/admin&quot;, &quot;/admin/**&quot;, &quot;/api/admin/**&quot;).hasAuthority(&quot;ROLE_ADMIN&quot;)</span>
-<span class="fc" id="L19">                        .requestMatchers(&quot;/api/catalogs/*/decrease-stock&quot;).hasAuthority(&quot;ROLE_ADMIN&quot;)</span>
-<span class="fc" id="L20">                        .requestMatchers(&quot;/catalog/admin/**&quot;).hasAuthority(&quot;ROLE_ADMIN&quot;)</span>
-<span class="fc" id="L21">                        .requestMatchers(&quot;/catalog/add&quot;, &quot;/catalog/edit&quot;, &quot;/catalog/edit/**&quot; , &quot;/catalog/my&quot;)</span>
-<span class="fc" id="L22">                        .hasAuthority(&quot;ROLE_JASTIPER&quot;)</span>
-<span class="fc" id="L23">                        .requestMatchers(&quot;/catalog/**&quot;).authenticated()</span>
-<span class="fc" id="L24">                        .requestMatchers(&quot;/kycRequestJastiper/**&quot;).hasAuthority(&quot;ROLE_TITIPER&quot;)</span>
-<span class="fc" id="L25">                        .requestMatchers(&quot;/kycRequestAdmin/**&quot;).hasAuthority(&quot;ROLE_JASTIPER&quot;)</span>
-<span class="fc" id="L26">                        .anyRequest().authenticated()</span>
-<span class="fc" id="L27">        ).formLogin(form -&gt; form</span>
-<span class="fc" id="L28">                .loginPage(&quot;/login&quot;)</span>
-<span class="fc" id="L29">                .defaultSuccessUrl(&quot;/homepage&quot;, true)</span>
-<span class="fc" id="L30">                .permitAll()</span>
-<span class="fc" id="L31">        ).logout(logout -&gt; logout</span>
-<span class="fc" id="L32">                .logoutSuccessUrl(&quot;/login?logout&quot;)</span>
-<span class="fc" id="L33">                .permitAll()</span>
-<span class="fc" id="L34">        ).csrf(csrf -&gt; csrf</span>
-<span class="fc" id="L35">                .ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/h2-console/**&quot;)</span>
-<span class="fc" id="L36">        ).headers(headers -&gt; headers</span>
-<span class="fc" id="L37">                .frameOptions(frame -&gt; frame.sameOrigin())</span>
-<span class="fc" id="L38">        ).exceptionHandling(error -&gt; error</span>
-<span class="fc" id="L39">                .accessDeniedHandler((request, response, exception) -&gt; {</span>
-<span class="fc" id="L40">                    request.getSession().setAttribute(&quot;unauthorized&quot;, true);</span>
-<span class="fc" id="L41">                    response.sendRedirect(&quot;/homepage&quot;);</span>
-<span class="fc" id="L42">                })</span>
+<span class="fc" id="L18">                        .requestMatchers(&quot;/login&quot;, &quot;/register&quot;, &quot;/actuator/health&quot;, &quot;/actuator/health/**&quot;, &quot;/actuator/prometheus&quot;).permitAll()</span>
+<span class="fc" id="L19">                        .requestMatchers(&quot;/actuator/**&quot;).hasAuthority(ROLE_ADMIN)</span>
+<span class="fc" id="L20">                        .requestMatchers(&quot;/admin&quot;, &quot;/admin/**&quot;, &quot;/api/admin/**&quot;).hasAuthority(ROLE_ADMIN)</span>
+<span class="fc" id="L21">                        .requestMatchers(&quot;/api/catalogs/*/decrease-stock&quot;).hasAuthority(ROLE_ADMIN)</span>
+<span class="fc" id="L22">                        .requestMatchers(&quot;/catalog/admin/**&quot;).hasAuthority(ROLE_ADMIN)</span>
+<span class="fc" id="L23">                        .requestMatchers(&quot;/catalog/add&quot;, &quot;/catalog/edit&quot;, &quot;/catalog/edit/**&quot; , &quot;/catalog/my&quot;)</span>
+<span class="fc" id="L24">                        .hasAuthority(&quot;ROLE_JASTIPER&quot;)</span>
+<span class="fc" id="L25">                        .requestMatchers(&quot;/catalog/**&quot;).authenticated()</span>
+<span class="fc" id="L26">                        .requestMatchers(&quot;/kycRequestJastiper/**&quot;).hasAuthority(&quot;ROLE_TITIPER&quot;)</span>
+<span class="fc" id="L27">                        .requestMatchers(&quot;/kycRequestAdmin/**&quot;).hasAuthority(&quot;ROLE_JASTIPER&quot;)</span>
+<span class="fc" id="L28">                        .anyRequest().authenticated()</span>
+<span class="fc" id="L29">        ).formLogin(form -&gt; form</span>
+<span class="fc" id="L30">                .loginPage(&quot;/login&quot;)</span>
+<span class="fc" id="L31">                .defaultSuccessUrl(&quot;/homepage&quot;, true)</span>
+<span class="fc" id="L32">                .permitAll()</span>
+<span class="fc" id="L33">        ).logout(logout -&gt; logout</span>
+<span class="fc" id="L34">                .logoutSuccessUrl(&quot;/login?logout&quot;)</span>
+<span class="fc" id="L35">                .permitAll()</span>
+<span class="fc" id="L36">        ).csrf(csrf -&gt; csrf</span>
+<span class="fc" id="L37">                .ignoringRequestMatchers(&quot;/api/**&quot;, &quot;/h2-console/**&quot;)</span>
+<span class="fc" id="L38">        ).headers(headers -&gt; headers</span>
+<span class="fc" id="L39">                .frameOptions(frame -&gt; frame.sameOrigin())</span>
+<span class="fc" id="L40">        ).exceptionHandling(error -&gt; error</span>
+<span class="fc" id="L41">                .accessDeniedHandler((request, response, exception) -&gt; {</span>
+<span class="fc" id="L42">                    request.getSession().setAttribute(&quot;unauthorized&quot;, true);</span>
+<span class="fc" id="L43">                    response.sendRedirect(&quot;/homepage&quot;);</span>
+<span class="fc" id="L44">                })</span>
         );
 
-<span class="fc" id="L45">        return http.build();</span>
+<span class="fc" id="L47">        return http.build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
