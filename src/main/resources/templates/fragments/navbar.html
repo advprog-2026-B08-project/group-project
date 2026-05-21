@@ -4,10 +4,10 @@
         <a th:href="@{/catalog}">Katalog</a>
         <a th:href="@{/order/list}">Pesanan</a>
         <a th:href="@{/wallet}">Dompet</a>
+        <a th:href="@{/userList}">User List</a>
         <div th:if="${user.role == 'ROLE_ADMIN'}" style="display:contents">
             <a th:href="@{/admin}">Admin</a>
             <a th:href="@{/admin/wallet}">Wallet Admin</a>
-            <a th:href="@{/admin/userList}">User List</a>
             <a th:href="@{/catalog/admin/monitoring}">Monitoring</a>
         </div>
         <a th:if="${user.role == 'ROLE_JASTIPER'}" th:href="@{/catalog/my}">Katalog Saya</a>
