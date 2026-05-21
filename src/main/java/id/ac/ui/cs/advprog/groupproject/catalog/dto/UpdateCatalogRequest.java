@@ -3,10 +3,6 @@ package id.ac.ui.cs.advprog.groupproject.catalog.dto;
 import java.time.LocalDate;
 import lombok.Getter;
 
-/**
- * Parameter Object carrying the fields needed to update an existing catalog entry.
- * Internal type — not part of the JSON API surface.
- */
 @Getter
 public class UpdateCatalogRequest {
   private final String name;
