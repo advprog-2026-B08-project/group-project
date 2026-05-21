@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: json-app-local-deployment
+  labels:
+    app: json-app-local
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: json-app-local
+  template:
+    metadata:
+      labels:
+        app: json-app-local
+    spec:
+      containers:
+        - name: json-app-local
+          image: group-project-app:latest
+          imagePullPolicy: Never  # Menggunakan image lokal yang sudah di-load ke Minikube
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "local"
+            - name: ADMIN_EMAIL
+              value: "admin@gmail.com"
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: json-app-local-secrets
+                  key: admin-password
+            - name: JASTIPER_EMAIL
+              value: "jastiper@gmail.com"
+            - name: JASTIPER_PASSWORD
+              value: "jastiper"
+            - name: TITIPER_EMAIL
+              value: "titiper@gmail.com"
+            - name: TITIPER_PASSWORD
+              value: "titiper"
+            - name: CLOUDINARY_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: json-app-local-secrets
+                  key: cloudinary-name
+            - name: CLOUDINARY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: json-app-local-secrets
+                  key: cloudinary-key
+            - name: CLOUDINARY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: json-app-local-secrets
+                  key: cloudinary-secret
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1024Mi"
+              cpu: "400m"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: json-app-local-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: json-app-local

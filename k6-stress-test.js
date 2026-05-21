@@ -26,7 +26,7 @@ const PRODUCT_ID = 'f3eb8241-e485-4a46-ad09-4104fa8a5385'; // Replace with a val
 export const options = {
   stages: [
     { duration: '5s', target: 50 },  // Ramp up: ramp up to 50 concurrent virtual users
-    { duration: '10s', target: 50 }, // Stress: sustain 50 virtual users making concurrent checkouts
+    { duration: '30s', target: 50 }, // Stress: sustain 50 virtual users making concurrent checkouts
     { duration: '5s', target: 0 },   // Ramp down: scale down VUs to 0
   ],
   thresholds: {
