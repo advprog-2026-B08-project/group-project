@@ -17,7 +17,7 @@
                     <p style="color: var(--me-text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
                         Kelola data pengguna, periksa role, dan status aktif.
                     </p>
-                    
+
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
                         <div class="text-center" style="padding: 12px 8px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-bg);">
                             <div class="me-stat-value" th:text="${roleCount.get('ROLE_ADMIN') ?: 0}" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
@@ -45,7 +45,7 @@
                     <p style="color: var(--me-text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
                         Verifikasi identitas pengguna untuk promosi menjadi Jastiper terpercaya.
                     </p>
-                    
+
                     <div class="text-center" style="padding: 24px 16px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-success-bg); border-color: var(--me-success); margin-bottom: 16px;">
                         <div class="me-stat-value" th:text="${requestCount.get('ACTIVE') ?: 0}" style="color: #065F46; font-size: 2.2rem; margin-bottom: 4px;">0</div>
                         <div class="me-stat-label" style="color: #065F46; font-size: 0.75rem;">Menunggu Persetujuan</div>
@@ -63,7 +63,7 @@
                     <p style="color: var(--me-text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
                         Pantau riwayat aktivitas admin dan tindakan sistem secara real-time.
                     </p>
-                    
+
                     <div class="text-center" style="padding: 24px 16px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-info-bg); border-color: var(--me-info); margin-bottom: 16px;">
                         <div style="font-size: 2.2rem; margin-bottom: 4px;">📄</div>
                         <div class="me-stat-label" style="color: #1E40AF; font-size: 0.75rem;">Sistem Log Terpantau</div>

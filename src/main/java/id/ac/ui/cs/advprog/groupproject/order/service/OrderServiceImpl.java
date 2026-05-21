@@ -83,6 +83,9 @@ public class OrderServiceImpl implements OrderService {
         history.setStatus(OrderStatus.PAID);
         statusHistoryRepository.save(history);
 
+        // Increment triedToSell for jastiper (new order = jastiper mencoba menjual)
+        incrementTriedToSell(productInfo.jastiperId());
+
         return savedOrder;
     }
 
@@ -124,8 +127,9 @@ public class OrderServiceImpl implements OrderService {
         history.setStatus(newStatus);
         statusHistoryRepository.save(history);
 
-        // Credit Jastiper's wallet when order is completed
+        // Increment successfullySold and credit Jastiper's wallet when order is completed
         if (newStatus == OrderStatus.COMPLETED) {
+            incrementSuccessfullySold(savedOrder.getJastiperId());
             paymentPort.creditSeller(
                     savedOrder.getJastiperId(),
                     savedOrder.getTotalPrice(),
@@ -154,7 +158,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order submitRating(UUID orderId, int ratingProduk) {
+    public Order submitRating(UUID orderId, Integer ratingProduk, Integer ratingJastiper) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
@@ -162,32 +166,37 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalStateException("Rating hanya bisa diberikan untuk order yang sudah COMPLETED");
         }
 
-        if (order.getRatingProduk() != null) {
-            throw new IllegalStateException("Order ini sudah diberi rating");
+        if (ratingProduk == null && ratingJastiper == null) {
+            throw new IllegalArgumentException("Minimal satu rating (produk atau jastiper) harus diisi");
         }
 
-        if (ratingProduk < 1 || ratingProduk > 5) {
-            throw new IllegalArgumentException("Rating harus antara 1 sampai 5");
+        // Handle rating produk
+        if (ratingProduk != null) {
+            if (order.getRatingProduk() != null) {
+                throw new IllegalStateException("Order ini sudah diberi rating produk");
+            }
+            if (ratingProduk < 1 || ratingProduk > 5) {
+                throw new IllegalArgumentException("Rating produk harus antara 1 sampai 5");
+            }
+            order.setRatingProduk(ratingProduk);
         }
 
-        order.setRatingProduk(ratingProduk);
+        // Handle rating jastiper
+        if (ratingJastiper != null) {
+            if (order.getRatingJastiper() != null) {
+                throw new IllegalStateException("Order ini sudah diberi rating jastiper");
+            }
+            if (ratingJastiper < 1 || ratingJastiper > 5) {
+                throw new IllegalArgumentException("Rating jastiper harus antara 1 sampai 5");
+            }
+            order.setRatingJastiper(ratingJastiper);
+        }
 
         Order savedOrder = orderRepository.save(order);
 
         // Propagate product rating to catalog aggregate
-        try {
-            User buyer = userRepository.findById(order.getBuyerId())
-                    .orElse(null);
-            if (buyer != null) {
-                ProductRatingUpdateRequest ratingRequest = new ProductRatingUpdateRequest();
-                ratingRequest.setOrderId(orderId);
-                ratingRequest.setBuyerId(order.getBuyerId());
-                ratingRequest.setProductRating(ratingProduk);
-                catalogService.applyProductRating(order.getProductId(), ratingRequest, buyer);
-            }
-        } catch (Exception e) {
-            // Log but don't fail the order rating if catalog update fails
-            // The order rating is already saved
+        if (ratingProduk != null) {
+            propagateProductRating(savedOrder, ratingProduk);
         }
 
         return savedOrder;
@@ -226,5 +235,55 @@ public class OrderServiceImpl implements OrderService {
         if (request.getProductId() == null) throw new IllegalArgumentException("Product ID is required");
         if (request.getQuantity() == null || request.getQuantity() < 1) throw new IllegalArgumentException("Invalid quantity");
         if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException("Address required");
+    }
+
+    /**
+     * Increment triedToSell counter for jastiper when a new order is placed.
+     * This affects the jastiper's success rate (successfullySold / triedToSell).
+     */
+    private void incrementTriedToSell(UUID jastiperId) {
+        try {
+            userRepository.findById(jastiperId).ifPresent(jastiper -> {
+                jastiper.setTriedToSell(jastiper.getTriedToSell() + 1);
+                userRepository.save(jastiper);
+            });
+        } catch (Exception e) {
+            // Log but don't fail the checkout if success rate update fails
+        }
+    }
+
+    /**
+     * Increment successfullySold counter for jastiper when an order is completed.
+     * This affects the jastiper's success rate (successfullySold / triedToSell).
+     */
+    private void incrementSuccessfullySold(UUID jastiperId) {
+        try {
+            userRepository.findById(jastiperId).ifPresent(jastiper -> {
+                jastiper.setSuccessfullySold(jastiper.getSuccessfullySold() + 1);
+                userRepository.save(jastiper);
+            });
+        } catch (Exception e) {
+            // Log but don't fail the status update if success rate update fails
+        }
+    }
+
+    /**
+     * Propagate product rating to catalog aggregate.
+     */
+    private void propagateProductRating(Order order, int ratingProduk) {
+        try {
+            User buyer = userRepository.findById(order.getBuyerId())
+                    .orElse(null);
+            if (buyer != null) {
+                ProductRatingUpdateRequest ratingRequest = new ProductRatingUpdateRequest();
+                ratingRequest.setOrderId(order.getId());
+                ratingRequest.setBuyerId(order.getBuyerId());
+                ratingRequest.setProductRating(ratingProduk);
+                catalogService.applyProductRating(order.getProductId(), ratingRequest, buyer);
+            }
+        } catch (Exception e) {
+            // Log but don't fail the order rating if catalog update fails
+            // The order rating is already saved
+        }
     }
 }

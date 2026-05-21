@@ -13,10 +13,41 @@
                     Temukan produk-produk impor/jastip eksklusif yang ditawarkan oleh <strong th:text="${username}">User</strong>.
                 </p>
             </div>
-            
+
             <div style="display: flex; gap: 12px;">
                 <a th:href="@{/catalog}" class="me-btn me-btn--primary me-btn--sm">Lihat Semua Katalog</a>
                 <a th:href="@{/homepage}" class="me-btn me-btn--outline me-btn--sm">Kembali</a>
+            </div>
+        </div>
+
+        <!-- Jastiper Info Card -->
+        <div th:if="${jastiperUser != null and jastiperUser.role == 'ROLE_JASTIPER'}"
+             class="me-card" style="padding: 16px 20px; margin-bottom: 24px; border-left: 4px solid var(--me-info);">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img th:src="${jastiperUser.profilePictureURL != null ? jastiperUser.profilePictureURL : '/images/defaultProfilePicture.png'}"
+                         onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
+                         style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: var(--me-border-w) solid var(--me-border);">
+                    <div>
+                        <span style="font-weight: 700; font-size: 1rem;" th:text="${jastiperUser.username}">Jastiper</span>
+                        <span class="me-badge me-badge--success" style="font-size: 0.6rem; padding: 1px 6px; margin-left: 6px;">Jastiper</span>
+                        <p style="font-size: 0.8rem; color: var(--me-text-muted); margin: 2px 0 0 0;" th:text="${jastiperUser.email}">email</p>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div th:if="${catalogs != null and !catalogs.isEmpty() and catalogs[0].jastiperRatingAverage != null}">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary);">Rating: </span>
+                        <span th:with="avg=${catalogs[0].jastiperRatingAverage}">
+                            <span th:style="${avg >= 0.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 1.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 2.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 3.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                        </span>
+                        <small class="text-muted"
+                               th:text="${'(' + #numbers.formatDecimal(catalogs[0].jastiperRatingAverage, 0, 'POINT', 1, 'COMMA') + '/5)'}"></small>
+                    </div>
+                </div>
             </div>
         </div>
 

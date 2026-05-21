@@ -14,18 +14,18 @@
         </div>
 
         <div class="me-grid me-grid--3" style="align-items: stretch; gap: 20px;">
-            <div th:each="userInList : ${userList}" 
-                 th:if="${user.role == 'ROLE_ADMIN' or userInList.role != 'ROLE_ADMIN'}" 
-                 class="me-card me-stack" 
+            <div th:each="userInList : ${userList}"
+                 th:if="${user.role == 'ROLE_ADMIN' or userInList.role != 'ROLE_ADMIN'}"
+                 class="me-card me-stack"
                  style="justify-content: space-between; padding: 20px; min-height: 280px; position: relative;">
-                
+
                 <div>
                     <!-- Top header: avatar and badges -->
                     <div style="display: flex; gap: 16px; align-items: start; margin-bottom: 16px;">
                         <img th:src="${userInList.profilePictureURL != null} ? ${userInList.profilePictureURL} : '/images/defaultProfilePicture.png'"
                              onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
                              style="height: 64px; width: 64px; object-fit: cover; border-radius: 50%; border: var(--me-border-w) solid var(--me-border);">
-                        
+
                         <div class="me-stack" style="gap: 4px; flex: 1;">
                             <!-- Role Badges -->
                             <div>
@@ -33,7 +33,7 @@
                                 <span th:if="${userInList.role == 'ROLE_JASTIPER'}" class="me-badge me-badge--success" style="font-size: 0.65rem; padding: 2px 8px;">Jastiper</span>
                                 <span th:if="${userInList.role == 'ROLE_TITIPER'}" class="me-badge me-badge--dark" style="font-size: 0.65rem; padding: 2px 8px;">Titiper</span>
                             </div>
-                            
+
                             <!-- Status Badges -->
                             <div>
                                 <span th:if="${userInList.status == 'ACTIVE'}" class="me-badge me-badge--success" style="font-size: 0.6rem; padding: 1px 6px;">Aktif</span>
@@ -53,24 +53,24 @@
                     <!-- Success rate for Jastipers -->
                     <div th:if="${userInList.role == 'ROLE_JASTIPER'}" style="margin-top: 12px; border-top: 1px dashed rgba(26,26,26,0.1); padding-top: 8px;">
                         <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary);">
-                            ⭐ Success Rate: <span th:text="${userInList.getSuccessRate()} + '%'">100%</span>
+                            ⭐ Success Rate: <span th:text="${#numbers.formatDecimal(userInList.getSuccessRate() * 100, 0, 'POINT', 0, 'COMMA')} + '%'">100%</span>
                         </span>
                     </div>
                 </div>
 
                 <!-- Admin Action Buttons at the bottom -->
-                <div th:if="${user.role == 'ROLE_ADMIN' && userInList.role != 'ROLE_ADMIN'}" 
+                <div th:if="${user.role == 'ROLE_ADMIN' && userInList.role != 'ROLE_ADMIN'}"
                      style="display: flex; gap: 8px; margin-top: 20px; border-top: 2px solid var(--me-border); padding-top: 16px;">
-                    
+
                     <!-- Ban/Lift Ban Button -->
                     <div style="flex: 1;">
-                        <form th:if="${userInList.status != 'BANNED'}" th:action="@{/admin/ban}" method="post" 
+                        <form th:if="${userInList.status != 'BANNED'}" th:action="@{/admin/ban}" method="post"
                               onsubmit="return confirm('Apakah Anda yakin ingin memblokir (ban) pengguna ini?');">
                             <input type="hidden" name="userId" th:value="${userInList.id}" />
                             <button type="submit" class="me-btn me-btn--danger me-btn--sm me-btn--block">Ban</button>
                         </form>
-                        
-                        <form th:if="${userInList.status == 'BANNED'}" th:action="@{/admin/liftBan}" method="post" 
+
+                        <form th:if="${userInList.status == 'BANNED'}" th:action="@{/admin/liftBan}" method="post"
                               onsubmit="return confirm('Apakah Anda yakin ingin memulihkan (lift ban) pengguna ini?');">
                             <input type="hidden" name="userId" th:value="${userInList.id}" />
                             <button type="submit" class="me-btn me-btn--success me-btn--sm me-btn--block">Lift Ban</button>
@@ -79,7 +79,7 @@
 
                     <!-- Demote Button (Only for Jastiper to Titiper) -->
                     <div th:if="${userInList.role == 'ROLE_JASTIPER'}" style="flex: 1;">
-                        <form th:action="@{/admin/demote}" method="post" 
+                        <form th:action="@{/admin/demote}" method="post"
                               onsubmit="return confirm('Apakah Anda yakin ingin menurunkan pangkat (demote) Jastiper ini menjadi Titiper?');">
                             <input type="hidden" name="userId" th:value="${userInList.id}" />
                             <button type="submit" class="me-btn me-btn--warning me-btn--sm me-btn--block">Demote</button>
