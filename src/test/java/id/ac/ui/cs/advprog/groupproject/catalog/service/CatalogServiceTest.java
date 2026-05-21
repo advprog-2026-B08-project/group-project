@@ -39,8 +39,10 @@ import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -55,6 +57,9 @@ class CatalogServiceTest {
 
     @Mock
     private CatalogRatingEventRepository catalogRatingEventRepository;
+
+    @Mock
+    private StockDecreaseEventRepository stockDecreaseEventRepository;
 
     @Mock
     private MeterRegistry meterRegistry;
@@ -383,22 +388,40 @@ class CatalogServiceTest {
 
     @Test
     void testDecreaseStockSuccess() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(false);
+        when(stockDecreaseEventRepository.saveAndFlush(any(StockDecreaseEvent.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(catalogRepository.decreaseStockIfAvailable(catalogId, 3)).thenReturn(1);
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
 
-        Catalog result = catalogService.decreaseStock(catalogId, 3);
+        Catalog result = catalogService.decreaseStock(catalogId, requestId, 3);
 
         assertNotNull(result);
         assertEquals(10, result.getStock());
+        verify(stockDecreaseEventRepository, times(1)).saveAndFlush(any(StockDecreaseEvent.class));
         verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 3);
         verify(catalogRepository, times(1)).findById(catalogId);
-        verify(catalogRepository, never()).save(any(Catalog.class));
+    }
+
+    @Test
+    void testDecreaseStockIdempotentWhenDuplicate() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(true);
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+
+        Catalog result = catalogService.decreaseStock(catalogId, requestId, 3);
+
+        assertNotNull(result);
+        verify(catalogRepository, never()).decreaseStockIfAvailable(any(UUID.class), anyInt());
+        verify(stockDecreaseEventRepository, never()).saveAndFlush(any(StockDecreaseEvent.class));
     }
 
     @Test
     void testDecreaseStockBadRequestWhenQuantityInvalid() {
+        UUID requestId = UUID.randomUUID();
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.decreaseStock(catalogId, 0);
+            catalogService.decreaseStock(catalogId, requestId, 0);
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -409,34 +432,40 @@ class CatalogServiceTest {
 
     @Test
     void testDecreaseStockNotFound() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(false);
+        when(stockDecreaseEventRepository.saveAndFlush(any(StockDecreaseEvent.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(catalogRepository.decreaseStockIfAvailable(catalogId, 2)).thenReturn(0);
         when(catalogRepository.existsById(catalogId)).thenReturn(false);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.decreaseStock(catalogId, 2);
+            catalogService.decreaseStock(catalogId, requestId, 2);
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 2);
         verify(catalogRepository, times(1)).existsById(catalogId);
         verify(catalogRepository, never()).findById(catalogId);
-        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test
     void testDecreaseStockConflictWhenInsufficientStock() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(false);
+        when(stockDecreaseEventRepository.saveAndFlush(any(StockDecreaseEvent.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(catalogRepository.decreaseStockIfAvailable(catalogId, 999)).thenReturn(0);
         when(catalogRepository.existsById(catalogId)).thenReturn(true);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.decreaseStock(catalogId, 999);
+            catalogService.decreaseStock(catalogId, requestId, 999);
         });
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
         verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 999);
         verify(catalogRepository, times(1)).existsById(catalogId);
         verify(catalogRepository, never()).findById(catalogId);
-        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test

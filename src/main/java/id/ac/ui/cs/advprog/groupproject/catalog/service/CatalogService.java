@@ -9,8 +9,10 @@ import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.UUID;
 import java.util.List;
@@ -35,6 +37,7 @@ public class CatalogService {
 
   private final CatalogRepository catalogRepository;
   private final CatalogRatingEventRepository catalogRatingEventRepository;
+  private final StockDecreaseEventRepository stockDecreaseEventRepository;
   private final CatalogFactory catalogFactory;
   private final MeterRegistry meterRegistry;
   private final ActionLogService actionLogService;
@@ -42,11 +45,13 @@ public class CatalogService {
   public CatalogService(
       CatalogRepository catalogRepository,
       CatalogRatingEventRepository catalogRatingEventRepository,
+      StockDecreaseEventRepository stockDecreaseEventRepository,
       CatalogFactory catalogFactory,
       MeterRegistry meterRegistry,
       ActionLogService actionLogService) {
     this.catalogRepository = catalogRepository;
     this.catalogRatingEventRepository = catalogRatingEventRepository;
+    this.stockDecreaseEventRepository = stockDecreaseEventRepository;
     this.catalogFactory = catalogFactory;
     this.meterRegistry = meterRegistry;
     this.actionLogService = actionLogService;
@@ -191,9 +196,33 @@ public class CatalogService {
   }
 
   @Transactional
-  public Catalog decreaseStock(UUID catalogId, int quantity) {
+  public Catalog decreaseStock(UUID catalogId, UUID requestId, int quantity) {
     if (quantity <= 0) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
+    }
+
+    if (stockDecreaseEventRepository.existsByRequestId(requestId)) {
+      LOGGER.info("stock_decrease_duplicate requestId={} catalogId={}", requestId, catalogId);
+      return catalogRepository
+          .findById(catalogId)
+          .orElseThrow(
+              () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+    }
+
+    StockDecreaseEvent event = new StockDecreaseEvent();
+    event.setRequestId(requestId);
+    event.setCatalogId(catalogId);
+    event.setQuantity(quantity);
+    event.setCreatedAt(Instant.now());
+
+    try {
+      stockDecreaseEventRepository.saveAndFlush(event);
+    } catch (DataIntegrityViolationException ex) {
+      LOGGER.info("stock_decrease_duplicate_race requestId={} catalogId={}", requestId, catalogId);
+      return catalogRepository
+          .findById(catalogId)
+          .orElseThrow(
+              () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
     }
 
     int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);

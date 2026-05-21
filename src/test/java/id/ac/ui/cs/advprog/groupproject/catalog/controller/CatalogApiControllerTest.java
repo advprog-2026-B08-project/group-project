@@ -254,7 +254,9 @@ class CatalogApiControllerTest {
 
     @Test
     void testDecreaseStockSuccess() {
+        UUID requestId = UUID.randomUUID();
         DecreaseStockRequest request = new DecreaseStockRequest();
+        request.setRequestId(requestId);
         request.setQuantity(2);
 
         Catalog updatedCatalog = new Catalog();
@@ -265,7 +267,7 @@ class CatalogApiControllerTest {
         updatedDto.setId(catalogId);
         updatedDto.setStock(8);
 
-        when(catalogService.decreaseStock(catalogId, 2)).thenReturn(updatedCatalog);
+        when(catalogService.decreaseStock(catalogId, requestId, 2)).thenReturn(updatedCatalog);
         when(catalogMapper.toDto(updatedCatalog)).thenReturn(updatedDto);
 
         ResponseEntity<CatalogDto> response = catalogApiController.decreaseStock(catalogId, request);
@@ -273,16 +275,18 @@ class CatalogApiControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(8, response.getBody().getStock());
-        verify(catalogService, times(1)).decreaseStock(catalogId, 2);
+        verify(catalogService, times(1)).decreaseStock(catalogId, requestId, 2);
         verify(catalogMapper, times(1)).toDto(updatedCatalog);
     }
 
     @Test
     void testDecreaseStockConflict() {
+        UUID requestId = UUID.randomUUID();
         DecreaseStockRequest request = new DecreaseStockRequest();
+        request.setRequestId(requestId);
         request.setQuantity(99);
 
-        when(catalogService.decreaseStock(catalogId, 99))
+        when(catalogService.decreaseStock(catalogId, requestId, 99))
                 .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
@@ -290,7 +294,7 @@ class CatalogApiControllerTest {
         });
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
-        verify(catalogService, times(1)).decreaseStock(catalogId, 99);
+        verify(catalogService, times(1)).decreaseStock(catalogId, requestId, 99);
     }
 
     @Test

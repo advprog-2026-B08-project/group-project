@@ -100,7 +100,8 @@ public class CatalogApiController {
   @PostMapping("/{id}/decrease-stock")
   public ResponseEntity<CatalogDto> decreaseStock(
       @PathVariable UUID id, @Valid @RequestBody DecreaseStockRequest request) {
-    Catalog updatedCatalog = catalogService.decreaseStock(id, request.getQuantity());
+    Catalog updatedCatalog =
+        catalogService.decreaseStock(id, request.getRequestId(), request.getQuantity());
     return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));
   }
 
