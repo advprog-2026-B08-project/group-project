@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,6 +41,8 @@ import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.policy.CatalogActionPolicy;
+import id.ac.ui.cs.advprog.groupproject.catalog.policy.DefaultCatalogPolicy;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
@@ -60,6 +63,11 @@ class CatalogServiceTest {
 
     @Mock
     private StockDecreaseEventRepository stockDecreaseEventRepository;
+
+    // Use the real policy implementation (via @Spy) so role checks behave authentically.
+    // @Spy is needed for @InjectMocks to wire it into the constructor.
+    @Spy
+    private CatalogActionPolicy catalogPolicy = new DefaultCatalogPolicy();
 
     @Mock
     private MeterRegistry meterRegistry;

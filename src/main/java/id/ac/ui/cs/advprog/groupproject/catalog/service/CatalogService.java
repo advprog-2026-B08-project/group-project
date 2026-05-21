@@ -1,24 +1,26 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.policy.CatalogActionPolicy;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.util.UUID;
-import java.util.List;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,7 +31,6 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CatalogService {
   private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found";
-  private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
   private static final String CREATE_CATALOG_ACTION = "CREATE_CATALOG";
   private static final String UPDATE_CATALOG_ACTION = "UPDATE_CATALOG";
   private static final String DELETE_CATALOG_ACTION = "DELETE_CATALOG";
@@ -39,6 +40,7 @@ public class CatalogService {
   private final CatalogRatingEventRepository catalogRatingEventRepository;
   private final StockDecreaseEventRepository stockDecreaseEventRepository;
   private final CatalogFactory catalogFactory;
+  private final CatalogActionPolicy catalogPolicy;
   private final MeterRegistry meterRegistry;
   private final ActionLogService actionLogService;
 
@@ -47,20 +49,20 @@ public class CatalogService {
       CatalogRatingEventRepository catalogRatingEventRepository,
       StockDecreaseEventRepository stockDecreaseEventRepository,
       CatalogFactory catalogFactory,
+      CatalogActionPolicy catalogPolicy,
       MeterRegistry meterRegistry,
       ActionLogService actionLogService) {
     this.catalogRepository = catalogRepository;
     this.catalogRatingEventRepository = catalogRatingEventRepository;
     this.stockDecreaseEventRepository = stockDecreaseEventRepository;
     this.catalogFactory = catalogFactory;
+    this.catalogPolicy = catalogPolicy;
     this.meterRegistry = meterRegistry;
     this.actionLogService = actionLogService;
   }
 
   public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
-    if (!isJastiper(currentUser)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
-    }
+    catalogPolicy.requireCanCreateCatalog(currentUser);
 
     Catalog catalog = catalogFactory.create(command, currentUser);
     Catalog savedCatalog = catalogRepository.save(catalog);
@@ -102,10 +104,7 @@ public class CatalogService {
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
 
-    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-    }
-
+    catalogPolicy.requireCanManageCatalog(currentUser, catalog);
     return catalog;
   }
 
@@ -123,9 +122,7 @@ public class CatalogService {
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
 
-    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-    }
+    catalogPolicy.requireCanManageCatalog(currentUser, catalog);
 
     catalogFactory.applyUpdate(catalog, command);
     Catalog updatedCatalog = catalogRepository.save(catalog);
@@ -165,9 +162,7 @@ public class CatalogService {
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
 
-    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-    }
+    catalogPolicy.requireCanManageCatalog(currentUser, catalog);
 
     catalogRepository.deleteById(catalogId);
     actionLogService.log(
@@ -242,15 +237,14 @@ public class CatalogService {
   @Transactional
   public ProductRatingUpdateResponse applyProductRating(
       UUID catalogId, ProductRatingUpdateRequest request, User currentUser) {
-    if (!isTitiper(currentUser)) {
-      meterRegistry.counter("catalog.rating.rejected", "reason", "role_forbidden").increment();
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Only Titiper can submit product rating");
-    }
-
-    if (!currentUser.getId().equals(request.getBuyerId())) {
-      meterRegistry.counter("catalog.rating.rejected", "reason", "buyer_mismatch").increment();
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Buyer mismatch");
+    if (!catalogPolicy.canSubmitRating(currentUser, request.getBuyerId())) {
+      String reason =
+          (currentUser == null || !Role.ROLE_TITIPER.matches(currentUser.getRole()))
+              ? "role_forbidden"
+              : "buyer_mismatch";
+      meterRegistry.counter("catalog.rating.rejected", "reason", reason).increment();
+      // Delegate to policy for the canonical exception/message
+      catalogPolicy.requireCanSubmitRating(currentUser, request.getBuyerId());
     }
 
     if (catalogRatingEventRepository.existsByOrderId(request.getOrderId())) {
@@ -308,16 +302,6 @@ public class CatalogService {
 
     String trimmedValue = value.trim();
     return trimmedValue.isEmpty() ? null : trimmedValue;
-  }
-
-  private boolean isJastiper(User user) {
-    String role = user.getRole();
-    return "JASTIPER".equalsIgnoreCase(role) || "ROLE_JASTIPER".equalsIgnoreCase(role);
-  }
-
-  private boolean isTitiper(User user) {
-    String role = user.getRole();
-    return "TITIPER".equalsIgnoreCase(role) || "ROLE_TITIPER".equalsIgnoreCase(role);
   }
 
   private String getCatalogTarget(Catalog catalog) {
