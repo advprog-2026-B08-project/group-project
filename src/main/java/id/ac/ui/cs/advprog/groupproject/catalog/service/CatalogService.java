@@ -98,30 +98,17 @@ public class CatalogService {
   }
 
   public Catalog getCatalogById(UUID catalogId, User currentUser) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-
+    Catalog catalog = requireCatalog(catalogId);
     catalogPolicy.requireCanManageCatalog(currentUser, catalog);
     return catalog;
   }
 
   public Catalog getCatalogByIdForAdmin(UUID catalogId) {
-    return catalogRepository
-        .findById(catalogId)
-        .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+    return requireCatalog(catalogId);
   }
 
   public Catalog updateCatalog(UUID catalogId, UpdateCatalogCommand command, User currentUser) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-
+    Catalog catalog = requireCatalog(catalogId);
     catalogPolicy.requireCanManageCatalog(currentUser, catalog);
 
     catalogFactory.applyUpdate(catalog, command);
@@ -137,11 +124,7 @@ public class CatalogService {
   }
 
   public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogCommand command) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+    Catalog catalog = requireCatalog(catalogId);
 
     catalogFactory.applyUpdate(catalog, command);
     Catalog updatedCatalog = catalogRepository.save(catalog);
@@ -156,12 +139,7 @@ public class CatalogService {
   }
 
   public void deleteCatalog(UUID catalogId, User currentUser) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-
+    Catalog catalog = requireCatalog(catalogId);
     catalogPolicy.requireCanManageCatalog(currentUser, catalog);
 
     catalogRepository.deleteById(catalogId);
@@ -175,11 +153,7 @@ public class CatalogService {
   }
 
   public void deleteCatalogByAdmin(UUID catalogId) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+    Catalog catalog = requireCatalog(catalogId);
     catalogRepository.deleteById(catalogId);
     actionLogService.log(
         DELETE_CATALOG_ACTION,
