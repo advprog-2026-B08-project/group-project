@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       run_e2e:
-        description: "Run wallet E2E tests"
+        description: "Run E2E (Selenium) tests for wallet and catalog modules"
         required: false
         default: "false"
-    
+
 jobs:
   build:
     name: Build, Lint, and Analyze
@@ -79,10 +79,22 @@ jobs:
       - name: Deploy to Heroku Production
         run: echo "Deploying to Heroku Production..."
 
-  e2e-wallet:
-    name: Wallet E2E Tests
+  e2e:
+    name: E2E Tests (${{ matrix.module }})
     runs-on: ubuntu-22.04
     if: github.event_name == 'workflow_dispatch' && inputs.run_e2e == 'true'
+    concurrency:
+      group: e2e-gh-pages-publish
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - module: wallet
+            test_class: id.ac.ui.cs.advprog.groupproject.wallet.e2e.WalletE2eTest
+          - module: catalog
+            test_class: id.ac.ui.cs.advprog.groupproject.catalog.e2e.CatalogE2eTest
     steps:
       - uses: actions/checkout@v4
 
@@ -105,54 +117,37 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
-      - name: Run Wallet E2E Test
+      - name: Run ${{ matrix.module }} E2E Test
         env:
           E2E: "true"
           SPRING_PROFILES_ACTIVE: test
-        run: ./gradlew test --tests "id.ac.ui.cs.advprog.groupproject.wallet.e2e.WalletE2eTest"
+        run: ./gradlew test --tests "${{ matrix.test_class }}"
 
-      - name: Upload E2E Test Report
+      - name: Stage E2E Report
+        if: always()
+        run: |
+          mkdir -p public-reports
+          if [ -d build/reports/tests/test ]; then
+            cp -r build/reports/tests/test/* public-reports/
+          else
+            echo "<html><body><h1>No test report produced for ${{ matrix.module }}</h1></body></html>" > public-reports/index.html
+          fi
+
+      - name: Publish ${{ matrix.module }} E2E Report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public-reports
+          publish_branch: gh-pages
+          destination_dir: e2e/${{ matrix.module }}
+          keep_files: true
+          commit_message: "ci: publish ${{ matrix.module }} E2E report"
+
+      - name: Upload E2E Test Report (artifact backup)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: wallet-e2e-report
+          name: ${{ matrix.module }}-e2e-report
           path: build/reports/tests/test
-          if-no-files-found: error
-
-  e2e-catalog:
-    name: Catalog E2E Tests
-    runs-on: ubuntu-22.04
-    if: github.event_name == 'workflow_dispatch' && inputs.run_e2e == 'true'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: 'temurin'
-
-      - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
-
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - name: Grant execute permission
-        run: chmod +x gradlew
-
-      - name: Run Catalog E2E Test
-        env:
-          E2E: "true"
-          SPRING_PROFILES_ACTIVE: test
-        run: ./gradlew test --tests "id.ac.ui.cs.advprog.groupproject.catalog.e2e.CatalogE2eTest"
-
-      - name: Upload E2E Test Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: catalog-e2e-report
-          path: build/reports/tests/test
-          if-no-files-found: error
+          if-no-files-found: warn
