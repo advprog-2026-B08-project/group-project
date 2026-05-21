@@ -8,6 +8,9 @@ import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 import id.ac.ui.cs.advprog.groupproject.event.UserRegisteredEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,154 +32,198 @@ public class CustomUserDetailService implements UserDetailsService {
     public CustomUserDetailService(UserRepository userRepository,
                                    PasswordEncoder passwordEncoder,
                                    ApplicationEventPublisher eventPublisher,
-<span class="fc" id="L32">                                   ActionLogService logService) {</span>
-<span class="fc" id="L33">        this.userRepository = userRepository;</span>
-<span class="fc" id="L34">        this.passwordEncoder = passwordEncoder;</span>
-<span class="fc" id="L35">        this.eventPublisher = eventPublisher;</span>
-<span class="fc" id="L36">        this.logService = logService;</span>
-<span class="fc" id="L37">    }</span>
+<span class="fc" id="L35">                                   ActionLogService logService) {</span>
+<span class="fc" id="L36">        this.userRepository = userRepository;</span>
+<span class="fc" id="L37">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L38">        this.eventPublisher = eventPublisher;</span>
+<span class="fc" id="L39">        this.logService = logService;</span>
+<span class="fc" id="L40">    }</span>
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-<span class="nc" id="L41">        User user = userRepository.findByEmail(email).orElseThrow(() -&gt;</span>
-<span class="nc" id="L42">                new UsernameNotFoundException(&quot;User not found&quot;));</span>
+<span class="fc" id="L44">        User user = userRepository.findByEmail(email).orElseThrow(() -&gt;</span>
+<span class="fc" id="L45">                new UsernameNotFoundException(&quot;User not found&quot;));</span>
 
-<span class="nc" id="L44">        return user;</span>
+<span class="fc" id="L47">        return user;</span>
     }
 
     public boolean emailExists(String email) {
-<span class="nc" id="L48">        return userRepository.findByEmail(email).isPresent();</span>
+<span class="fc" id="L51">        return userRepository.findByEmail(email).isPresent();</span>
     }
     public boolean confirmPassword(String password, String confirmPassword) {
-<span class="nc" id="L51">        return password.equals(confirmPassword);</span>
+<span class="fc" id="L54">        return password.equals(confirmPassword);</span>
     }
 
     public User createUser(String email, String password, String username, String fullName) {
-<span class="nc" id="L55">        String usernameInput = username;</span>
-<span class="nc bnc" id="L56" title="All 4 branches missed.">        if (usernameInput == null || usernameInput.isBlank()) {</span>
-<span class="nc" id="L57">            usernameInput = getDefaultUsername(email);</span>
+<span class="fc" id="L58">        String usernameInput = username;</span>
+<span class="pc bpc" id="L59" title="1 of 4 branches missed.">        if (usernameInput == null || usernameInput.isBlank()) {</span>
+<span class="fc" id="L60">            usernameInput = getDefaultUsername(email);</span>
         }
 
-<span class="nc" id="L60">        User user = new User();</span>
-<span class="nc" id="L61">        user.setUsername(usernameInput);</span>
-<span class="nc" id="L62">        user.setPassword(passwordEncoder.encode(password));</span>
-<span class="nc" id="L63">        user.setRole(Role.ROLE_TITIPER.toString());</span>
-<span class="nc" id="L64">        user.setStatus(Status.ACTIVE.toString());</span>
-<span class="nc" id="L65">        user.setEmail(email);</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (fullName != null) user.setFullName(fullName);</span>
+<span class="fc" id="L63">        User user = new User();</span>
+<span class="fc" id="L64">        user.setUsername(usernameInput);</span>
+<span class="fc" id="L65">        user.setPassword(passwordEncoder.encode(password));</span>
+<span class="fc" id="L66">        user.setRole(Role.ROLE_TITIPER.toString());</span>
+<span class="fc" id="L67">        user.setStatus(Status.ACTIVE.toString());</span>
+<span class="fc" id="L68">        user.setEmail(email);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (fullName != null) user.setFullName(fullName);</span>
 
-<span class="nc" id="L68">        userRepository.save(user);</span>
-<span class="nc" id="L69">        eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));</span>
+<span class="fc" id="L71">        userRepository.save(user);</span>
+<span class="fc" id="L72">        eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));</span>
 
-<span class="nc" id="L71">        String description = user.getUsername()</span>
+<span class="fc" id="L74">        String description = user.getUsername()</span>
                 + &quot; created a new account!&quot;;
-<span class="nc" id="L73">        logService.log(&quot;Registered a new user&quot;, user.getUsername(),</span>
-<span class="nc" id="L74">                user.getRole(), null, description, LogType.INFO);</span>
-<span class="nc" id="L75">        return user;</span>
+<span class="fc" id="L76">        logService.log(&quot;Registered a new user&quot;, user.getUsername(),</span>
+<span class="fc" id="L77">                user.getRole(), null, description, LogType.INFO);</span>
+<span class="fc" id="L78">        return user;</span>
     }
 
     public String getDefaultUsername(String email) {
-<span class="nc" id="L79">        return email.split(&quot;@&quot;)[0];</span>
+<span class="fc" id="L82">        return email.split(&quot;@&quot;)[0];</span>
     }
 
     public Map&lt;String, Long&gt; getUserCountByRole() {
-<span class="nc" id="L83">        List&lt;Object[]&gt; results = userRepository.countUsersByRole();</span>
-<span class="nc" id="L84">        Map&lt;String, Long&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L86">        List&lt;Object[]&gt; results = userRepository.countUsersByRole();</span>
+<span class="fc" id="L87">        Map&lt;String, Long&gt; map = new HashMap&lt;&gt;();</span>
 
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (Object[] row : results) {</span>
-<span class="nc" id="L87">            String role = (String) row[0];</span>
-<span class="nc" id="L88">            Long count = (Long) row[1];</span>
-<span class="nc" id="L89">            map.put(role, count);</span>
-<span class="nc" id="L90">        }</span>
-<span class="nc" id="L91">        return map;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        for (Object[] row : results) {</span>
+<span class="fc" id="L90">            String role = (String) row[0];</span>
+<span class="fc" id="L91">            Long count = (Long) row[1];</span>
+<span class="fc" id="L92">            map.put(role, count);</span>
+<span class="fc" id="L93">        }</span>
+<span class="fc" id="L94">        return map;</span>
     }
 
-    public List&lt;User&gt; getUserList() {
-<span class="nc" id="L95">        return userRepository.findAll();</span>
+    public Page&lt;User&gt; getFilteredUsers(User currentUser, String role, int page, int size) {
+<span class="fc" id="L98">        Pageable pageable = PageRequest.of(page, size);</span>
+
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (currentUser.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            if (role != null) {</span>
+<span class="pc bpc" id="L102" title="2 of 6 branches missed.">                if (role.equals(&quot;ROLE_ADMIN&quot;) || role.equals(&quot;ROLE_JASTIPER&quot;) || role.equals(&quot;ROLE_TITIPER&quot;)) {</span>
+<span class="fc" id="L103">                    return  userRepository.findByRole(role, pageable);</span>
+                }
+            }
+<span class="fc" id="L106">            return userRepository.findAll(pageable);</span>
+        }
+
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (role != null) {</span>
+<span class="pc bpc" id="L110" title="1 of 4 branches missed.">            if (role.equals(&quot;ROLE_JASTIPER&quot;) || role.equals(&quot;ROLE_TITIPER&quot;)) {</span>
+<span class="fc" id="L111">                return userRepository.findByRole(role, pageable);</span>
+            }
+        }
+<span class="fc" id="L114">        return userRepository.findByRoleNot(&quot;ROLE_ADMIN&quot;, pageable);</span>
     }
 
     public void demote(User admin, UUID id) {
-<span class="nc" id="L99">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if(!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
-<span class="nc" id="L101">            String description = admin.getUsername()</span>
+<span class="pc" id="L118">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found&quot;));</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if(!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="fc" id="L120">            String description = admin.getUsername()</span>
                     + &quot;tried to perform an unauthorized action of demoting another user&quot;;
-<span class="nc" id="L103">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
-<span class="nc" id="L104">                    admin.getRole(), null, description, LogType.DANGER);</span>
-<span class="nc" id="L105">            return;</span>
+<span class="fc" id="L122">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
+<span class="fc" id="L123">                    admin.getRole(), null, description, LogType.DANGER);</span>
+<span class="fc" id="L124">            return;</span>
         }
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (!user.getRole().equals(&quot;ROLE_JASTIPER&quot;)) {</span>
-<span class="nc" id="L108">            throw new RuntimeException(&quot;Invalid role for demotion!&quot;);</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (!user.getRole().equals(&quot;ROLE_JASTIPER&quot;)) {</span>
+<span class="nc" id="L127">            throw new RuntimeException(&quot;Invalid role for demotion!&quot;);</span>
         }
 
-<span class="nc" id="L111">        user.setRole(Role.ROLE_TITIPER.toString());</span>
-<span class="nc" id="L112">        userRepository.save(user);</span>
+<span class="fc" id="L130">        user.setRole(Role.ROLE_TITIPER.toString());</span>
+<span class="fc" id="L131">        userRepository.save(user);</span>
 
-<span class="nc" id="L114">        String description = admin.getUsername()</span>
-                + &quot; banned &quot;
-<span class="nc" id="L116">                + user.getUsername()</span>
+<span class="fc" id="L133">        String description = admin.getUsername()</span>
+                + &quot; demoted &quot;
+<span class="fc" id="L135">                + user.getUsername()</span>
                 + &quot;'s account&quot;;
 
-<span class="nc" id="L119">        logService.log(&quot;Demoted a user&quot;, admin.getUsername(),</span>
-<span class="nc" id="L120">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
-<span class="nc" id="L121">    }</span>
+<span class="fc" id="L138">        logService.log(&quot;Demoted a user&quot;, admin.getUsername(),</span>
+<span class="fc" id="L139">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
+<span class="fc" id="L140">    }</span>
 
     public void ban(User admin, UUID id) {
-<span class="nc" id="L124">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
-<span class="nc" id="L126">            String description = admin.getUsername()</span>
+<span class="pc" id="L143">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="fc" id="L145">            String description = admin.getUsername()</span>
                     + &quot;tried to perform an unauthorized action of banning another user&quot;;
-<span class="nc" id="L128">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
-<span class="nc" id="L129">                    admin.getRole(), null, description, LogType.DANGER);</span>
-<span class="nc" id="L130">            return;</span>
+<span class="fc" id="L147">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
+<span class="fc" id="L148">                    admin.getRole(), null, description, LogType.DANGER);</span>
+<span class="fc" id="L149">            return;</span>
         }
-<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (user.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
-<span class="nc" id="L133">            throw new RuntimeException(&quot;Invalid role for banning!&quot;);</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        if (user.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="nc" id="L152">            throw new RuntimeException(&quot;Can't ban an admin!&quot;);</span>
         }
 
-<span class="nc" id="L136">        user.setStatus(Status.BANNED.toString());</span>
-<span class="nc" id="L137">        userRepository.save(user);</span>
+<span class="fc" id="L155">        user.setStatus(Status.BANNED.toString());</span>
+<span class="fc" id="L156">        userRepository.save(user);</span>
 
-<span class="nc" id="L139">        String description = admin.getUsername()</span>
+<span class="fc" id="L158">        String description = admin.getUsername()</span>
                 + &quot; banned &quot;
-<span class="nc" id="L141">                + user.getUsername()</span>
+<span class="fc" id="L160">                + user.getUsername()</span>
                 + &quot;'s account&quot;;
 
-<span class="nc" id="L144">        logService.log(&quot;Banned a user&quot;, admin.getUsername(),</span>
-<span class="nc" id="L145">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
-<span class="nc" id="L146">    }</span>
+<span class="fc" id="L163">        logService.log(&quot;Banned a user&quot;, admin.getUsername(),</span>
+<span class="fc" id="L164">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
+<span class="fc" id="L165">    }</span>
+
+    public void liftBan(User admin, UUID id) {
+<span class="pc" id="L168">        User user = userRepository.findById(id).orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="fc" id="L170">            String description = admin.getUsername()</span>
+                    + &quot;tried to perform an unauthorized action of lifting the ban off another user&quot;;
+<span class="fc" id="L172">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
+<span class="fc" id="L173">                    admin.getRole(), null, description, LogType.DANGER);</span>
+<span class="fc" id="L174">            return;</span>
+        }
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (user.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="nc" id="L177">            throw new RuntimeException(&quot;Account can't be banned!&quot;);</span>
+        }
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if (!user.getStatus().equals(Status.BANNED.toString())) {</span>
+<span class="nc" id="L180">            throw new RuntimeException(&quot;User was not banned in the first place&quot;);</span>
+        }
+
+<span class="fc" id="L183">        user.setStatus(Status.ACTIVE.toString());</span>
+<span class="fc" id="L184">        userRepository.save(user);</span>
+
+<span class="fc" id="L186">        String description = admin.getUsername()</span>
+                + &quot; lifted the ban from &quot;
+<span class="fc" id="L188">                + user.getUsername()</span>
+                + &quot;'s account&quot;;
+
+<span class="fc" id="L191">        logService.log(&quot;lifted a ban&quot;, admin.getUsername(),</span>
+<span class="fc" id="L192">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
+<span class="fc" id="L193">    }</span>
 
     public void updateProfile(UUID id, String username, String socials, String fullName, String profilePictureURL) {
-<span class="nc" id="L149">        User user = userRepository.findById(id)</span>
-<span class="nc" id="L150">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
+<span class="fc" id="L196">        User user = userRepository.findById(id)</span>
+<span class="pc" id="L197">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
 
-<span class="nc" id="L152">        user.setUsername(username);</span>
+<span class="fc" id="L199">        user.setUsername(username);</span>
 
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (socials != null) {</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">            if (!socials.isBlank()) {</span>
-<span class="nc" id="L156">                user.setSocials(socials);</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">        if (socials != null) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (!socials.isBlank()) {</span>
+<span class="fc" id="L203">                user.setSocials(socials);</span>
             }
         }
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (fullName != null) {</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">            if (!fullName.isBlank()) {</span>
-<span class="nc" id="L161">                user.setFullName(fullName);</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        if (fullName != null) {</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">            if (!fullName.isBlank()) {</span>
+<span class="fc" id="L208">                user.setFullName(fullName);</span>
             }
         }
-<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (profilePictureURL != null) {</span>
-<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (!profilePictureURL.isBlank()) {</span>
-<span class="nc" id="L166">                user.setProfilePictureURL(profilePictureURL);</span>
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">        if (profilePictureURL != null) {</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">            if (!profilePictureURL.isBlank()) {</span>
+<span class="fc" id="L213">                user.setProfilePictureURL(profilePictureURL);</span>
             }
         }
-<span class="nc" id="L169">        userRepository.save(user);</span>
+<span class="fc" id="L216">        userRepository.save(user);</span>
 
-<span class="nc" id="L171">        UsernamePasswordAuthenticationToken auth =</span>
+<span class="fc" id="L218">        UsernamePasswordAuthenticationToken auth =</span>
                 new UsernamePasswordAuthenticationToken(
                         user,
                         null,
-<span class="nc" id="L175">                        user.getAuthorities()</span>
+<span class="fc" id="L222">                        user.getAuthorities()</span>
                 );
 
-<span class="nc" id="L178">        SecurityContextHolder.getContext().setAuthentication(auth);</span>
-<span class="nc" id="L179">    }</span>
+<span class="fc" id="L225">        SecurityContextHolder.getContext().setAuthentication(auth);</span>
+<span class="fc" id="L226">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -46,17 +46,32 @@ public class User implements UserDetails {
     @Column
     private String socials;
 
+    @Column(name = &quot;successfully_sold&quot;)
+    private int successfullySold;
+
+    @Column(name = &quot;tried_to_sell&quot;)
+    private int triedToSell;
+
     @OneToMany(mappedBy = &quot;jastiper&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
     private List&lt;Catalog&gt; catalog = new ArrayList&lt;&gt;();
 
     public boolean isJastiper() {
-<span class="fc" id="L53">        return &quot;JASTIPER&quot;.equalsIgnoreCase(this.role);</span>
+<span class="fc bfc" id="L59" title="All 4 branches covered.">        return &quot;JASTIPER&quot;.equalsIgnoreCase(this.role) || Role.ROLE_JASTIPER.toString().equalsIgnoreCase(this.role);</span>
     }
 
+    public float getSuccessRate() {
+<span class="pc bpc" id="L63" title="1 of 4 branches missed.">        if (this.triedToSell == 0 || !this.getRole().equals(&quot;ROLE_JASTIPER&quot;)) return 0;</span>
+<span class="fc" id="L64">        return (float) this.successfullySold / this.triedToSell;</span>
+    }
 
     @Override
     public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
-<span class="fc" id="L59">        return List.of(new SimpleGrantedAuthority(role.toString()));</span>
+<span class="fc" id="L69">        return List.of(new SimpleGrantedAuthority(role.toString()));</span>
+    }
+
+    @Override
+    public boolean isEnabled() {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        return !this.status.equals(Status.BANNED.toString());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

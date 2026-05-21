@@ -20,36 +20,31 @@ public class PageController {
 
     @GetMapping(&quot;/login&quot;)
     public String login() {
-<span class="nc" id="L23">        return &quot;auth/login&quot;;</span>
+<span class="fc" id="L23">        return &quot;auth/login&quot;;</span>
     }
 
     @GetMapping(&quot;/homepage&quot;)
     public String homepage(HttpSession session, Model model) {
-<span class="nc bnc" id="L28" title="All 2 branches missed.">        if (session.getAttribute(&quot;unauthorized&quot;) != null) {</span>
-<span class="nc" id="L29">            model.addAttribute(&quot;unauthorized&quot;, true);</span>
-<span class="nc" id="L30">            session.removeAttribute(&quot;unauthorized&quot;);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (session.getAttribute(&quot;unauthorized&quot;) != null) {</span>
+<span class="fc" id="L29">            model.addAttribute(&quot;unauthorized&quot;, true);</span>
+<span class="fc" id="L30">            session.removeAttribute(&quot;unauthorized&quot;);</span>
         }
-<span class="nc" id="L32">        return &quot;homepage&quot;;</span>
+<span class="fc" id="L32">        return &quot;homepage&quot;;</span>
     }
 
     @GetMapping(&quot;/register&quot;)
     public String register() {
-<span class="nc" id="L37">        return &quot;auth/register&quot;;</span>
+<span class="fc" id="L37">        return &quot;auth/register&quot;;</span>
     }
 
     @GetMapping(&quot;/order&quot;)
     public String order() {
-<span class="nc" id="L42">        return &quot;order/list&quot;;</span>
+<span class="fc" id="L42">        return &quot;order/list&quot;;</span>
     }
 
     @GetMapping(&quot;/kycRequestJastiper&quot;)
     public String kycRequestJastiper() {
-<span class="nc" id="L47">        return &quot;auth/kyc/kyc-jastiper&quot;;</span>
-    }
-
-    @GetMapping(&quot;/kycRequestAdmin&quot;)
-    public String kycRequestAdmin() {
-<span class="nc" id="L52">        return &quot;auth/kyc/kyc-admin&quot;;</span>
+<span class="fc" id="L47">        return &quot;auth/kyc/kyc-jastiper&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

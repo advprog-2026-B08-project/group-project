@@ -6,8 +6,8 @@
     public boolean canTransitionTo(OrderStatus next) {
 <span class="fc bfc" id="L7" title="All 4 branches covered.">        return switch (this) {</span>
 <span class="fc bfc" id="L8" title="All 4 branches covered.">            case PAID -&gt; next == PURCHASED || next == CANCELLED;</span>
-<span class="pc bpc" id="L9" title="3 of 4 branches missed.">            case PURCHASED -&gt; next == SHIPPED || next == CANCELLED;</span>
-<span class="pc bpc" id="L10" title="1 of 2 branches missed.">            case SHIPPED -&gt; next == COMPLETED;</span>
+<span class="pc bpc" id="L9" title="1 of 4 branches missed.">            case PURCHASED -&gt; next == SHIPPED || next == CANCELLED;</span>
+<span class="fc bfc" id="L10" title="All 2 branches covered.">            case SHIPPED -&gt; next == COMPLETED;</span>
 <span class="fc" id="L11">            case COMPLETED, CANCELLED -&gt; false;</span>
         };
     }
