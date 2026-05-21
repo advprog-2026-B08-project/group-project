@@ -10,7 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
     public final R execute(K idempotencyKey) {
 <span class="fc bfc" id="L12" title="All 2 branches covered.">        if (isAlreadyProcessed(idempotencyKey)) {</span>
-<span class="fc" id="L13">            LOGGER.info(&quot;{}_duplicate idempotencyKey={}&quot;, operationName(), idempotencyKey);</span>
+<span class="fc" id="L13">            logDuplicate(&quot;soft_check&quot;, idempotencyKey);</span>
 <span class="fc" id="L14">            onDuplicate(idempotencyKey);</span>
 <span class="fc" id="L15">            return buildDuplicateResponse(idempotencyKey);</span>
         }
@@ -18,12 +18,28 @@ import org.springframework.dao.DataIntegrityViolationException;
         try {
 <span class="fc" id="L19">            recordEvent(idempotencyKey);</span>
 <span class="fc" id="L20">        } catch (DataIntegrityViolationException ex) {</span>
-<span class="fc" id="L21">            LOGGER.info(&quot;{}_duplicate_race idempotencyKey={}&quot;, operationName(), idempotencyKey);</span>
+<span class="fc" id="L21">            logDuplicate(&quot;race&quot;, idempotencyKey);</span>
 <span class="fc" id="L22">            onDuplicate(idempotencyKey);</span>
 <span class="fc" id="L23">            return buildDuplicateResponse(idempotencyKey);</span>
 <span class="fc" id="L24">        }</span>
 
 <span class="fc" id="L26">        return performAction(idempotencyKey);</span>
+    }
+
+    private void logDuplicate(String detectionPath, K idempotencyKey) {
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (LOGGER.isInfoEnabled()) {</span>
+<span class="fc" id="L31">            LOGGER.info(&quot;idempotent_duplicate operation={} path={} key={}&quot;,</span>
+<span class="fc" id="L32">                    operationName(),</span>
+                    detectionPath,
+<span class="fc" id="L34">                    sanitizeForLog(idempotencyKey));</span>
+        }
+<span class="fc" id="L36">    }</span>
+
+    private static String sanitizeForLog(Object value) {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if (value == null) {</span>
+<span class="nc" id="L40">            return &quot;null&quot;;</span>
+        }
+<span class="fc" id="L42">        return value.toString().replaceAll(&quot;[\\r\\n\\t]&quot;, &quot;_&quot;);</span>
     }
 
     protected abstract String operationName();
@@ -37,6 +53,6 @@ import org.springframework.dao.DataIntegrityViolationException;
     protected abstract R buildDuplicateResponse(K idempotencyKey);
 
     protected void onDuplicate(K idempotencyKey) {
-<span class="fc" id="L40">    }</span>
+<span class="fc" id="L56">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

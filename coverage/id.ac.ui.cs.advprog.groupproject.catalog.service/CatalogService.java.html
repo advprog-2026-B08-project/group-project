@@ -34,7 +34,8 @@ public class CatalogService {
   private static final String CREATE_CATALOG_ACTION = &quot;CREATE_CATALOG&quot;;
   private static final String UPDATE_CATALOG_ACTION = &quot;UPDATE_CATALOG&quot;;
   private static final String DELETE_CATALOG_ACTION = &quot;DELETE_CATALOG&quot;;
-<span class="fc" id="L37">  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogService.class);</span>
+  private static final String METRIC_TAG_REASON = &quot;reason&quot;;
+<span class="fc" id="L38">  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogService.class);</span>
 
   private final CatalogRepository catalogRepository;
   private final CatalogRatingEventRepository catalogRatingEventRepository;
@@ -51,254 +52,254 @@ public class CatalogService {
       CatalogFactory catalogFactory,
       CatalogActionStrategy catalogStrategy,
       MeterRegistry meterRegistry,
-<span class="fc" id="L54">      ActionLogService actionLogService) {</span>
-<span class="fc" id="L55">    this.catalogRepository = catalogRepository;</span>
-<span class="fc" id="L56">    this.catalogRatingEventRepository = catalogRatingEventRepository;</span>
-<span class="fc" id="L57">    this.stockDecreaseEventRepository = stockDecreaseEventRepository;</span>
-<span class="fc" id="L58">    this.catalogFactory = catalogFactory;</span>
-<span class="fc" id="L59">    this.catalogStrategy = catalogStrategy;</span>
-<span class="fc" id="L60">    this.meterRegistry = meterRegistry;</span>
-<span class="fc" id="L61">    this.actionLogService = actionLogService;</span>
-<span class="fc" id="L62">  }</span>
+<span class="fc" id="L55">      ActionLogService actionLogService) {</span>
+<span class="fc" id="L56">    this.catalogRepository = catalogRepository;</span>
+<span class="fc" id="L57">    this.catalogRatingEventRepository = catalogRatingEventRepository;</span>
+<span class="fc" id="L58">    this.stockDecreaseEventRepository = stockDecreaseEventRepository;</span>
+<span class="fc" id="L59">    this.catalogFactory = catalogFactory;</span>
+<span class="fc" id="L60">    this.catalogStrategy = catalogStrategy;</span>
+<span class="fc" id="L61">    this.meterRegistry = meterRegistry;</span>
+<span class="fc" id="L62">    this.actionLogService = actionLogService;</span>
+<span class="fc" id="L63">  }</span>
 
   public Catalog createCatalog(CreateCatalogRequest request, User currentUser) {
-<span class="fc" id="L65">    catalogStrategy.requireCanCreateCatalog(currentUser);</span>
+<span class="fc" id="L66">    catalogStrategy.requireCanCreateCatalog(currentUser);</span>
 
-<span class="fc" id="L67">    Catalog catalog = catalogFactory.create(request, currentUser);</span>
-<span class="fc" id="L68">    Catalog savedCatalog = catalogRepository.save(catalog);</span>
-<span class="fc" id="L69">    actionLogService.log(</span>
+<span class="fc" id="L68">    Catalog catalog = catalogFactory.create(request, currentUser);</span>
+<span class="fc" id="L69">    Catalog savedCatalog = catalogRepository.save(catalog);</span>
+<span class="fc" id="L70">    actionLogService.log(</span>
         CREATE_CATALOG_ACTION,
-<span class="fc" id="L71">        currentUser.getUsername(),</span>
-<span class="fc" id="L72">        currentUser.getRole(),</span>
-<span class="fc" id="L73">        getCatalogTarget(savedCatalog),</span>
-<span class="fc" id="L74">        &quot;Created catalog '&quot; + savedCatalog.getName() + &quot;'&quot;,</span>
+<span class="fc" id="L72">        currentUser.getUsername(),</span>
+<span class="fc" id="L73">        currentUser.getRole(),</span>
+<span class="fc" id="L74">        getCatalogTarget(savedCatalog),</span>
+<span class="fc" id="L75">        &quot;Created catalog '&quot; + savedCatalog.getName() + &quot;'&quot;,</span>
             LogType.INFO);
-<span class="fc" id="L76">    return savedCatalog;</span>
+<span class="fc" id="L77">    return savedCatalog;</span>
   }
 
   public List&lt;Catalog&gt; findAllCatalogs(User currentUser) {
-<span class="fc" id="L80">    return catalogRepository.findByJastiperId(currentUser.getId());</span>
+<span class="fc" id="L81">    return catalogRepository.findByJastiperId(currentUser.getId());</span>
   }
 
   public List&lt;Catalog&gt; getAllCatalogs() {
-<span class="fc" id="L84">    return catalogRepository.findAll();</span>
+<span class="fc" id="L85">    return catalogRepository.findAll();</span>
   }
 
   public List&lt;Catalog&gt; searchCatalogs(String name, String jastiper) {
-<span class="fc" id="L88">    return catalogRepository.searchCatalogs(</span>
-<span class="fc" id="L89">        normalizeSearchTerm(name), normalizeSearchTerm(jastiper));</span>
+<span class="fc" id="L89">    return catalogRepository.searchCatalogs(</span>
+<span class="fc" id="L90">        normalizeSearchTerm(name), normalizeSearchTerm(jastiper));</span>
   }
 
   public List&lt;Catalog&gt; searchCatalogs(String keyword) {
-<span class="fc" id="L93">    return catalogRepository.searchCatalogsByKeyword(normalizeSearchTerm(keyword));</span>
+<span class="fc" id="L94">    return catalogRepository.searchCatalogsByKeyword(normalizeSearchTerm(keyword));</span>
   }
 
   public List&lt;Catalog&gt; getCatalogsByUserId(UUID userId) {
-<span class="fc" id="L97">    return catalogRepository.findByJastiperId(userId);</span>
+<span class="fc" id="L98">    return catalogRepository.findByJastiperId(userId);</span>
   }
 
   public Catalog getCatalogById(UUID catalogId, User currentUser) {
-<span class="fc" id="L101">    Catalog catalog = requireCatalog(catalogId);</span>
-<span class="fc" id="L102">    catalogStrategy.requireCanManageCatalog(currentUser, catalog);</span>
-<span class="fc" id="L103">    return catalog;</span>
+<span class="fc" id="L102">    Catalog catalog = requireCatalog(catalogId);</span>
+<span class="fc" id="L103">    catalogStrategy.requireCanManageCatalog(currentUser, catalog);</span>
+<span class="fc" id="L104">    return catalog;</span>
   }
 
   public Catalog getCatalogByIdForAdmin(UUID catalogId) {
-<span class="nc" id="L107">    return requireCatalog(catalogId);</span>
+<span class="nc" id="L108">    return requireCatalog(catalogId);</span>
   }
 
   public Catalog updateCatalog(UUID catalogId, UpdateCatalogRequest request, User currentUser) {
-<span class="fc" id="L111">    Catalog catalog = requireCatalog(catalogId);</span>
-<span class="fc" id="L112">    catalogStrategy.requireCanManageCatalog(currentUser, catalog);</span>
+<span class="fc" id="L112">    Catalog catalog = requireCatalog(catalogId);</span>
+<span class="fc" id="L113">    catalogStrategy.requireCanManageCatalog(currentUser, catalog);</span>
 
-<span class="fc" id="L114">    catalogFactory.applyUpdate(catalog, request);</span>
-<span class="fc" id="L115">    Catalog updatedCatalog = catalogRepository.save(catalog);</span>
-<span class="fc" id="L116">    actionLogService.log(</span>
+<span class="fc" id="L115">    catalogFactory.applyUpdate(catalog, request);</span>
+<span class="fc" id="L116">    Catalog updatedCatalog = catalogRepository.save(catalog);</span>
+<span class="fc" id="L117">    actionLogService.log(</span>
         UPDATE_CATALOG_ACTION,
-<span class="fc" id="L118">        currentUser.getUsername(),</span>
-<span class="fc" id="L119">        currentUser.getRole(),</span>
-<span class="fc" id="L120">        getCatalogTarget(updatedCatalog),</span>
-<span class="fc" id="L121">        &quot;Updated catalog '&quot; + updatedCatalog.getName() + &quot;'&quot;,</span>
+<span class="fc" id="L119">        currentUser.getUsername(),</span>
+<span class="fc" id="L120">        currentUser.getRole(),</span>
+<span class="fc" id="L121">        getCatalogTarget(updatedCatalog),</span>
+<span class="fc" id="L122">        &quot;Updated catalog '&quot; + updatedCatalog.getName() + &quot;'&quot;,</span>
             LogType.INFO);
-<span class="fc" id="L123">    return updatedCatalog;</span>
+<span class="fc" id="L124">    return updatedCatalog;</span>
   }
 
   public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogRequest request) {
-<span class="nc" id="L127">    Catalog catalog = requireCatalog(catalogId);</span>
+<span class="nc" id="L128">    Catalog catalog = requireCatalog(catalogId);</span>
 
-<span class="nc" id="L129">    catalogFactory.applyUpdate(catalog, request);</span>
-<span class="nc" id="L130">    Catalog updatedCatalog = catalogRepository.save(catalog);</span>
-<span class="nc" id="L131">    actionLogService.log(</span>
+<span class="nc" id="L130">    catalogFactory.applyUpdate(catalog, request);</span>
+<span class="nc" id="L131">    Catalog updatedCatalog = catalogRepository.save(catalog);</span>
+<span class="nc" id="L132">    actionLogService.log(</span>
         UPDATE_CATALOG_ACTION,
         &quot;SYSTEM_ADMIN&quot;,
         &quot;ADMIN&quot;,
-<span class="nc" id="L135">        getCatalogTarget(updatedCatalog),</span>
-<span class="nc" id="L136">        &quot;Admin updated catalog '&quot; + updatedCatalog.getName() + &quot;'&quot;,</span>
+<span class="nc" id="L136">        getCatalogTarget(updatedCatalog),</span>
+<span class="nc" id="L137">        &quot;Admin updated catalog '&quot; + updatedCatalog.getName() + &quot;'&quot;,</span>
             LogType.INFO);
-<span class="nc" id="L138">    return updatedCatalog;</span>
+<span class="nc" id="L139">    return updatedCatalog;</span>
   }
 
   public void deleteCatalog(UUID catalogId, User currentUser) {
-<span class="fc" id="L142">    Catalog catalog = requireCatalog(catalogId);</span>
-<span class="fc" id="L143">    catalogStrategy.requireCanManageCatalog(currentUser, catalog);</span>
+<span class="fc" id="L143">    Catalog catalog = requireCatalog(catalogId);</span>
+<span class="fc" id="L144">    catalogStrategy.requireCanManageCatalog(currentUser, catalog);</span>
 
-<span class="fc" id="L145">    catalogRepository.deleteById(catalogId);</span>
-<span class="fc" id="L146">    actionLogService.log(</span>
+<span class="fc" id="L146">    catalogRepository.deleteById(catalogId);</span>
+<span class="fc" id="L147">    actionLogService.log(</span>
         DELETE_CATALOG_ACTION,
-<span class="fc" id="L148">        currentUser.getUsername(),</span>
-<span class="fc" id="L149">        currentUser.getRole(),</span>
-<span class="fc" id="L150">        catalogId.toString(),</span>
-<span class="fc" id="L151">        &quot;Deleted catalog '&quot; + catalog.getName() + &quot;'&quot;,</span>
+<span class="fc" id="L149">        currentUser.getUsername(),</span>
+<span class="fc" id="L150">        currentUser.getRole(),</span>
+<span class="fc" id="L151">        catalogId.toString(),</span>
+<span class="fc" id="L152">        &quot;Deleted catalog '&quot; + catalog.getName() + &quot;'&quot;,</span>
             LogType.WARN);
-<span class="fc" id="L153">  }</span>
+<span class="fc" id="L154">  }</span>
 
   public void deleteCatalogByAdmin(UUID catalogId) {
-<span class="nc" id="L156">    Catalog catalog = requireCatalog(catalogId);</span>
-<span class="nc" id="L157">    catalogRepository.deleteById(catalogId);</span>
-<span class="nc" id="L158">    actionLogService.log(</span>
+<span class="nc" id="L157">    Catalog catalog = requireCatalog(catalogId);</span>
+<span class="nc" id="L158">    catalogRepository.deleteById(catalogId);</span>
+<span class="nc" id="L159">    actionLogService.log(</span>
         DELETE_CATALOG_ACTION,
         &quot;SYSTEM_ADMIN&quot;,
         &quot;ADMIN&quot;,
-<span class="nc" id="L162">        catalogId.toString(),</span>
-<span class="nc" id="L163">        &quot;Admin deleted catalog '&quot; + catalog.getName() + &quot;'&quot;,</span>
+<span class="nc" id="L163">        catalogId.toString(),</span>
+<span class="nc" id="L164">        &quot;Admin deleted catalog '&quot; + catalog.getName() + &quot;'&quot;,</span>
             LogType.WARN);
-<span class="nc" id="L165">  }</span>
+<span class="nc" id="L166">  }</span>
 
   @Transactional
   public Catalog decreaseStock(UUID catalogId, UUID requestId, int quantity) {
-<span class="fc bfc" id="L169" title="All 2 branches covered.">    if (quantity &lt;= 0) {</span>
-<span class="fc" id="L170">      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Quantity must be greater than 0&quot;);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">    if (quantity &lt;= 0) {</span>
+<span class="fc" id="L171">      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, &quot;Quantity must be greater than 0&quot;);</span>
     }
 
-<span class="fc" id="L173">    return new IdempotentTemplate&lt;UUID, Catalog&gt;() {</span>
+<span class="fc" id="L174">    return new IdempotentTemplate&lt;UUID, Catalog&gt;() {</span>
       @Override
       protected String operationName() {
-<span class="fc" id="L176">        return &quot;stock_decrease&quot;;</span>
+<span class="fc" id="L177">        return &quot;stock_decrease&quot;;</span>
       }
 
       @Override
       protected boolean isAlreadyProcessed(UUID key) {
-<span class="fc" id="L181">        return stockDecreaseEventRepository.existsByRequestId(key);</span>
+<span class="fc" id="L182">        return stockDecreaseEventRepository.existsByRequestId(key);</span>
       }
 
       @Override
       protected void recordEvent(UUID key) {
-<span class="fc" id="L186">        StockDecreaseEvent event = new StockDecreaseEvent();</span>
-<span class="fc" id="L187">        event.setRequestId(key);</span>
-<span class="fc" id="L188">        event.setCatalogId(catalogId);</span>
-<span class="fc" id="L189">        event.setQuantity(quantity);</span>
-<span class="fc" id="L190">        event.setCreatedAt(Instant.now());</span>
-<span class="fc" id="L191">        stockDecreaseEventRepository.saveAndFlush(event);</span>
-<span class="fc" id="L192">      }</span>
+<span class="fc" id="L187">        StockDecreaseEvent event = new StockDecreaseEvent();</span>
+<span class="fc" id="L188">        event.setRequestId(key);</span>
+<span class="fc" id="L189">        event.setCatalogId(catalogId);</span>
+<span class="fc" id="L190">        event.setQuantity(quantity);</span>
+<span class="fc" id="L191">        event.setCreatedAt(Instant.now());</span>
+<span class="fc" id="L192">        stockDecreaseEventRepository.saveAndFlush(event);</span>
+<span class="fc" id="L193">      }</span>
 
       @Override
       protected Catalog performAction(UUID key) {
-<span class="fc" id="L196">        int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);</span>
-<span class="fc bfc" id="L197" title="All 2 branches covered.">        if (updatedRows == 0) {</span>
-<span class="fc bfc" id="L198" title="All 2 branches covered.">          if (!catalogRepository.existsById(catalogId)) {</span>
-<span class="fc" id="L199">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);</span>
+<span class="fc" id="L197">        int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (updatedRows == 0) {</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">          if (!catalogRepository.existsById(catalogId)) {</span>
+<span class="fc" id="L200">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);</span>
           }
-<span class="fc" id="L201">          throw new ResponseStatusException(HttpStatus.CONFLICT, &quot;Insufficient stock&quot;);</span>
+<span class="fc" id="L202">          throw new ResponseStatusException(HttpStatus.CONFLICT, &quot;Insufficient stock&quot;);</span>
         }
-<span class="fc" id="L203">        return requireCatalog(catalogId);</span>
+<span class="fc" id="L204">        return requireCatalog(catalogId);</span>
       }
 
       @Override
       protected Catalog buildDuplicateResponse(UUID key) {
-<span class="fc" id="L208">        return requireCatalog(catalogId);</span>
+<span class="fc" id="L209">        return requireCatalog(catalogId);</span>
       }
-<span class="fc" id="L210">    }.execute(requestId);</span>
+<span class="fc" id="L211">    }.execute(requestId);</span>
   }
 
   @Transactional
   public ProductRatingUpdateResponse applyProductRating(
       UUID catalogId, ProductRatingUpdateRequest request, User currentUser) {
-<span class="fc bfc" id="L216" title="All 2 branches covered.">    if (!catalogStrategy.canSubmitRating(currentUser, request.getBuyerId())) {</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">    if (!catalogStrategy.canSubmitRating(currentUser, request.getBuyerId())) {</span>
       String reason =
-<span class="pc bpc" id="L218" title="2 of 4 branches missed.">          (currentUser == null || !Role.ROLE_TITIPER.matches(currentUser.getRole()))</span>
-<span class="fc" id="L219">              ? &quot;role_forbidden&quot;</span>
-<span class="pc" id="L220">              : &quot;buyer_mismatch&quot;;</span>
-<span class="fc" id="L221">      meterRegistry.counter(&quot;catalog.rating.rejected&quot;, &quot;reason&quot;, reason).increment();</span>
-<span class="nc" id="L222">      catalogStrategy.requireCanSubmitRating(currentUser, request.getBuyerId());</span>
+<span class="pc bpc" id="L219" title="2 of 4 branches missed.">          (currentUser == null || !Role.ROLE_TITIPER.matches(currentUser.getRole()))</span>
+<span class="fc" id="L220">              ? &quot;role_forbidden&quot;</span>
+<span class="pc" id="L221">              : &quot;buyer_mismatch&quot;;</span>
+<span class="fc" id="L222">      meterRegistry.counter(&quot;catalog.rating.rejected&quot;, METRIC_TAG_REASON, reason).increment();</span>
+<span class="nc" id="L223">      catalogStrategy.requireCanSubmitRating(currentUser, request.getBuyerId());</span>
     }
 
-<span class="fc" id="L225">    return new IdempotentTemplate&lt;UUID, ProductRatingUpdateResponse&gt;() {</span>
+<span class="fc" id="L226">    return new IdempotentTemplate&lt;UUID, ProductRatingUpdateResponse&gt;() {</span>
       @Override
       protected String operationName() {
-<span class="fc" id="L228">        return &quot;catalog_rating&quot;;</span>
+<span class="fc" id="L229">        return &quot;catalog_rating&quot;;</span>
       }
 
       @Override
       protected boolean isAlreadyProcessed(UUID orderId) {
-<span class="fc" id="L233">        return catalogRatingEventRepository.existsByOrderId(orderId);</span>
+<span class="fc" id="L234">        return catalogRatingEventRepository.existsByOrderId(orderId);</span>
       }
 
       @Override
       protected void recordEvent(UUID orderId) {
-<span class="pc bpc" id="L238" title="1 of 2 branches missed.">        if (!catalogRepository.existsById(catalogId)) {</span>
-<span class="nc" id="L239">          meterRegistry.counter(&quot;catalog.rating.rejected&quot;, &quot;reason&quot;, &quot;catalog_not_found&quot;).increment();</span>
-<span class="nc" id="L240">          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);</span>
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">        if (!catalogRepository.existsById(catalogId)) {</span>
+<span class="nc" id="L240">          meterRegistry.counter(&quot;catalog.rating.rejected&quot;, METRIC_TAG_REASON, &quot;catalog_not_found&quot;).increment();</span>
+<span class="nc" id="L241">          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);</span>
         }
-<span class="fc" id="L242">        CatalogRatingEvent event = new CatalogRatingEvent();</span>
-<span class="fc" id="L243">        event.setOrderId(orderId);</span>
-<span class="fc" id="L244">        event.setCatalogId(catalogId);</span>
-<span class="fc" id="L245">        event.setBuyerId(request.getBuyerId());</span>
-<span class="fc" id="L246">        event.setProductRating(request.getProductRating());</span>
-<span class="fc" id="L247">        event.setCreatedAt(Instant.now());</span>
-<span class="fc" id="L248">        catalogRatingEventRepository.save(event);</span>
-<span class="fc" id="L249">      }</span>
+<span class="fc" id="L243">        CatalogRatingEvent event = new CatalogRatingEvent();</span>
+<span class="fc" id="L244">        event.setOrderId(orderId);</span>
+<span class="fc" id="L245">        event.setCatalogId(catalogId);</span>
+<span class="fc" id="L246">        event.setBuyerId(request.getBuyerId());</span>
+<span class="fc" id="L247">        event.setProductRating(request.getProductRating());</span>
+<span class="fc" id="L248">        event.setCreatedAt(Instant.now());</span>
+<span class="fc" id="L249">        catalogRatingEventRepository.save(event);</span>
+<span class="fc" id="L250">      }</span>
 
       @Override
       protected ProductRatingUpdateResponse performAction(UUID orderId) {
-<span class="fc" id="L253">        int updatedRows =</span>
-<span class="fc" id="L254">            catalogRepository.applyProductRating(catalogId, request.getProductRating());</span>
-<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        if (updatedRows == 0) {</span>
-<span class="nc" id="L256">          meterRegistry.counter(&quot;catalog.rating.failed&quot;, &quot;reason&quot;, &quot;aggregate_update&quot;).increment();</span>
-<span class="nc" id="L257">          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);</span>
+<span class="fc" id="L254">        int updatedRows =</span>
+<span class="fc" id="L255">            catalogRepository.applyProductRating(catalogId, request.getProductRating());</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        if (updatedRows == 0) {</span>
+<span class="nc" id="L257">          meterRegistry.counter(&quot;catalog.rating.failed&quot;, METRIC_TAG_REASON, &quot;aggregate_update&quot;).increment();</span>
+<span class="nc" id="L258">          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);</span>
         }
-<span class="fc" id="L259">        Catalog catalog = requireCatalog(catalogId);</span>
-<span class="fc" id="L260">        meterRegistry.counter(&quot;catalog.rating.applied&quot;).increment();</span>
-<span class="fc" id="L261">        LOGGER.info(</span>
+<span class="fc" id="L260">        Catalog catalog = requireCatalog(catalogId);</span>
+<span class="fc" id="L261">        meterRegistry.counter(&quot;catalog.rating.applied&quot;).increment();</span>
+<span class="fc" id="L262">        LOGGER.info(</span>
             &quot;catalog_rating_applied orderId={} catalogId={} rating={} ratingAverage={} ratingCount={}&quot;,
-<span class="fc" id="L263">            orderId, catalogId, request.getProductRating(),</span>
-<span class="fc" id="L264">            catalog.getRatingAverage(), catalog.getRatingCount());</span>
-<span class="fc" id="L265">        return new ProductRatingUpdateResponse(</span>
-<span class="fc" id="L266">            true, catalog.getRatingAverage(), catalog.getRatingCount());</span>
+<span class="fc" id="L264">            orderId, catalogId, request.getProductRating(),</span>
+<span class="fc" id="L265">            catalog.getRatingAverage(), catalog.getRatingCount());</span>
+<span class="fc" id="L266">        return new ProductRatingUpdateResponse(</span>
+<span class="fc" id="L267">            true, catalog.getRatingAverage(), catalog.getRatingCount());</span>
       }
 
       @Override
       protected ProductRatingUpdateResponse buildDuplicateResponse(UUID orderId) {
-<span class="fc" id="L271">        Catalog catalog = requireCatalog(catalogId);</span>
-<span class="fc" id="L272">        return new ProductRatingUpdateResponse(</span>
-<span class="fc" id="L273">            false, catalog.getRatingAverage(), catalog.getRatingCount());</span>
+<span class="fc" id="L272">        Catalog catalog = requireCatalog(catalogId);</span>
+<span class="fc" id="L273">        return new ProductRatingUpdateResponse(</span>
+<span class="fc" id="L274">            false, catalog.getRatingAverage(), catalog.getRatingCount());</span>
       }
 
       @Override
       protected void onDuplicate(UUID orderId) {
-<span class="fc" id="L278">        meterRegistry.counter(&quot;catalog.rating.duplicate&quot;).increment();</span>
-<span class="fc" id="L279">      }</span>
-<span class="fc" id="L280">    }.execute(request.getOrderId());</span>
+<span class="fc" id="L279">        meterRegistry.counter(&quot;catalog.rating.duplicate&quot;).increment();</span>
+<span class="fc" id="L280">      }</span>
+<span class="fc" id="L281">    }.execute(request.getOrderId());</span>
   }
 
   private String normalizeSearchTerm(String value) {
-<span class="pc bpc" id="L284" title="1 of 2 branches missed.">    if (value == null) {</span>
-<span class="nc" id="L285">      return null;</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">    if (value == null) {</span>
+<span class="nc" id="L286">      return null;</span>
     }
 
-<span class="fc" id="L288">    String trimmedValue = value.trim();</span>
-<span class="pc bpc" id="L289" title="1 of 2 branches missed.">    return trimmedValue.isEmpty() ? null : trimmedValue;</span>
+<span class="fc" id="L289">    String trimmedValue = value.trim();</span>
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">    return trimmedValue.isEmpty() ? null : trimmedValue;</span>
   }
 
   private Catalog requireCatalog(UUID catalogId) {
-<span class="fc" id="L293">    return catalogRepository</span>
-<span class="fc" id="L294">        .findById(catalogId)</span>
-<span class="fc" id="L295">        .orElseThrow(</span>
-<span class="fc" id="L296">            () -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));</span>
+<span class="fc" id="L294">    return catalogRepository</span>
+<span class="fc" id="L295">        .findById(catalogId)</span>
+<span class="fc" id="L296">        .orElseThrow(</span>
+<span class="fc" id="L297">            () -&gt; new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));</span>
   }
 
   private String getCatalogTarget(Catalog catalog) {
-<span class="fc" id="L300">    UUID catalogId = catalog.getId();</span>
-<span class="fc bfc" id="L301" title="All 2 branches covered.">    return catalogId == null ? &quot;UNKNOWN_CATALOG_ID&quot; : catalogId.toString();</span>
+<span class="fc" id="L301">    UUID catalogId = catalog.getId();</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">    return catalogId == null ? &quot;UNKNOWN_CATALOG_ID&quot; : catalogId.toString();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
