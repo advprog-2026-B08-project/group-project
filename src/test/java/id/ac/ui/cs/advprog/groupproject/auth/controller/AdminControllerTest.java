@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.auth.controller;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
@@ -11,9 +12,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -56,14 +60,23 @@ class AdminControllerTest {
     @Test
     public void testUserList() {
         Model model = new ExtendedModelMap();
-        when(userDetailService.getUserList()).thenReturn(List.of());
+        User user = new User();
+        user.setRole(Role.ROLE_ADMIN.toString());
 
-        String view = adminController.userList(model);
+        List<User> users = new ArrayList<>();
+        Page<User> userPage = new PageImpl<>(users);
+
+        when(userDetailService.getFilteredUsers(user, null, 0 ,30)).thenReturn(userPage);
+
+        String view = adminController.userList(0, null, model, user);
 
         assertEquals("auth/admin/userList", view);
         assertTrue(model.containsAttribute("userList"));
+        assertTrue(model.containsAttribute("userPage"));
+        assertTrue(model.containsAttribute("currentPage"));
+        assertTrue(model.containsAttribute("totalPages"));
 
-        verify(userDetailService).getUserList();
+        verify(userDetailService).getFilteredUsers(user, null, 0, 30);
     }
 
     @Test
