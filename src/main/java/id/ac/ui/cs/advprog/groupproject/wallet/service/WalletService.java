@@ -22,6 +22,8 @@ public interface WalletService {
 
     TransactionResponse deductBalance(UUID userId, BigDecimal amount, String description);
 
+    TransactionResponse creditBalance(UUID userId, BigDecimal amount, String description);
+
     TransactionResponse refundBalance(UUID userId, BigDecimal amount, String description, UUID referenceId);
 
     TransactionResponse verifyTransaction(UUID transactionId, TransactionStatus status);

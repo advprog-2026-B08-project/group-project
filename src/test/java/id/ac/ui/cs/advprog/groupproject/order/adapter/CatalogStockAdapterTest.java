@@ -49,8 +49,8 @@ class CatalogStockAdapterTest {
 
     @Test
     void reserveStock_success_returnsProductSnapshotAndReducesStock() {
+        when(catalogRepository.decreaseStockIfAvailable(productId, 3)).thenReturn(1);
         when(catalogRepository.findById(productId)).thenReturn(Optional.of(catalog));
-        when(catalogRepository.save(any(Catalog.class))).thenReturn(catalog);
 
         ProductSnapshot snapshot = catalogStockAdapter.reserveStock(productId, 3);
 
@@ -58,13 +58,13 @@ class CatalogStockAdapterTest {
         assertEquals(jastiper.getId(), snapshot.jastiperId());
         assertEquals("Baju Bola", snapshot.productName());
         assertEquals(0, snapshot.pricePerItem().compareTo(java.math.BigDecimal.valueOf(50000.0)));
-        // stock harus berkurang
-        assertEquals(7, catalog.getStock());
-        verify(catalogRepository).save(catalog);
+        verify(catalogRepository).decreaseStockIfAvailable(productId, 3);
+        verify(catalogRepository, never()).save(any());
     }
 
     @Test
     void reserveStock_productNotFound_throwsIllegalArgumentException() {
+        when(catalogRepository.decreaseStockIfAvailable(productId, 2)).thenReturn(0);
         when(catalogRepository.findById(productId)).thenReturn(Optional.empty());
 
         IllegalArgumentException ex = assertThrows(
@@ -78,6 +78,7 @@ class CatalogStockAdapterTest {
     @Test
     void reserveStock_insufficientStock_throwsIllegalArgumentException() {
         catalog.setStock(2);
+        when(catalogRepository.decreaseStockIfAvailable(productId, 5)).thenReturn(0);
         when(catalogRepository.findById(productId)).thenReturn(Optional.of(catalog));
 
         IllegalArgumentException ex = assertThrows(
@@ -93,35 +94,36 @@ class CatalogStockAdapterTest {
     @Test
     void reserveStock_exactStock_success() {
         catalog.setStock(3);
+        when(catalogRepository.decreaseStockIfAvailable(productId, 3)).thenReturn(1);
         when(catalogRepository.findById(productId)).thenReturn(Optional.of(catalog));
-        when(catalogRepository.save(any(Catalog.class))).thenReturn(catalog);
 
         ProductSnapshot snapshot = catalogStockAdapter.reserveStock(productId, 3);
 
         assertNotNull(snapshot);
-        assertEquals(0, catalog.getStock());
+        verify(catalogRepository).decreaseStockIfAvailable(productId, 3);
+        verify(catalogRepository, never()).save(any());
     }
 
     @Test
     void releaseStock_success_increasesStock() {
-        when(catalogRepository.findById(productId)).thenReturn(Optional.of(catalog));
-        when(catalogRepository.save(any(Catalog.class))).thenReturn(catalog);
+        when(catalogRepository.increaseStock(productId, 4)).thenReturn(1);
 
         catalogStockAdapter.releaseStock(productId, 4);
 
-        assertEquals(14, catalog.getStock());
-        verify(catalogRepository).save(catalog);
+        verify(catalogRepository).increaseStock(productId, 4);
+        verify(catalogRepository, never()).save(any());
     }
 
     @Test
     void releaseStock_productNotFound_throwsIllegalArgumentException() {
-        when(catalogRepository.findById(productId)).thenReturn(Optional.empty());
+        when(catalogRepository.increaseStock(productId, 2)).thenReturn(0);
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
                 () -> catalogStockAdapter.releaseStock(productId, 2));
 
         assertTrue(ex.getMessage().contains("Product not found"));
+        verify(catalogRepository).increaseStock(productId, 2);
         verify(catalogRepository, never()).save(any());
     }
 }

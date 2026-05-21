@@ -1,169 +1,210 @@
 <!DOCTYPE html>
 <html lang="id" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/order.css}">
-</head>
-<body class="order-body">
+<head th:replace="fragments/head :: head('Checkout — JSON')"></head>
+<body>
 <div th:replace="fragments/navbar :: navbar"></div>
 
-<main class="order-shell">
-    <section class="checkout-hero">
-        <div class="hero-copy">
-            <span class="eyebrow">Checkout</span>
-            <h1>Konfirmasi pesanan kamu.</h1>
-            <p class="hero-subtitle">
-                Periksa detail produk, isi jumlah dan alamat pengiriman, lalu bayar.
+<main class="me-container me-page">
+    <!-- Page Header -->
+    <div class="me-page-header">
+        <div>
+            <span class="me-badge me-badge--dark" style="margin-bottom: 8px;">Checkout</span>
+            <h1>Konfirmasi Pesanan Anda</h1>
+            <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">
+                Periksa kembali detail produk jastip Anda, isi kuantitas, masukkan alamat, dan selesaikan pembayaran.
             </p>
         </div>
-    </section>
+    </div>
 
-    <div class="checkout-grid">
-        <!-- LEFT: Product + User Info -->
-        <div class="checkout-left">
-            <!-- Product Card -->
-            <div class="checkout-card">
-                <h3>📦 Detail Produk</h3>
-                <div class="product-info">
-                    <div class="product-image-wrapper" th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}">
-                        <img th:src="${product.imageUrl}" alt="Product" class="product-image">
+    <!-- Grid Layout -->
+    <div class="row">
+        <!-- LEFT: Product & User Info (8 columns on Bootstrap) -->
+        <div class="col-md-7 mb-4">
+            <div class="me-stack">
+                <!-- Product Card -->
+                <div class="me-card">
+                    <h3 style="border-bottom: 2px solid var(--me-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <span>📦</span> Detail Produk
+                    </h3>
+                    
+                    <div class="row">
+                        <div class="col-sm-4 mb-3 mb-sm-0">
+                            <div th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}" style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); overflow: hidden; height: 160px;">
+                                <img th:src="${product.imageUrl}" alt="Product" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div th:if="${product.imageUrl == null or product.imageUrl.isEmpty()}" style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); height: 160px; display: flex; align-items: center; justify-content: center; background: var(--me-bg); font-size: 3rem;">
+                                📷
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-8">
+                            <h2 th:text="${product.name}" style="margin-top: 0; font-size: 1.4rem;">Nama Produk</h2>
+                            
+                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 16px 0; font-size: 0.9rem;">
+                                <span style="font-weight: 700; color: var(--me-text-secondary);">Jastiper:</span>
+                                <span th:text="${product.jastiper.username}">jastiper_name</span>
+                                
+                                <span style="font-weight: 700; color: var(--me-text-secondary);">Negara Asal:</span>
+                                <span th:text="${product.originLocation}">Location</span>
+                                
+                                <span style="font-weight: 700; color: var(--me-text-secondary);">Travel Date:</span>
+                                <span th:text="${#temporals.format(product.travelDate, 'dd MMM yyyy')}">01 Jan 2026</span>
+                                
+                                <span style="font-weight: 700; color: var(--me-text-secondary);">Stok:</span>
+                                <span>
+                                    <span class="me-badge me-badge--success" th:text="${product.stock + ' pcs'}" id="availableStock">10 pcs</span>
+                                </span>
+                            </div>
+
+                            <div style="border-top: 1px solid #E5E7EB; padding-top: 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.85rem; color: var(--me-text-secondary); font-weight: 600;">Harga Satuan</span>
+                                <span style="font-size: 1.4rem; font-weight: 900;" th:text="${'Rp ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}" id="pricePerItem">Rp 50.000</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="product-image-wrapper product-image-placeholder" th:if="${product.imageUrl == null or product.imageUrl.isEmpty()}">
-                        <span>📷</span>
-                    </div>
-                    <div class="product-details">
-                        <div class="product-name" th:text="${product.name}">Product Name</div>
-                        <div class="product-meta">
-                            <span class="meta-label">Jastiper</span>
-                            <span th:text="${product.jastiper.username}">jastiper_name</span>
-                        </div>
-                        <div class="product-meta">
-                            <span class="meta-label">Asal</span>
-                            <span th:text="${product.originLocation}">Location</span>
-                        </div>
-                        <div class="product-meta">
-                            <span class="meta-label">Travel Date</span>
-                            <span th:text="${#temporals.format(product.travelDate, 'dd MMM yyyy')}">01 Jan 2026</span>
-                        </div>
-                        <div class="product-meta">
-                            <span class="meta-label">Stok Tersedia</span>
-                            <span class="stock-badge" th:text="${product.stock + ' pcs'}" id="availableStock">10 pcs</span>
-                        </div>
-                        <div class="product-price-tag">
-                            <span class="price-label">Harga per item</span>
-                            <span class="price-value" th:text="${'Rp ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}" id="pricePerItem">Rp 50.000</span>
-                        </div>
+
+                    <!-- Rating Display -->
+                    <div th:if="${product.ratingCount != null and product.ratingCount > 0}" style="margin-top: 20px; padding: 12px; background: var(--me-bg); border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #f5b301; font-size: 1.1rem; line-height: 1;">
+                            <span th:each="i : ${#numbers.sequence(1,5)}"
+                                  th:style="${i <= product.ratingAverage ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                        </span>
+                        <span style="font-size: 0.85rem; font-weight: 700; color: var(--me-text-secondary);"
+                              th:text="${#numbers.formatDecimal(product.ratingAverage, 1, 1)} + ' (' + ${product.ratingCount} + ' review)'">4.5 (12 review)</span>
                     </div>
                 </div>
-                <!-- Rating Display -->
-                <div class="product-rating" th:if="${product.ratingCount != null and product.ratingCount > 0}">
-                    <span class="stars">
-                        <span th:each="i : ${#numbers.sequence(1,5)}"
-                              th:classappend="${i <= product.ratingAverage ? 'star-filled' : 'star-empty'}"
-                              class="star">&#9733;</span>
-                    </span>
-                    <span class="rating-text"
-                          th:text="${#numbers.formatDecimal(product.ratingAverage, 1, 1)} + ' (' + ${product.ratingCount} + ' review)'">4.5 (12 review)</span>
-                </div>
-            </div>
 
-            <!-- Jastiper Info Card -->
-            <div class="checkout-card">
-                <h3>👤 Informasi Jastiper</h3>
-                <div class="user-info-grid">
-                    <div class="user-info-row">
-                        <span class="info-label">Username</span>
-                        <span class="info-value" th:text="${product.jastiper.username}">username</span>
-                    </div>
-                    <div class="user-info-row">
-                        <span class="info-label">Full Name</span>
-                        <span class="info-value" th:text="${product.jastiper.fullName != null ? product.jastiper.fullName : '-'}">Full Name</span>
-                    </div>
-                    <div class="user-info-row">
-                        <span class="info-label">Email</span>
-                        <span class="info-value" th:text="${product.jastiper.email}">email@example.com</span>
+                <!-- Jastiper Info Card -->
+                <div class="me-card">
+                    <h3 style="border-bottom: 2px solid var(--me-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <span>👤</span> Informasi Jastiper
+                    </h3>
+                    
+                    <div style="display: grid; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Username</span>
+                            <span style="font-weight: 700;" th:text="${product.jastiper.username}">username</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Nama Lengkap</span>
+                            <span style="font-weight: 700;" th:text="${product.jastiper.fullName != null ? product.jastiper.fullName : '-'}">Full Name</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 4px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Email</span>
+                            <span style="font-weight: 700;" th:text="${product.jastiper.email}">email@example.com</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: Checkout Form + Price Summary -->
-        <div class="checkout-right">
-            <!-- Balance Card -->
-            <div class="checkout-balance-card">
-                <div class="balance-info">
-                    <div class="balance-label-text">Saldo Wallet</div>
-                    <div class="balance-amount" id="walletBalance"
-                         th:text="${'Rp ' + #numbers.formatDecimal(walletBalance, 0, 'POINT', 0, 'COMMA')}">Rp 0</div>
-                </div>
-                <div class="balance-status-badge" id="balanceStatus">Siap Bayar</div>
-            </div>
-
-            <!-- Checkout Form -->
-            <div class="checkout-card">
-                <h3>🛒 Form Pemesanan</h3>
-                <form id="checkout-form" class="checkout-form">
-                    <input type="hidden" id="buyerId" th:value="${currentUser.id}">
-                    <input type="hidden" id="productId" th:value="${product.id}">
-                    <input type="hidden" id="rawPrice" th:value="${product.price}">
-                    <input type="hidden" id="rawBalance" th:value="${walletBalance}">
-                    <input type="hidden" id="rawStock" th:value="${product.stock}">
-
-                    <label class="field-group">
-                        <span class="field-label">Jumlah Pesanan</span>
-                        <div class="quantity-control">
-                            <button type="button" class="qty-btn" id="qtyMinus">−</button>
-                            <input type="number" id="quantity" name="quantity" min="1"
-                                   th:max="${product.stock}" value="1" required>
-                            <button type="button" class="qty-btn" id="qtyPlus">+</button>
-                        </div>
-                    </label>
-
-                    <label class="field-group">
-                        <span class="field-label">Alamat Pengiriman</span>
-                        <textarea id="shippingAddress" name="shippingAddress" rows="3"
-                                  placeholder="Masukkan alamat lengkap pengiriman..." required></textarea>
-                    </label>
-
-                    <div class="inline-warning" id="checkout-warning" aria-live="polite"></div>
-
-                    <!-- Price Summary -->
-                    <div class="price-summary">
-                        <h4>Ringkasan Harga</h4>
-                        <div class="summary-row">
-                            <span>Harga per item</span>
-                            <span id="summaryPrice">Rp 0</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Jumlah</span>
-                            <span id="summaryQty">× 1</span>
-                        </div>
-                        <div class="summary-divider"></div>
-                        <div class="summary-row summary-total">
-                            <span>Total Bayar</span>
-                            <span id="summaryTotal">Rp 0</span>
-                        </div>
-                        <div class="summary-row summary-remaining">
-                            <span>Sisa Saldo</span>
-                            <span id="summaryRemaining">Rp 0</span>
-                        </div>
+        <!-- RIGHT: Checkout Form & Price Summary -->
+        <div class="col-md-5 mb-4">
+            <div class="me-stack">
+                <!-- Balance Card -->
+                <div class="me-card" style="background: var(--me-success-bg); border-color: var(--me-success); display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
+                    <div>
+                        <div style="font-size: 0.8rem; text-transform: uppercase; font-weight: 700; color: #065F46; letter-spacing: 0.04em;">Saldo Wallet Anda</div>
+                        <h2 id="walletBalance" th:text="${'Rp ' + #numbers.formatDecimal(walletBalance, 0, 'POINT', 0, 'COMMA')}" style="margin: 4px 0 0 0; font-size: 1.8rem; font-weight: 900; color: #065F46;">Rp 0</h2>
                     </div>
+                    <span class="me-badge me-badge--success" id="balanceStatus" style="font-size: 0.8rem; padding: 6px 16px;">Siap Bayar</span>
+                </div>
 
-                    <button type="submit" id="checkout-submit" class="checkout-btn" disabled>
-                        💳 Bayar Sekarang
-                    </button>
-                </form>
-                <div class="form-status" id="checkout-status" aria-live="polite">&nbsp;</div>
+                <!-- Checkout Form -->
+                <div class="me-card">
+                    <h3 style="border-bottom: 2px solid var(--me-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <span>🛒</span> Form Pemesanan
+                    </h3>
+                    
+                    <form id="checkout-form" class="me-stack">
+                        <input type="hidden" id="buyerId" th:value="${currentUser.id}">
+                        <input type="hidden" id="productId" th:value="${product.id}">
+                        <input type="hidden" id="rawPrice" th:value="${product.price}">
+                        <input type="hidden" id="rawBalance" th:value="${walletBalance}">
+                        <input type="hidden" id="rawStock" th:value="${product.stock}">
+
+                        <!-- Quantity field -->
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem;">Jumlah Pesanan</label>
+                            <div style="display: flex; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); overflow: hidden;">
+                                <button type="button" id="qtyMinus" style="width: 46px; height: 46px; border: none; background: var(--me-bg); font-size: 1.4rem; font-weight: 700; cursor: pointer; border-right: var(--me-border-w) solid var(--me-border);">−</button>
+                                <input type="number" id="quantity" name="quantity" min="1" th:max="${product.stock}" value="1" required style="flex: 1; text-align: center; border: none; padding: 10px; font-weight: 700; font-size: 1.1rem; background: #FFFFFF; font-family: var(--me-font);">
+                                <button type="button" id="qtyPlus" style="width: 46px; height: 46px; border: none; background: var(--me-bg); font-size: 1.4rem; font-weight: 700; cursor: pointer; border-left: var(--me-border-w) solid var(--me-border);">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Address field -->
+                        <div>
+                            <label for="shippingAddress" style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem;">Alamat Pengiriman</label>
+                            <textarea id="shippingAddress" name="shippingAddress" rows="3" class="form-control" placeholder="Masukkan alamat lengkap pengiriman..." required></textarea>
+                        </div>
+
+                        <!-- Warning container -->
+                        <div id="checkout-warning" style="display: none; padding: 12px; background: var(--me-danger-bg); border: var(--me-border-w) solid var(--me-danger); border-radius: var(--me-radius); color: #991B1B; font-weight: 700; font-size: 0.85rem;"></div>
+
+                        <!-- Price Summary -->
+                        <div style="background: var(--me-bg); border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); padding: 16px;">
+                            <h4 style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--me-text-secondary); margin-bottom: 12px; letter-spacing: 0.05em;">Ringkasan Harga</h4>
+                            
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; color: var(--me-text-secondary);">
+                                <span>Harga per item</span>
+                                <span id="summaryPrice" style="font-weight: 600;">Rp 0</span>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 12px; color: var(--me-text-secondary);">
+                                <span>Jumlah</span>
+                                <span id="summaryQty" style="font-weight: 600;">× 1</span>
+                            </div>
+                            
+                            <div style="border-top: 1px dashed var(--me-border); margin: 12px 0;"></div>
+                            
+                            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; margin-bottom: 6px;">
+                                <span>Total Bayar</span>
+                                <span id="summaryTotal">Rp 0</span>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--me-success);">
+                                <span>Sisa Saldo</span>
+                                <span id="summaryRemaining">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit button -->
+                        <button type="submit" id="checkout-submit" class="me-btn me-btn--primary me-btn--block" style="padding: 14px; font-size: 1rem;" disabled>
+                            💳 Bayar Sekarang
+                        </button>
+                    </form>
+                    
+                    <div id="checkout-status" style="margin-top: 16px; font-weight: 700; text-align: center; font-size: 0.9rem;">&nbsp;</div>
+                </div>
             </div>
         </div>
     </div>
 </main>
+
+<style>
+/* CSS styles to support toggle states in JS */
+#checkout-warning.visible {
+    display: block !important;
+}
+.insufficient {
+    background: var(--me-danger-bg) !important;
+    border-color: var(--me-danger) !important;
+    color: #991B1B !important;
+}
+.negative {
+    color: var(--me-danger) !important;
+}
+.tone-success {
+    color: var(--me-success) !important;
+}
+.tone-warning {
+    color: var(--me-warning) !important;
+}
+.tone-error {
+    color: var(--me-danger) !important;
+}
+</style>
 
 <script>
 (() => {

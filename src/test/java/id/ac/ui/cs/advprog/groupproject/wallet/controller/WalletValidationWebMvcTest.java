@@ -20,7 +20,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 
 @WebMvcTest(controllers = {WalletController.class, WalletAdminController.class})
@@ -45,9 +47,13 @@ class WalletValidationWebMvcTest {
     @Test
     void topUp_InvalidAmount_ReturnsBadRequest() throws Exception {
         UUID userId = UUID.randomUUID();
+        User principal = new User();
+        principal.setId(userId);
+        principal.setRole("ROLE_TITIPER");
         String payload = "{\"amount\":0}";
 
         mockMvc.perform(post("/api/wallet/top-up/" + userId)
+                .with(user(principal))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
                 .andExpect(status().isBadRequest())
@@ -59,9 +65,13 @@ class WalletValidationWebMvcTest {
     @Test
     void withdraw_InvalidDestination_ReturnsBadRequest() throws Exception {
         UUID userId = UUID.randomUUID();
+        User principal = new User();
+        principal.setId(userId);
+        principal.setRole("ROLE_TITIPER");
         String payload = "{\"amount\":1000,\"destination\":\"\"}";
 
         mockMvc.perform(post("/api/wallet/withdraw/" + userId)
+                .with(user(principal))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload))
                 .andExpect(status().isBadRequest())

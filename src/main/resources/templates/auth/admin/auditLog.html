@@ -1,43 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Audit logs</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Audit Logs — JSON')"></head>
 <body>
     <div th:replace="fragments/navbar :: navbar"></div>
-    <div class="container mt-4 justify-content-center">
-    <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">Audit logs</h1>
-    <div class="log-list" style="background: #cceeff">
-        <div class="flex flexDown justifyBetween alignCenter" style="text-align: center; justify-content: center; align-items: center; margin-top: 60px" th:if="${#lists.isEmpty(logs)}">
-            <img src="/images/empty.png" style="height: 160px; width: 120px">
-            <div style="font-weight: bold; margin-top: 20px">No logs at the moment</div>
+    
+    <div class="me-container me-page">
+        <div class="me-page-header">
+            <div>
+                <h1>Audit Logs</h1>
+                <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">Riwayat aktivitas pengguna dan tindakan sistem secara real-time.</p>
+            </div>
+            <a th:href="@{/admin}" class="me-btn me-btn--secondary me-btn--sm">← Dashboard</a>
         </div>
-        <div class="log-card" th:each="log : ${logs}" th:classappend="${log.logType.toString() == 'INFO' ? 'log-info' : (log.logType.toString() == 'WARN' ? 'log-warn' : 'log-danger')}">
-            <div class="log-left">
-                <p class="action" th:text="${log.action}"></p>
-                <p class="timestamp"
-                   th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm')}"></p>
+
+        <div class="me-card me-stack" style="padding: 24px; gap: 16px; background: var(--me-surface);">
+            <div th:if="${#lists.isEmpty(logs)}" class="text-center" style="padding: 48px 16px;">
+                <span style="font-size: 3rem; display: block; margin-bottom: 16px;">📂</span>
+                <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Log Kosong</h3>
+                <p style="color: var(--me-text-secondary); font-size: 0.85rem; margin: 0;">Belum ada aktivitas tercatat pada sistem saat ini.</p>
             </div>
 
-            <div class="log-right">
-                <p>
-                    <b th:text="${log.actor}"></b>
+            <div class="me-stack" style="gap: 12px;" th:if="${!#lists.isEmpty(logs)}">
+                <div th:each="log : ${logs}" 
+                     class="log-item"
+                     th:classappend="${log.logType.toString() == 'INFO' ? 'log-info-border' : (log.logType.toString() == 'WARN' ? 'log-warn-border' : 'log-danger-border')}"
+                     style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); padding: 16px; background: var(--me-bg); display: flex; flex-direction: column; gap: 8px;">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <!-- Log Type Badge -->
+                            <span th:if="${log.logType.toString() == 'INFO'}" class="me-badge me-badge--info" style="font-size: 0.65rem; padding: 2px 8px;">INFO</span>
+                            <span th:if="${log.logType.toString() == 'WARN'}" class="me-badge me-badge--warning" style="font-size: 0.65rem; padding: 2px 8px;">WARN</span>
+                            <span th:if="${log.logType.toString() == 'ERROR' || log.logType.toString() == 'DANGER'}" class="me-badge me-badge--danger" style="font-size: 0.65rem; padding: 2px 8px;">ERROR</span>
 
-                    <span th:if="${log.actorRole} == 'ROLE_TITIPER'"><b>(Titiper)</b></span>
-                    <span th:if="${log.actorRole} == 'ROLE_JASTIPER'"><b>(Jastiper)</b></span>
-                    <span th:if="${log.actorRole} == 'ROLE_ADMIN'"><b>(Admin)</b></span>
-                    →
-                    <span th:text="${log.target} ?: '-'"></span>
-                </p>
-                <p class="details" th:text="${log.description}"></p>
+                            <span class="me-badge me-badge--dark" th:text="${log.action}" style="font-size: 0.65rem; padding: 2px 8px;">ACTION</span>
+                            
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--me-text);">
+                                <span th:text="${log.actor}">Actor</span>
+                                <span th:if="${log.actorRole == 'ROLE_TITIPER'}" style="color: var(--me-text-secondary); font-weight: 500;">(Titiper)</span>
+                                <span th:if="${log.actorRole == 'ROLE_JASTIPER'}" style="color: #065F46; font-weight: 600;">(Jastiper)</span>
+                                <span th:if="${log.actorRole == 'ROLE_ADMIN'}" style="color: #1E40AF; font-weight: 600;">(Admin)</span>
+                            </span>
+
+                            <span th:if="${log.target != null}" style="font-size: 0.85rem; color: var(--me-text-secondary);">
+                                → <span th:text="${log.target}" style="font-weight: 600;">Target</span>
+                            </span>
+                        </div>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--me-text-muted);" 
+                              th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">Timestamp</span>
+                    </div>
+
+                    <div style="font-size: 0.9rem; color: var(--me-text); font-weight: 500; border-top: 1px dashed rgba(26,26,26,0.1); padding-top: 8px; margin-top: 4px;" th:text="${log.description}">
+                        Deskripsi detail log...
+                    </div>
+                </div>
             </div>
-
         </div>
     </div>
-    </div>
+
+    <!-- Accent borders for different severity types -->
+    <style>
+        .log-info-border {
+            border-left: 6px solid var(--me-info) !important;
+        }
+        .log-warn-border {
+            border-left: 6px solid var(--me-warning) !important;
+        }
+        .log-danger-border {
+            border-left: 6px solid var(--me-danger) !important;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

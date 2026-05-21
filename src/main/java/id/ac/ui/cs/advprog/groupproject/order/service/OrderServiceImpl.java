@@ -127,9 +127,14 @@ public class OrderServiceImpl implements OrderService {
         history.setStatus(newStatus);
         statusHistoryRepository.save(history);
 
-        // Increment successfullySold when order is completed
+        // Increment successfullySold and credit Jastiper's wallet when order is completed
         if (newStatus == OrderStatus.COMPLETED) {
             incrementSuccessfullySold(savedOrder.getJastiperId());
+            paymentPort.creditSeller(
+                    savedOrder.getJastiperId(),
+                    savedOrder.getTotalPrice(),
+                    "Pendapatan dari pesanan: " + savedOrder.getId()
+            );
         }
 
         return savedOrder;

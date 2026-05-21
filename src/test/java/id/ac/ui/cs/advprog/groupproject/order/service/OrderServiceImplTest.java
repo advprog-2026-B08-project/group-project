@@ -294,12 +294,13 @@ class OrderServiceImplTest {
   }
 
   @Test
-  void updateStatus_toCompleted_incrementsSuccessfullySold() {
+  void updateStatus_toCompleted_incrementsSuccessfullySoldAndCreditsJastiper() {
     UUID orderId = UUID.randomUUID();
     Order order = new Order();
     order.setId(orderId);
     order.setJastiperId(jastiperId);
     order.setStatus(OrderStatus.SHIPPED);
+    order.setTotalPrice(BigDecimal.valueOf(150000));
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
     when(orderRepository.save(any(Order.class))).thenReturn(order);
     when(statusHistoryRepository.save(any(StatusHistory.class)))
@@ -314,6 +315,8 @@ class OrderServiceImplTest {
 
     assertEquals(4, jastiperUser.getSuccessfullySold());
     verify(userRepository).save(jastiperUser);
+    verify(paymentPort).creditSeller(eq(jastiperId), eq(BigDecimal.valueOf(150000)), anyString());
+    assertEquals(OrderStatus.COMPLETED, order.getStatus());
   }
 
   @Test
@@ -341,6 +344,7 @@ class OrderServiceImplTest {
     order.setId(orderId);
     order.setJastiperId(jastiperId);
     order.setStatus(OrderStatus.SHIPPED);
+    order.setTotalPrice(BigDecimal.valueOf(150000));
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
     when(orderRepository.save(any(Order.class))).thenReturn(order);
     when(statusHistoryRepository.save(any(StatusHistory.class)))
@@ -350,6 +354,7 @@ class OrderServiceImplTest {
     Order result = orderService.updateStatus(orderId, OrderStatus.COMPLETED);
 
     assertEquals(OrderStatus.COMPLETED, result.getStatus());
+    verify(paymentPort).creditSeller(eq(jastiperId), eq(BigDecimal.valueOf(150000)), anyString());
   }
 
   @Test
