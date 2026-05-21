@@ -9,15 +9,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 auth -> auth
                         .requestMatchers("/login", "/register", "/actuator/health", "/actuator/health/**", "/actuator/prometheus").permitAll()
-                        .requestMatchers("/actuator/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/admin", "/admin/**", "/api/admin/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/catalogs/*/decrease-stock").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/catalog/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/actuator/**").hasAuthority(ROLE_ADMIN)
+                        .requestMatchers("/admin", "/admin/**", "/api/admin/**").hasAuthority(ROLE_ADMIN)
+                        .requestMatchers("/api/catalogs/*/decrease-stock").hasAuthority(ROLE_ADMIN)
+                        .requestMatchers("/catalog/admin/**").hasAuthority(ROLE_ADMIN)
                         .requestMatchers("/catalog/add", "/catalog/edit", "/catalog/edit/**" , "/catalog/my")
                         .hasAuthority("ROLE_JASTIPER")
                         .requestMatchers("/catalog/**").authenticated()
