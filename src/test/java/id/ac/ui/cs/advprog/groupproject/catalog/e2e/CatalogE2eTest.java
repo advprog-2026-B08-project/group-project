@@ -129,6 +129,13 @@ class CatalogE2eTest {
                 return visibleCards.size() == 1
                         && visibleCards.get(0).getText().contains("Cokelat");
             });
+
+            // Explicit assertion so static analyzers see the verification step.
+            List<WebElement> finalCards = driver.findElements(
+                    By.cssSelector(".catalog-card[data-catalog-id]"));
+            assertEquals(1, finalCards.size(), "Search should narrow grid to exactly one match");
+            assertTrue(finalCards.get(0).getText().contains("Cokelat"),
+                    "Remaining card must match the search keyword");
         } finally {
             driver.quit();
         }
@@ -157,6 +164,11 @@ class CatalogE2eTest {
 
             wait.until(driverInstance -> driverInstance
                     .findElements(By.cssSelector(".catalog-card[data-catalog-id]")).size() == 3);
+
+            // Explicit assertion so static analyzers see the verification step.
+            List<WebElement> restoredCards = driver.findElements(
+                    By.cssSelector(".catalog-card[data-catalog-id]"));
+            assertEquals(3, restoredCards.size(), "All seeded catalogs should reappear after reset");
         } finally {
             driver.quit();
         }

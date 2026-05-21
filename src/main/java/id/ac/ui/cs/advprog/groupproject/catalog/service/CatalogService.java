@@ -34,6 +34,7 @@ public class CatalogService {
   private static final String CREATE_CATALOG_ACTION = "CREATE_CATALOG";
   private static final String UPDATE_CATALOG_ACTION = "UPDATE_CATALOG";
   private static final String DELETE_CATALOG_ACTION = "DELETE_CATALOG";
+  private static final String METRIC_TAG_REASON = "reason";
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogService.class);
 
   private final CatalogRepository catalogRepository;
@@ -218,7 +219,7 @@ public class CatalogService {
           (currentUser == null || !Role.ROLE_TITIPER.matches(currentUser.getRole()))
               ? "role_forbidden"
               : "buyer_mismatch";
-      meterRegistry.counter("catalog.rating.rejected", "reason", reason).increment();
+      meterRegistry.counter("catalog.rating.rejected", METRIC_TAG_REASON, reason).increment();
       catalogStrategy.requireCanSubmitRating(currentUser, request.getBuyerId());
     }
 
@@ -236,7 +237,7 @@ public class CatalogService {
       @Override
       protected void recordEvent(UUID orderId) {
         if (!catalogRepository.existsById(catalogId)) {
-          meterRegistry.counter("catalog.rating.rejected", "reason", "catalog_not_found").increment();
+          meterRegistry.counter("catalog.rating.rejected", METRIC_TAG_REASON, "catalog_not_found").increment();
           throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
         }
         CatalogRatingEvent event = new CatalogRatingEvent();
@@ -253,7 +254,7 @@ public class CatalogService {
         int updatedRows =
             catalogRepository.applyProductRating(catalogId, request.getProductRating());
         if (updatedRows == 0) {
-          meterRegistry.counter("catalog.rating.failed", "reason", "aggregate_update").increment();
+          meterRegistry.counter("catalog.rating.failed", METRIC_TAG_REASON, "aggregate_update").increment();
           throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
         }
         Catalog catalog = requireCatalog(catalogId);

@@ -10,7 +10,7 @@ public abstract class IdempotentTemplate<K, R> {
 
     public final R execute(K idempotencyKey) {
         if (isAlreadyProcessed(idempotencyKey)) {
-            LOGGER.info("{}_duplicate idempotencyKey={}", operationName(), idempotencyKey);
+            logDuplicate("soft_check", idempotencyKey);
             onDuplicate(idempotencyKey);
             return buildDuplicateResponse(idempotencyKey);
         }
@@ -18,12 +18,28 @@ public abstract class IdempotentTemplate<K, R> {
         try {
             recordEvent(idempotencyKey);
         } catch (DataIntegrityViolationException ex) {
-            LOGGER.info("{}_duplicate_race idempotencyKey={}", operationName(), idempotencyKey);
+            logDuplicate("race", idempotencyKey);
             onDuplicate(idempotencyKey);
             return buildDuplicateResponse(idempotencyKey);
         }
 
         return performAction(idempotencyKey);
+    }
+
+    private void logDuplicate(String detectionPath, K idempotencyKey) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("idempotent_duplicate operation={} path={} key={}",
+                    operationName(),
+                    detectionPath,
+                    sanitizeForLog(idempotencyKey));
+        }
+    }
+
+    private static String sanitizeForLog(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        return value.toString().replaceAll("[\\r\\n\\t]", "_");
     }
 
     protected abstract String operationName();
