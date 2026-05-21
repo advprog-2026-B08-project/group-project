@@ -22,7 +22,6 @@ import lombok.Setter;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer ratingProduk;
-    private Integer ratingJastiper;
 
     // Enriched fields
     private String productName;
@@ -31,20 +30,19 @@ import lombok.Setter;
     private String jastiperUsername;
 
     public static OrderDisplayDto from(Order order) {
-<span class="fc" id="L34">        OrderDisplayDto dto = new OrderDisplayDto();</span>
-<span class="fc" id="L35">        dto.setId(order.getId());</span>
-<span class="fc" id="L36">        dto.setBuyerId(order.getBuyerId());</span>
-<span class="fc" id="L37">        dto.setJastiperId(order.getJastiperId());</span>
-<span class="fc" id="L38">        dto.setProductId(order.getProductId());</span>
-<span class="fc" id="L39">        dto.setQuantity(order.getQuantity());</span>
-<span class="fc" id="L40">        dto.setShippingAddress(order.getShippingAddress());</span>
-<span class="fc" id="L41">        dto.setTotalPrice(order.getTotalPrice());</span>
-<span class="fc" id="L42">        dto.setStatus(order.getStatus());</span>
-<span class="fc" id="L43">        dto.setCreatedAt(order.getCreatedAt());</span>
-<span class="fc" id="L44">        dto.setUpdatedAt(order.getUpdatedAt());</span>
-<span class="fc" id="L45">        dto.setRatingProduk(order.getRatingProduk());</span>
-<span class="fc" id="L46">        dto.setRatingJastiper(order.getRatingJastiper());</span>
-<span class="fc" id="L47">        return dto;</span>
+<span class="fc" id="L33">        OrderDisplayDto dto = new OrderDisplayDto();</span>
+<span class="fc" id="L34">        dto.setId(order.getId());</span>
+<span class="fc" id="L35">        dto.setBuyerId(order.getBuyerId());</span>
+<span class="fc" id="L36">        dto.setJastiperId(order.getJastiperId());</span>
+<span class="fc" id="L37">        dto.setProductId(order.getProductId());</span>
+<span class="fc" id="L38">        dto.setQuantity(order.getQuantity());</span>
+<span class="fc" id="L39">        dto.setShippingAddress(order.getShippingAddress());</span>
+<span class="fc" id="L40">        dto.setTotalPrice(order.getTotalPrice());</span>
+<span class="fc" id="L41">        dto.setStatus(order.getStatus());</span>
+<span class="fc" id="L42">        dto.setCreatedAt(order.getCreatedAt());</span>
+<span class="fc" id="L43">        dto.setUpdatedAt(order.getUpdatedAt());</span>
+<span class="fc" id="L44">        dto.setRatingProduk(order.getRatingProduk());</span>
+<span class="fc" id="L45">        return dto;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

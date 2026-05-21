@@ -30,8 +30,8 @@ public class OrderApiController {
 <span class="fc" id="L30">            return ResponseEntity.status(HttpStatus.CREATED).body(order);</span>
 <span class="fc" id="L31">        } catch (IllegalArgumentException e) {</span>
 <span class="fc" id="L32">            return ResponseEntity.badRequest().body(e.getMessage());</span>
-<span class="fc" id="L33">        } catch (IllegalStateException e) {</span>
-<span class="fc" id="L34">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
+<span class="nc" id="L33">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L34">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
         }
     }
 
@@ -68,8 +68,8 @@ public class OrderApiController {
 <span class="fc" id="L68">            return ResponseEntity.ok(order);</span>
 <span class="fc" id="L69">        } catch (IllegalArgumentException e) {</span>
 <span class="fc" id="L70">            return ResponseEntity.badRequest().body(e.getMessage());</span>
-<span class="fc" id="L71">        } catch (IllegalStateException e) {</span>
-<span class="fc" id="L72">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
+<span class="nc" id="L71">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L72">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
         }
     }
 
@@ -78,41 +78,40 @@ public class OrderApiController {
             @PathVariable UUID id,
             @Valid @RequestBody RatingRequest request) {
         try {
-<span class="fc" id="L81">            Order order = orderService.submitRating(</span>
+<span class="nc" id="L81">            Order order = orderService.submitRating(</span>
                     id,
-<span class="fc" id="L83">                    request.getRatingProduk(),</span>
-<span class="fc" id="L84">                    request.getRatingJastiper()</span>
+<span class="nc" id="L83">                    request.getRatingProduk()</span>
             );
-<span class="fc" id="L86">            return ResponseEntity.ok(order);</span>
-<span class="fc" id="L87">        } catch (IllegalArgumentException e) {</span>
-<span class="fc" id="L88">            return ResponseEntity.badRequest().body(e.getMessage());</span>
-<span class="fc" id="L89">        } catch (IllegalStateException e) {</span>
-<span class="fc" id="L90">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
+<span class="nc" id="L85">            return ResponseEntity.ok(order);</span>
+<span class="nc" id="L86">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L87">            return ResponseEntity.badRequest().body(e.getMessage());</span>
+<span class="nc" id="L88">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L89">            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());</span>
         }
     }
 
     // Titiper: riwayat pesanan aktif
     @GetMapping(&quot;/buyer/{buyerId}/active&quot;)
     public ResponseEntity&lt;List&lt;Order&gt;&gt; getBuyerActiveOrders(@PathVariable UUID buyerId) {
-<span class="fc" id="L97">        return ResponseEntity.ok(orderService.findBuyerActiveOrders(buyerId));</span>
+<span class="nc" id="L96">        return ResponseEntity.ok(orderService.findBuyerActiveOrders(buyerId));</span>
     }
 
     // Titiper: riwayat pesanan selesai
     @GetMapping(&quot;/buyer/{buyerId}/completed&quot;)
     public ResponseEntity&lt;List&lt;Order&gt;&gt; getBuyerCompletedOrders(@PathVariable UUID buyerId) {
-<span class="fc" id="L103">        return ResponseEntity.ok(orderService.findBuyerCompletedOrders(buyerId));</span>
+<span class="nc" id="L102">        return ResponseEntity.ok(orderService.findBuyerCompletedOrders(buyerId));</span>
     }
 
     // Jastiper: to-do list
     @GetMapping(&quot;/jastiper/{jastiperId}/todo&quot;)
     public ResponseEntity&lt;List&lt;Order&gt;&gt; getJastiperTodoOrders(@PathVariable UUID jastiperId) {
-<span class="fc" id="L109">        return ResponseEntity.ok(orderService.findJastiperTodoOrders(jastiperId));</span>
+<span class="nc" id="L108">        return ResponseEntity.ok(orderService.findJastiperTodoOrders(jastiperId));</span>
     }
 
     // Jastiper: pesanan selesai
     @GetMapping(&quot;/jastiper/{jastiperId}/done&quot;)
     public ResponseEntity&lt;List&lt;Order&gt;&gt; getJastiperDoneOrders(@PathVariable UUID jastiperId) {
-<span class="fc" id="L115">        return ResponseEntity.ok(orderService.findJastiperCompletedOrders(jastiperId));</span>
+<span class="nc" id="L114">        return ResponseEntity.ok(orderService.findJastiperCompletedOrders(jastiperId));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

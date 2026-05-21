@@ -13,9 +13,9 @@ import java.util.UUID;
 
 @Service
 public class KycRequestService {
-    private final KycRequestRepository kycRequestRepository;
-    private final UserRepository userRepository;
-    private final ActionLogService logService;
+    KycRequestRepository kycRequestRepository;
+    UserRepository userRepository;
+    ActionLogService logService;
 
     public KycRequestService(KycRequestRepository kycRequestRepository,
                              UserRepository userRepository,
@@ -26,134 +26,152 @@ public class KycRequestService {
 <span class="fc" id="L26">    }</span>
     public KycRequest createRequestForJastiper(User user, String email,
                                                String fullName, String socials) {
-<span class="fc" id="L29">        KycRequest request = new KycRequest();</span>
-<span class="fc" id="L30">        request.setUser(user);</span>
-<span class="fc" id="L31">        request.setRequestedRole(Role.ROLE_JASTIPER);</span>
-<span class="fc" id="L32">        request.setStatus(Status.ACTIVE);</span>
+<span class="nc" id="L29">        KycRequest request = new KycRequest();</span>
+<span class="nc" id="L30">        request.setUser(user);</span>
+<span class="nc" id="L31">        request.setRequestedRole(Role.ROLE_JASTIPER);</span>
+<span class="nc" id="L32">        request.setStatus(Status.ACTIVE);</span>
 
-<span class="fc" id="L34">        request.setEmail(email);</span>
-<span class="fc" id="L35">        request.setFullName(fullName);</span>
-<span class="fc" id="L36">        request.setSocials(socials);</span>
+<span class="nc" id="L34">        request.setEmail(email);</span>
+<span class="nc" id="L35">        request.setFullName(fullName);</span>
+<span class="nc" id="L36">        request.setSocials(socials);</span>
 
-<span class="fc" id="L38">        user.setStatus(Status.PENDING.toString());</span>
+<span class="nc" id="L38">        user.setStatus(Status.PENDING.toString());</span>
 
-<span class="fc" id="L40">        kycRequestRepository.save(request);</span>
-<span class="fc" id="L41">        userRepository.save(user);</span>
+<span class="nc" id="L40">        kycRequestRepository.save(request);</span>
+<span class="nc" id="L41">        userRepository.save(user);</span>
 
-<span class="fc" id="L43">        String description = user.getUsername()</span>
+<span class="nc" id="L43">        String description = user.getUsername()</span>
                 + &quot; submitted an application to be a jastiper&quot;;
-<span class="fc" id="L45">        logService.log(&quot;Submitted an application&quot;, user.getUsername(),</span>
-<span class="fc" id="L46">                user.getRole(), null, description, LogType.INFO);</span>
+<span class="nc" id="L45">        logService.log(&quot;Submitted an application&quot;, user.getUsername(),</span>
+<span class="nc" id="L46">                user.getRole(), null, description, LogType.INFO);</span>
 
-<span class="fc" id="L48">        return request;</span>
+<span class="nc" id="L48">        return request;</span>
+    }
+
+    public KycRequest createRequestForAdmin(User user, String email, String fullName,
+                                            String phoneNumber, String socials) {
+<span class="nc" id="L53">        KycRequest request = new KycRequest();</span>
+<span class="nc" id="L54">        request.setUser(user);</span>
+<span class="nc" id="L55">        request.setRequestedRole(Role.ROLE_JASTIPER);</span>
+<span class="nc" id="L56">        request.setStatus(Status.ACTIVE);</span>
+
+<span class="nc" id="L58">        request.setEmail(email);</span>
+<span class="nc" id="L59">        request.setFullName(fullName);</span>
+<span class="nc" id="L60">        request.setPhoneNumber(phoneNumber);</span>
+<span class="nc" id="L61">        request.setSocials(socials);</span>
+
+<span class="nc" id="L63">        user.setStatus(Status.PENDING.toString());</span>
+
+<span class="nc" id="L65">        kycRequestRepository.save(request);</span>
+<span class="nc" id="L66">        userRepository.save(user);</span>
+
+<span class="nc" id="L68">        return request;</span>
     }
 
     public Map&lt;String, Long&gt; getRequestCountByStatus() {
-<span class="fc" id="L52">        List&lt;Object[]&gt; result = kycRequestRepository.countRequestByStatus();</span>
-<span class="fc" id="L53">        Map&lt;String, Long&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">        List&lt;Object[]&gt; result = kycRequestRepository.countRequestByStatus();</span>
+<span class="nc" id="L73">        Map&lt;String, Long&gt; map = new HashMap&lt;&gt;();</span>
 
-<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (Object[] row: result) {</span>
-<span class="fc" id="L56">            String status = row[0].toString();</span>
-<span class="fc" id="L57">            Long count = (Long) row[1];</span>
-<span class="fc" id="L58">            map.put(status, count);</span>
-<span class="fc" id="L59">        }</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        for (Object[] row: result) {</span>
+<span class="nc" id="L76">            String status = row[0].toString();</span>
+<span class="nc" id="L77">            Long count = (Long) row[1];</span>
+<span class="nc" id="L78">            map.put(status, count);</span>
+<span class="nc" id="L79">        }</span>
 
-<span class="fc" id="L61">        return map;</span>
+<span class="nc" id="L81">        return map;</span>
     }
 
     public List&lt;KycRequest&gt; getRequestList() {
-<span class="fc" id="L65">        return kycRequestRepository.getPendingRequests();</span>
+<span class="nc" id="L85">        return kycRequestRepository.getPendingRequests();</span>
     }
 
     public void closeAcceptedRequest(User admin, UUID requestId) {
-<span class="fc" id="L69">        KycRequest request = kycRequestRepository.findById(requestId)</span>
-<span class="pc" id="L70">                .orElseThrow(() -&gt; new RuntimeException(&quot;Request not found!&quot;));</span>
-<span class="fc" id="L71">        User user = userRepository.findById(request.getUser().getId())</span>
-<span class="pc" id="L72">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not Found!&quot;));</span>
+<span class="nc" id="L89">        KycRequest request = kycRequestRepository.findById(requestId)</span>
+<span class="nc" id="L90">                .orElseThrow(() -&gt; new RuntimeException(&quot;Request not found!&quot;));</span>
+<span class="nc" id="L91">        User user = userRepository.findById(request.getUser().getId())</span>
+<span class="nc" id="L92">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not Found!&quot;));</span>
 
-<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
-<span class="fc" id="L75">            String description = admin.getUsername()</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="nc" id="L95">            String description = admin.getUsername()</span>
                     + &quot;tried to perform an unauthorized action of accepting a kyc request&quot;;
-<span class="fc" id="L77">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
-<span class="fc" id="L78">                    admin.getRole(), null, description, LogType.DANGER);</span>
-<span class="fc" id="L79">            return;</span>
+<span class="nc" id="L97">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
+<span class="nc" id="L98">                    admin.getRole(), null, description, LogType.DANGER);</span>
+<span class="nc" id="L99">            return;</span>
         }
-<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (!request.getUser().getRole().equals(&quot;ROLE_TITIPER&quot;)) {</span>
-<span class="nc" id="L82">            throw new RuntimeException(&quot;Invalid user role!&quot;);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (!request.getUser().getRole().equals(&quot;ROLE_TITIPER&quot;)) {</span>
+<span class="nc" id="L102">            throw new RuntimeException(&quot;Invalid user role!&quot;);</span>
         }
-<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (!request.getStatus().toString().equals(&quot;ACTIVE&quot;)) {</span>
-<span class="fc" id="L85">            throw new RuntimeException(&quot;Invalid requestStatus&quot;);</span>
-        }
-
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (!user.getRole().equals(Role.ROLE_TITIPER.toString())) {</span>
-<span class="nc" id="L89">            throw new RuntimeException(&quot;Invalid role!&quot;);</span>
-        }
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (!user.getStatus().equals(Status.PENDING.toString())) {</span>
-<span class="fc" id="L92">            throw new RuntimeException(&quot;Invalid current status!&quot;);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (!request.getStatus().toString().equals(&quot;ACTIVE&quot;)) {</span>
+<span class="nc" id="L105">            throw new RuntimeException(&quot;Invalid requestStatus&quot;);</span>
         }
 
-<span class="fc" id="L95">        request.setStatus(Status.INACTIVE);</span>
-<span class="fc" id="L96">        kycRequestRepository.save(request);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (!user.getRole().equals(Role.ROLE_TITIPER.toString())) {</span>
+<span class="nc" id="L109">            throw new RuntimeException(&quot;Invalid role!&quot;);</span>
+        }
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (!user.getStatus().equals(Status.PENDING.toString())) {</span>
+<span class="nc" id="L112">            throw new RuntimeException(&quot;Invalid current status!&quot;);</span>
+        }
 
-<span class="fc" id="L98">        user.setStatus(Status.ACTIVE.toString());</span>
-<span class="fc" id="L99">        user.setRole(Role.ROLE_JASTIPER.toString());</span>
-<span class="fc" id="L100">        user.setSuccessfullySold(0);</span>
-<span class="fc" id="L101">        user.setTriedToSell(0);</span>
-<span class="fc" id="L102">        userRepository.save(user);</span>
+<span class="nc" id="L115">        request.setStatus(Status.INACTIVE);</span>
+<span class="nc" id="L116">        kycRequestRepository.save(request);</span>
 
-<span class="fc" id="L104">        String description = admin.getUsername()</span>
+<span class="nc" id="L118">        user.setStatus(Status.ACTIVE.toString());</span>
+<span class="nc" id="L119">        user.setRole(Role.ROLE_JASTIPER.toString());</span>
+<span class="nc" id="L120">        userRepository.save(user);</span>
+
+<span class="nc" id="L122">        String description = admin.getUsername()</span>
                 + &quot; accepted &quot;
-<span class="fc" id="L106">                + user.getUsername()</span>
+<span class="nc" id="L124">                + user.getUsername()</span>
                 + &quot;'s application to be a jastiper&quot;;
 
-<span class="fc" id="L109">        logService.log(&quot;Accept kyc application&quot;, admin.getUsername(),</span>
-<span class="fc" id="L110">                admin.getRole(), user.getUsername(), description, LogType.INFO);</span>
-<span class="fc" id="L111">    }</span>
+<span class="nc" id="L127">        logService.log(&quot;Accept kyc application&quot;, admin.getUsername(),</span>
+<span class="nc" id="L128">                admin.getRole(), user.getRole(), description, LogType.INFO);</span>
+<span class="nc" id="L129">    }</span>
 
     public void closeRejectedRequest(User admin, UUID requestId) {
-<span class="fc" id="L114">        KycRequest request = kycRequestRepository.findById(requestId)</span>
-<span class="pc" id="L115">                .orElseThrow(() -&gt; new RuntimeException(&quot;Request not found!&quot;));</span>
-<span class="fc" id="L116">        User user = userRepository.findById(request.getUser().getId())</span>
-<span class="pc" id="L117">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not Found!&quot;));</span>
+<span class="nc" id="L132">        KycRequest request = kycRequestRepository.findById(requestId)</span>
+<span class="nc" id="L133">                .orElseThrow(() -&gt; new RuntimeException(&quot;Request not found!&quot;));</span>
+<span class="nc" id="L134">        User user = userRepository.findById(request.getUser().getId())</span>
+<span class="nc" id="L135">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not Found!&quot;));</span>
 
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        if(!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
-<span class="fc" id="L120">            String description = admin.getUsername()</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if(!admin.getRole().equals(&quot;ROLE_ADMIN&quot;)) {</span>
+<span class="nc" id="L138">            String description = admin.getUsername()</span>
                     + &quot;tried to perform an unauthorized action of rejecting a kyc request&quot;;
-<span class="fc" id="L122">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
-<span class="fc" id="L123">                    admin.getRole(), null, description, LogType.DANGER);</span>
-<span class="fc" id="L124">            return;</span>
+<span class="nc" id="L140">            logService.log(&quot;Unauthorized action&quot;, admin.getUsername(),</span>
+<span class="nc" id="L141">                    admin.getRole(), null, description, LogType.DANGER);</span>
+<span class="nc" id="L142">            return;</span>
         }
-<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (!request.getUser().getRole().equals(&quot;ROLE_TITIPER&quot;)) {</span>
-<span class="nc" id="L127">            throw new RuntimeException(&quot;Invalid user role!&quot;);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (!request.getUser().getRole().equals(&quot;ROLE_TITIPER&quot;)) {</span>
+<span class="nc" id="L145">            throw new RuntimeException(&quot;Invalid user role!&quot;);</span>
         }
-<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (!request.getStatus().toString().equals(&quot;ACTIVE&quot;)) {</span>
-<span class="fc" id="L130">            throw new RuntimeException(&quot;Invalid requestStatus&quot;);</span>
-        }
-
-<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (!user.getRole().equals(Role.ROLE_TITIPER.toString())) {</span>
-<span class="nc" id="L134">            throw new RuntimeException(&quot;Invalid role!&quot;);</span>
-        }
-<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (!user.getStatus().equals(Status.PENDING.toString())) {</span>
-<span class="fc" id="L137">            throw new RuntimeException(&quot;Invalid current status!&quot;);</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (!request.getStatus().toString().equals(&quot;ACTIVE&quot;)) {</span>
+<span class="nc" id="L148">            throw new RuntimeException(&quot;Invalid requestStatus&quot;);</span>
         }
 
-<span class="fc" id="L140">        request.setStatus(Status.INACTIVE);</span>
-<span class="fc" id="L141">        kycRequestRepository.save(request);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (!user.getRole().equals(Role.ROLE_TITIPER.toString())) {</span>
+<span class="nc" id="L152">            throw new RuntimeException(&quot;Invalid role!&quot;);</span>
+        }
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (!user.getStatus().equals(Status.PENDING.toString())) {</span>
+<span class="nc" id="L155">            throw new RuntimeException(&quot;Invalid current status!&quot;);</span>
+        }
 
-<span class="fc" id="L143">        user.setStatus(Status.ACTIVE.toString());</span>
-<span class="fc" id="L144">        userRepository.save(user);</span>
+<span class="nc" id="L158">        request.setStatus(Status.INACTIVE);</span>
+<span class="nc" id="L159">        kycRequestRepository.save(request);</span>
 
-<span class="fc" id="L146">        String description = admin.getUsername()</span>
+<span class="nc" id="L161">        user.setStatus(Status.ACTIVE.toString());</span>
+<span class="nc" id="L162">        userRepository.save(user);</span>
+
+<span class="nc" id="L164">        String description = admin.getUsername()</span>
                 + &quot; rejected &quot;
-<span class="fc" id="L148">                + user.getUsername()</span>
+<span class="nc" id="L166">                + user.getUsername()</span>
                 + &quot;'s application to be a jastiper&quot;;
-<span class="fc" id="L150">        logService.log(&quot;Rejected kyc application&quot;, admin.getUsername(),</span>
-<span class="fc" id="L151">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
-<span class="fc" id="L152">    }</span>
+<span class="nc" id="L168">        logService.log(&quot;Rejected kyc application&quot;, admin.getUsername(),</span>
+<span class="nc" id="L169">                admin.getRole(), user.getUsername(), description, LogType.WARN);</span>
+<span class="nc" id="L170">    }</span>
 
     public KycRequest getById(UUID id) {
-<span class="fc" id="L155">        return kycRequestRepository.findById(id)</span>
-<span class="fc" id="L156">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
+<span class="nc" id="L173">        return kycRequestRepository.findById(id)</span>
+<span class="nc" id="L174">                .orElseThrow(() -&gt; new RuntimeException(&quot;User not found!&quot;));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

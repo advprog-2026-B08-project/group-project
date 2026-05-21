@@ -20,29 +20,30 @@ public class CatalogStockAdapter implements StockPort {
 
     @Override
     public ProductSnapshot reserveStock(UUID productId, int quantity) {
-<span class="fc" id="L23">        int updated = catalogRepository.decreaseStockIfAvailable(productId, quantity);</span>
-<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (updated == 0) {</span>
-<span class="fc" id="L25">            Catalog catalog = catalogRepository.findById(productId)</span>
-<span class="fc" id="L26">                    .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Product not found: &quot; + productId));</span>
-<span class="fc" id="L27">            throw new IllegalArgumentException(&quot;Insufficient stock for product: &quot; + catalog.getName());</span>
+<span class="nc" id="L23">        Catalog catalog = catalogRepository.findById(productId)</span>
+<span class="nc" id="L24">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Product not found: &quot; + productId));</span>
+
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (catalog.getStock() &lt; quantity) {</span>
+<span class="nc" id="L27">            throw new IllegalArgumentException(&quot;Insufficient stock for product: &quot; + catalog.getName());</span>
         }
 
-<span class="fc" id="L30">        Catalog catalog = catalogRepository.findById(productId)</span>
-<span class="pc" id="L31">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Product not found: &quot; + productId));</span>
+<span class="nc" id="L30">        catalog.setStock(catalog.getStock() - quantity);</span>
+<span class="nc" id="L31">        catalogRepository.save(catalog);</span>
 
-<span class="fc" id="L33">        return new ProductSnapshot(</span>
-<span class="fc" id="L34">                catalog.getJastiper().getId(),</span>
-<span class="fc" id="L35">                BigDecimal.valueOf(catalog.getPrice()),</span>
-<span class="fc" id="L36">                catalog.getName()</span>
+<span class="nc" id="L33">        return new ProductSnapshot(</span>
+<span class="nc" id="L34">                catalog.getJastiper().getId(),</span>
+<span class="nc" id="L35">                BigDecimal.valueOf(catalog.getPrice()),</span>
+<span class="nc" id="L36">                catalog.getName()</span>
         );
     }
 
     @Override
     public void releaseStock(UUID productId, int quantity) {
-<span class="fc" id="L42">        int updated = catalogRepository.increaseStock(productId, quantity);</span>
-<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (updated == 0) {</span>
-<span class="fc" id="L44">            throw new IllegalArgumentException(&quot;Product not found: &quot; + productId);</span>
-        }
-<span class="fc" id="L46">    }</span>
+<span class="nc" id="L42">        Catalog catalog = catalogRepository.findById(productId)</span>
+<span class="nc" id="L43">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Product not found: &quot; + productId));</span>
+
+<span class="nc" id="L45">        catalog.setStock(catalog.getStock() + quantity);</span>
+<span class="nc" id="L46">        catalogRepository.save(catalog);</span>
+<span class="nc" id="L47">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

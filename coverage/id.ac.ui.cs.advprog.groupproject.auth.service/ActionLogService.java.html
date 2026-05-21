@@ -10,28 +10,28 @@ import java.util.List;
 
 @Service
 public class ActionLogService {
-    private final ActionLogRepository logRepository;
+    ActionLogRepository logRepository;
 
 <span class="fc" id="L15">    public ActionLogService(ActionLogRepository logRepository) {</span>
 <span class="fc" id="L16">        this.logRepository = logRepository;</span>
 <span class="fc" id="L17">    }</span>
 
     public List&lt;ActionLog&gt; getAllLogs() {
-<span class="fc" id="L20">        return logRepository.findAllByOrderByTimestampDesc();</span>
+<span class="nc" id="L20">        return logRepository.findAllByOrderByTimestampDesc();</span>
     }
 
     public void log(String action, String actor, String actorRole,
                     String target, String description, LogType type) {
-<span class="fc" id="L25">        ActionLog log = new ActionLog();</span>
-<span class="fc" id="L26">        log.setAction(action);</span>
-<span class="fc" id="L27">        log.setActor(actor);</span>
-<span class="fc" id="L28">        log.setActorRole(actorRole);</span>
-<span class="fc" id="L29">        log.setTarget(target);</span>
-<span class="fc" id="L30">        log.setDescription(description);</span>
-<span class="fc" id="L31">        log.setTimestamp(LocalDateTime.now());</span>
-<span class="fc" id="L32">        log.setLogType(type);</span>
+<span class="nc" id="L25">        ActionLog log = new ActionLog();</span>
+<span class="nc" id="L26">        log.setAction(action);</span>
+<span class="nc" id="L27">        log.setActor(actor);</span>
+<span class="nc" id="L28">        log.setActorRole(actorRole);</span>
+<span class="nc" id="L29">        log.setTarget(target);</span>
+<span class="nc" id="L30">        log.setDescription(description);</span>
+<span class="nc" id="L31">        log.setTimestamp(LocalDateTime.now());</span>
+<span class="nc" id="L32">        log.setLogType(type);</span>
 
-<span class="fc" id="L34">        logRepository.save(log);</span>
-<span class="fc" id="L35">    }</span>
+<span class="nc" id="L34">        logRepository.save(log);</span>
+<span class="nc" id="L35">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
