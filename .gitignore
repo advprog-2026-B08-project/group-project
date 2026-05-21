@@ -40,3 +40,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Local K8s Secrets ###
+k8s/secrets-local.yaml
