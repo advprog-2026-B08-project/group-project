@@ -9,6 +9,7 @@ import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.JastiperRatingEnricher;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +27,17 @@ public class CatalogApiController {
   private final CatalogService catalogService;
   private final CatalogMapper catalogMapper;
   private final UserRepository userRepository;
+  private final JastiperRatingEnricher jastiperRatingEnricher;
 
   public CatalogApiController(
-      CatalogService catalogService, CatalogMapper catalogMapper, UserRepository userRepository) {
+      CatalogService catalogService,
+      CatalogMapper catalogMapper,
+      UserRepository userRepository,
+      JastiperRatingEnricher jastiperRatingEnricher) {
     this.catalogService = catalogService;
     this.catalogMapper = catalogMapper;
     this.userRepository = userRepository;
+    this.jastiperRatingEnricher = jastiperRatingEnricher;
   }
 
   private User getCurrentUser(Principal principal) {
@@ -64,7 +70,9 @@ public class CatalogApiController {
       catalogs = catalogService.searchCatalogs(name, jastiper);
     }
 
-    return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));
+    List<CatalogDto> dtos = catalogMapper.toDtoList(catalogs);
+    jastiperRatingEnricher.enrich(dtos);
+    return ResponseEntity.ok(dtos);
   }
 
   @PostMapping

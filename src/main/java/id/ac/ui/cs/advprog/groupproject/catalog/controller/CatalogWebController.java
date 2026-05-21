@@ -1,13 +1,13 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
-import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
-import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
-import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.JastiperRatingEnricher;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -33,19 +33,19 @@ public class CatalogWebController {
   private final CatalogImageService catalogImageService;
   private final CatalogMapper catalogMapper;
   private final UserRepository userRepository;
-  private final OrderRepository orderRepository;
+  private final JastiperRatingEnricher jastiperRatingEnricher;
 
   public CatalogWebController(
       CatalogService catalogService,
       CatalogImageService catalogImageService,
       CatalogMapper catalogMapper,
       UserRepository userRepository,
-      OrderRepository orderRepository) {
+      JastiperRatingEnricher jastiperRatingEnricher) {
     this.catalogService = catalogService;
     this.catalogImageService = catalogImageService;
     this.catalogMapper = catalogMapper;
     this.userRepository = userRepository;
-    this.orderRepository = orderRepository;
+    this.jastiperRatingEnricher = jastiperRatingEnricher;
   }
 
   private User getCurrentUser(Principal principal) {
@@ -71,9 +71,8 @@ public class CatalogWebController {
 
   @GetMapping
   public String catalog(Model model, Principal principal) {
-    List<CatalogDto> catalogs = catalogMapper.toDtoList(catalogService.getAllCatalogs());
-    enrichWithJastiperRating(catalogs);
-    model.addAttribute(CATALOGS_ATTRIBUTE, catalogs);
+    // Initial render: only render the page shell. The product list is loaded via AJAX
+    // (GET /api/catalogs/search) on the client side. See catalog.js#init().
     if (principal != null) {
       userRepository
           .findByUsername(principal.getName())
@@ -105,7 +104,7 @@ public class CatalogWebController {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     List<CatalogDto> catalogs = catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId));
-    enrichWithJastiperRating(catalogs);
+    jastiperRatingEnricher.enrich(catalogs);
     model.addAttribute(CATALOGS_ATTRIBUTE, catalogs);
     model.addAttribute("username", user.getUsername());
     model.addAttribute("jastiperUser", user);
@@ -242,18 +241,5 @@ public class CatalogWebController {
 
     catalogService.deleteCatalogByAdmin(id);
     return "redirect:/catalog/admin/monitoring";
-  }
-
-  private void enrichWithJastiperRating(List<CatalogDto> catalogs) {
-    for (CatalogDto dto : catalogs) {
-      if (dto.getJastiperId() != null) {
-        try {
-          Double avgRating = orderRepository.findAverageJastiperRating(dto.getJastiperId());
-          dto.setJastiperRatingAverage(avgRating);
-        } catch (Exception e) {
-          // Silently ignore if order data not available
-        }
-      }
-    }
   }
 }
