@@ -226,6 +226,27 @@ class OrderServiceImplTest {
   }
 
   @Test
+  void updateStatus_transitionToCompleted_creditsJastiper() {
+    UUID orderId = UUID.randomUUID();
+    Order order = new Order();
+    order.setId(orderId);
+    order.setStatus(OrderStatus.SHIPPED);
+    order.setJastiperId(jastiperId);
+    order.setTotalPrice(BigDecimal.valueOf(150000));
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    when(orderRepository.save(any(Order.class))).thenReturn(order);
+    when(statusHistoryRepository.save(any(StatusHistory.class)))
+        .thenReturn(new StatusHistory());
+
+    orderService.updateStatus(orderId, OrderStatus.COMPLETED);
+
+    verify(orderRepository).save(order);
+    verify(statusHistoryRepository).save(any(StatusHistory.class));
+    verify(paymentPort).creditSeller(eq(jastiperId), eq(BigDecimal.valueOf(150000)), anyString());
+    assertEquals(OrderStatus.COMPLETED, order.getStatus());
+  }
+
+  @Test
   void updateStatus_invalidTransition_throws() {
     UUID orderId = UUID.randomUUID();
     Order order = new Order();

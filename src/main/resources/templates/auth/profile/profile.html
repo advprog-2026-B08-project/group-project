@@ -1,45 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Your Profile</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body style="background: #f0f0f0">
-  <div th:replace="fragments/navbar :: navbar"></div>
-  <h1 style="font-family: 'Arial Black'; margin-bottom: 40px; margin-left: 100px; margin-top: 20px">Profile</h1>
-  <div class="profile-container">
-
-      <div class="profile-left">
-          <img th:src="${user.profilePictureURL != null} ? ${user.profilePictureURL} : '/images/defaultProfilePicture.png'"
-               onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
-               class="profile-pic" style="margin-left: 40px">
-      </div>
-
-      <div class="profile-right">
-          <div class="center2" style="margin-left: 50px; margin-top: 30px">
-              <div style="margin-bottom: 50px">
-                  <span style="font-family: 'Arial Black'; font-size: 32px"
-                     th:text="${user.username}"></span>
-                  <br>
-                  <span style="color: #606060" th:text="${user.email}"></span>
-                  <span style="color: #606060">  |  </span>
-                  <span style="color: #606060" th:text="${user.fullName} ?: '-'"></span>
-              </div>
-              <div style="margin-bottom: 30px" th:if="${user.socials != null}">
-                    <b style="color: #606060"><span>Socials : </span><span th:text="${user.socials} ?: '-'"></span></b>
-              </div>
-              <div>
-                  <a th:href="@{/profile/edit}">
-                      <button class="btn btn-info">
-                          Edit
-                      </button>
-                  </a>
-              </div>
-          </div>
-      </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Profil — JSON')"></head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+    <div class="me-container me-page">
+        <div class="me-page-header">
+            <h1>Profil</h1>
+        </div>
+        <div class="profile-container">
+            <div class="profile-left">
+                <img th:src="${user.profilePictureURL != null} ? ${user.profilePictureURL} : '/images/defaultProfilePicture.png'"
+                     onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
+                     class="profile-pic">
+            </div>
+            <div class="profile-right" style="justify-content:center;">
+                <div>
+                    <h2 style="margin-bottom:4px;" th:text="${user.username}"></h2>
+                    <p style="color:var(--me-text-secondary); margin-bottom:4px;">
+                        <span th:text="${user.email}"></span>
+                        <span th:if="${user.fullName != null}"> · <span th:text="${user.fullName}"></span></span>
+                    </p>
+                    <p th:if="${user.socials != null}" style="color:var(--me-text-muted); font-size:0.9rem; margin-bottom:20px;">
+                        Socials: <span th:text="${user.socials} ?: '-'"></span>
+                    </p>
+                    <a th:href="@{/profile/edit}" class="me-btn me-btn--primary me-btn--sm">Edit Profil</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

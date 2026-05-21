@@ -1,75 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallet</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Digital Wallet — JSON</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/wallet.css}">
 </head>
-<body class="wallet-body">
+<body>
 <div th:replace="fragments/navbar :: navbar"></div>
 
-<main class="wallet-shell" th:attr="data-user-id=${user.id}">
-    <section class="wallet-hero">
-        <div class="hero-copy">
-            <span class="eyebrow">Digital Wallet</span>
-            <h1>Kontrol saldo, transaksi, dan tarik dana tanpa drama.</h1>
-            <p class="hero-subtitle">
-                Top-up dan withdrawal akan berstatus pending sampai diverifikasi.
-            </p>
+<main class="me-container me-page wallet-shell" th:attr="data-user-id=${user.id}">
+    <!-- Hero / Header -->
+    <div class="me-page-header" style="margin-bottom: 32px;">
+        <div>
+            <span style="text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.75rem; font-weight: 800; color: var(--me-text-secondary); display: block; margin-bottom: 6px;">Digital Wallet</span>
+            <h1 style="font-size: 2.5rem; font-weight: 900; margin: 0;">Kontrol Saldo & Transaksi</h1>
+            <p style="color: var(--me-text-secondary); margin-top: 6px; margin-bottom: 0;">Top-up dan withdrawal akan berstatus pending sampai diverifikasi oleh Admin.</p>
+        </div>
+    </div>
 
-            <div class="balance-card">
+    <!-- Main Grid -->
+    <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 24px; align-items: start;">
+        
+        <!-- Left Column: Balance overview & transaction history -->
+        <div class="me-stack" style="gap: 24px;">
+            <!-- Balance Card -->
+            <div class="me-card me-card--flat" style="background: var(--me-success-bg); border-color: var(--me-success); border-width: 2px; padding: 24px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div class="balance-label">Saldo saat ini</div>
-                    <div class="balance-value" id="wallet-balance">Rp 0</div>
-                    <div class="balance-meta" id="wallet-updated">Terakhir diperbarui: -</div>
+                    <span style="text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; font-weight: 800; color: #065F46; display: block; margin-bottom: 4px;">Saldo Saat Ini</span>
+                    <div id="wallet-balance" style="font-size: 2.5rem; font-weight: 900; color: var(--me-text); line-height: 1.2;">Rp 0</div>
+                    <div id="wallet-updated" style="font-size: 0.8rem; color: #065F46; opacity: 0.8; margin-top: 4px;">Terakhir diperbarui: -</div>
                 </div>
-                <div class="balance-badge" id="wallet-status">Status: OK</div>
+                <div>
+                    <span id="wallet-status" class="me-badge me-badge--success" style="font-size: 0.85rem; padding: 6px 16px; border-width: 2px;">Status: OK</span>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="me-card" style="padding: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.3rem; font-weight: 800;">Riwayat Transaksi</h3>
+                        <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--me-text-secondary);">Semua mutasi saldo Anda.</p>
+                    </div>
+                    <button id="refresh-history" class="me-btn me-btn--outline me-btn--sm" style="border-radius: 20px;">
+                        🔄 Refresh
+                    </button>
+                </div>
+
+                <div id="history-list" class="me-stack" style="gap: 8px;">
+                    <div class="me-card me-center" style="padding: 32px; border-style: dashed; border-color: var(--me-border); background: var(--me-bg);">
+                        <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">💸</span>
+                        <p style="font-weight: 700; color: var(--me-text-secondary); margin: 0;">Belum ada transaksi.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="hero-panel">
-            <div class="action-card">
-                <h3>Top-up</h3>
-                <p>Masukkan nominal. Saldo bertambah setelah verifikasi.</p>
-                <form id="topup-form" class="wallet-form">
-                    <label class="field-group">
-                        <span class="field-label">Nominal</span>
-                        <input id="topup-amount" type="number" name="amount" min="1" step="0.01" placeholder="100000" required>
-                    </label>
-                    <div class="amount-presets" data-target="topup-amount">
-                        <button type="button" class="preset-chip" data-value="10000">10K</button>
-                        <button type="button" class="preset-chip" data-value="50000">50K</button>
-                        <button type="button" class="preset-chip" data-value="100000">100K</button>
-                        <button type="button" class="preset-chip" data-value="500000">500K</button>
+        <!-- Right Column: Top-Up & Withdraw forms -->
+        <div class="me-stack" style="gap: 24px;">
+            <!-- Top-Up Card -->
+            <div class="me-card" style="padding: 24px;">
+                <h3 style="margin-top: 0; margin-bottom: 8px; font-weight: 800; font-size: 1.25rem;">💰 Top-up Saldo</h3>
+                <p style="font-size: 0.85rem; color: var(--me-text-secondary); margin-bottom: 16px;">Masukkan nominal top-up. Saldo akan bertambah setelah diverifikasi admin.</p>
+                
+                <form id="topup-form" class="me-stack" style="gap: 16px;">
+                    <div class="me-stack" style="gap: 6px;">
+                        <label for="topup-amount" style="font-weight: 700; font-size: 0.85rem;">Nominal (Rupiah)</label>
+                        <input id="topup-amount" class="me-input" type="number" name="amount" min="1" step="0.01" placeholder="100000" required style="width: 100%;">
                     </div>
-                    <div class="inline-warning" id="topup-warning" aria-live="polite"></div>
-                    <button type="submit" id="topup-submit">Submit Top-up</button>
+                    
+                    <div class="amount-presets" data-target="topup-amount" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-value="10000" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">+10K</button>
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-value="50000" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">+50K</button>
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-value="100000" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">+100K</button>
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-value="500000" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">+500K</button>
+                    </div>
+
+                    <div class="inline-warning" id="topup-warning" aria-live="polite" style="font-size: 0.8rem; color: var(--me-danger); font-weight: 700;"></div>
+                    <button type="submit" id="topup-submit" class="me-btn me-btn--primary me-btn--block" style="font-weight: 800;">Submit Top-up</button>
                 </form>
-                <div class="form-status" id="topup-status" aria-live="polite">&nbsp;</div>
+                <div class="form-status" id="topup-status" aria-live="polite" style="margin-top: 12px; font-size: 0.85rem;">&nbsp;</div>
             </div>
 
-            <div class="action-card">
-                <h3>Withdrawal</h3>
-                <p>Pastikan saldo mencukupi dan tujuan jelas.</p>
-                <form id="withdraw-form" class="wallet-form">
-                    <label class="field-group">
-                        <span class="field-label">Nominal</span>
-                        <input id="withdraw-amount" type="number" name="amount" min="1" step="0.01" placeholder="50000" required>
-                    </label>
-                    <div class="amount-presets" data-target="withdraw-amount">
-                        <button type="button" class="preset-chip" data-mode="percent" data-value="0.1">10%</button>
-                        <button type="button" class="preset-chip" data-mode="percent" data-value="0.5">50%</button>
-                        <button type="button" class="preset-chip" data-mode="percent" data-value="0.75">75%</button>
-                        <button type="button" class="preset-chip" data-mode="max" data-value="max">Max</button>
+            <!-- Withdrawal Card -->
+            <div class="me-card" style="padding: 24px;">
+                <h3 style="margin-top: 0; margin-bottom: 8px; font-weight: 800; font-size: 1.25rem;">💸 Tarik Dana</h3>
+                <p style="font-size: 0.85rem; color: var(--me-text-secondary); margin-bottom: 16px;">Pastikan saldo Anda mencukupi dan rekening tujuan diisi dengan benar.</p>
+                
+                <form id="withdraw-form" class="me-stack" style="gap: 16px;">
+                    <div class="me-stack" style="gap: 6px;">
+                        <label for="withdraw-amount" style="font-weight: 700; font-size: 0.85rem;">Nominal (Rupiah)</label>
+                        <input id="withdraw-amount" class="me-input" type="number" name="amount" min="1" step="0.01" placeholder="50000" required style="width: 100%;">
                     </div>
-                    <label class="field-group">
-                        <span class="field-label">Tujuan penarikan</span>
-                        <select id="withdraw-destination" name="destination" required>
+                    
+                    <div class="amount-presets" data-target="withdraw-amount" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-mode="percent" data-value="0.1" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">10%</button>
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-mode="percent" data-value="0.5" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">50%</button>
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-mode="percent" data-value="0.75" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">75%</button>
+                        <button type="button" class="preset-chip me-btn me-btn--outline me-btn--sm" data-mode="max" data-value="max" style="border-radius: 20px; font-size: 0.75rem; padding: 4px 10px;">Max</button>
+                    </div>
+
+                    <div class="me-stack" style="gap: 6px;">
+                        <label for="withdraw-destination" style="font-weight: 700; font-size: 0.85rem;">Tujuan Penarikan</label>
+                        <select id="withdraw-destination" class="me-input" name="destination" required style="width: 100%;">
                             <option value="" selected disabled>Pilih bank / e-wallet</option>
                             <option value="Bank Transfer">Bank Transfer</option>
                             <option value="BCA">BCA</option>
@@ -81,27 +115,15 @@
                             <option value="GoPay">GoPay</option>
                             <option value="ShopeePay">ShopeePay</option>
                         </select>
-                    </label>
-                    <div class="inline-warning" id="withdraw-warning" aria-live="polite"></div>
-                    <button type="submit" id="withdraw-submit" class="secondary">Ajukan Withdrawal</button>
-                </form>
-                <div class="form-status" id="withdraw-status" aria-live="polite">&nbsp;</div>
-            </div>
-        </div>
-    </section>
+                    </div>
 
-    <section class="wallet-history">
-        <div class="history-header">
-            <div>
-                <h2>Riwayat Transaksi</h2>
-                <p class="muted">Semua mutasi saldo, lengkap dengan status dan waktu.</p>
+                    <div class="inline-warning" id="withdraw-warning" aria-live="polite" style="font-size: 0.8rem; color: var(--me-danger); font-weight: 700;"></div>
+                    <button type="submit" id="withdraw-submit" class="me-btn me-btn--primary me-btn--block" style="font-weight: 800; background: var(--me-warning); border-color: var(--me-warning); color: var(--me-text);">Ajukan Withdrawal</button>
+                </form>
+                <div class="form-status" id="withdraw-status" aria-live="polite" style="margin-top: 12px; font-size: 0.85rem;">&nbsp;</div>
             </div>
-            <button id="refresh-history" class="ghost">Refresh</button>
         </div>
-        <div class="history-list" id="history-list">
-            <div class="history-empty">Belum ada transaksi.</div>
-        </div>
-    </section>
+    </div>
 </main>
 
 <script>
@@ -244,24 +266,46 @@
     const renderHistory = (items) => {
         historyList.innerHTML = "";
         if (!items || items.length === 0) {
-            historyList.innerHTML = '<div class="history-empty">Belum ada transaksi.</div>';
+            historyList.innerHTML = `
+                <div class="me-card me-center" style="padding: 32px; border-style: dashed; border-color: var(--me-border); background: var(--me-bg);">
+                    <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">💸</span>
+                    <p style="font-weight: 700; color: var(--me-text-secondary); margin: 0;">Belum ada transaksi.</p>
+                </div>
+            `;
             return;
         }
 
         items.forEach((item) => {
             const row = document.createElement("div");
-            row.className = "history-row";
+            row.className = "me-card me-card--flat";
+            row.style.padding = "16px";
+            row.style.display = "grid";
+            row.style.gridTemplateColumns = "1.5fr 1fr 1fr 1.2fr";
+            row.style.gap = "16px";
+            row.style.alignItems = "center";
+            row.style.marginBottom = "8px";
 
-            const statusClass = `status-${String(item.status || "").toLowerCase()}`;
+            // Status mapping to neobrutalist badges
+            let badgeClass = "me-badge--info";
+            const statusUpper = String(item.status || "").toUpperCase();
+            if (statusUpper === "SUCCESS" || statusUpper === "COMPLETED") {
+                badgeClass = "me-badge--success";
+            } else if (statusUpper === "PENDING") {
+                badgeClass = "me-badge--warning";
+            } else if (statusUpper === "FAILED" || statusUpper === "CANCELLED") {
+                badgeClass = "me-badge--danger";
+            }
 
             row.innerHTML = `
                 <div>
-                    <div class="history-title">${item.type || "-"}</div>
-                    <div class="history-meta">${item.description || "-"}</div>
+                    <div style="font-weight: 800; font-size: 1rem; color: var(--me-text);">${item.type || "-"}</div>
+                    <div style="font-size: 0.8rem; color: var(--me-text-secondary); margin-top: 2px;">${item.description || "-"}</div>
                 </div>
-                <div class="history-amount">${formatIdr(item.amount)}</div>
-                <div class="history-status ${statusClass}">${item.status || "-"}</div>
-                <div class="history-time">${formatTime(item.createdAt)}</div>
+                <div style="font-weight: 800; font-size: 1rem; color: var(--me-text);">${formatIdr(item.amount)}</div>
+                <div>
+                    <span class="me-badge ${badgeClass}" style="font-size: 0.7rem; padding: 2px 8px; border-width: 1px;">${item.status || "-"}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--me-text-secondary);">${formatTime(item.createdAt)}</div>
             `;
 
             historyList.appendChild(row);
@@ -281,7 +325,7 @@
             setStatus(statusEl, "Status: OK", "tone-success");
             validateWithdrawForm();
         } catch (error) {
-            setStatus(statusEl, "Status: Tidak bisa memuat saldo", "tone-error");
+            setStatus(statusEl, "Status: Gagal memuat saldo", "tone-error");
         }
     };
 
@@ -294,7 +338,12 @@
             const data = await response.json();
             renderHistory(data);
         } catch (error) {
-            historyList.innerHTML = '<div class="history-empty">Gagal memuat transaksi.</div>';
+            historyList.innerHTML = `
+                <div class="me-card me-center" style="padding: 32px; border-style: dashed; border-color: var(--me-danger); background: var(--me-bg);">
+                    <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">⚠</span>
+                    <p style="font-weight: 700; color: var(--me-danger); margin: 0;">Gagal memuat transaksi.</p>
+                </div>
+            `;
         }
     };
 

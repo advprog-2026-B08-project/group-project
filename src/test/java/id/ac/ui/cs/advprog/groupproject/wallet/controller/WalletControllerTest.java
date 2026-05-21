@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.groupproject.wallet.controller;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TopUpRequest;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.TransactionResponse;
 import id.ac.ui.cs.advprog.groupproject.wallet.dto.WalletResponse;
@@ -12,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,10 +35,14 @@ class WalletControllerTest {
     private WalletController walletController;
 
     private UUID userId;
+    private User principal;
 
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
+        principal = new User();
+        principal.setId(userId);
+        principal.setRole("ROLE_TITIPER");
     }
 
     @Test
@@ -46,7 +52,7 @@ class WalletControllerTest {
 
         when(walletService.getBalance(userId)).thenReturn(walletResponse);
 
-        ResponseEntity<WalletResponse> response = walletController.getBalance(userId);
+        ResponseEntity<WalletResponse> response = walletController.getBalance(userId, principal);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -59,7 +65,30 @@ class WalletControllerTest {
         when(walletService.getBalance(userId))
                 .thenThrow(new IllegalArgumentException("Wallet not found"));
 
-        assertThrows(IllegalArgumentException.class, () -> walletController.getBalance(userId));
+        assertThrows(IllegalArgumentException.class, () -> walletController.getBalance(userId, principal));
+    }
+
+    @Test
+    void getBalance_UnauthorizedUser_ThrowsForbiddenException() {
+        User otherUser = new User();
+        otherUser.setId(UUID.randomUUID());
+        otherUser.setRole("ROLE_TITIPER");
+
+        assertThrows(ResponseStatusException.class, () -> walletController.getBalance(userId, otherUser));
+    }
+
+    @Test
+    void getBalance_AdminUser_ReturnsOk() {
+        User adminUser = new User();
+        adminUser.setId(UUID.randomUUID());
+        adminUser.setRole("ROLE_ADMIN");
+
+        WalletResponse walletResponse = new WalletResponse(
+                userId, new BigDecimal("250000"), LocalDateTime.now());
+        when(walletService.getBalance(userId)).thenReturn(walletResponse);
+
+        ResponseEntity<WalletResponse> response = walletController.getBalance(userId, adminUser);
+        assertEquals(200, response.getStatusCode().value());
     }
 
     @Test
@@ -73,7 +102,7 @@ class WalletControllerTest {
 
         when(walletService.topUp(eq(userId), any(TopUpRequest.class))).thenReturn(txResponse);
 
-        ResponseEntity<TransactionResponse> response = walletController.topUp(userId, request);
+        ResponseEntity<TransactionResponse> response = walletController.topUp(userId, request, principal);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -90,7 +119,7 @@ class WalletControllerTest {
         when(walletService.topUp(eq(userId), any(TopUpRequest.class)))
                 .thenThrow(new IllegalArgumentException("Top-up amount must be greater than zero"));
 
-        assertThrows(IllegalArgumentException.class, () -> walletController.topUp(userId, request));
+        assertThrows(IllegalArgumentException.class, () -> walletController.topUp(userId, request, principal));
     }
 
     @Test
@@ -106,7 +135,7 @@ class WalletControllerTest {
         when(walletService.withdrawBalance(eq(userId), any(BigDecimal.class), any(String.class)))
                 .thenReturn(txResponse);
 
-        ResponseEntity<TransactionResponse> response = walletController.withdraw(userId, request);
+        ResponseEntity<TransactionResponse> response = walletController.withdraw(userId, request, principal);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -123,7 +152,7 @@ class WalletControllerTest {
 
         when(walletService.getTransactionHistory(userId)).thenReturn(List.of(txResponse));
 
-        ResponseEntity<List<TransactionResponse>> response = walletController.getTransactionHistory(userId);
+        ResponseEntity<List<TransactionResponse>> response = walletController.getTransactionHistory(userId, principal);
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());

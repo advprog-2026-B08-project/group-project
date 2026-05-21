@@ -20,15 +20,15 @@ public class CatalogStockAdapter implements StockPort {
 
     @Override
     public ProductSnapshot reserveStock(UUID productId, int quantity) {
-        Catalog catalog = catalogRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
-
-        if (catalog.getStock() < quantity) {
+        int updated = catalogRepository.decreaseStockIfAvailable(productId, quantity);
+        if (updated == 0) {
+            Catalog catalog = catalogRepository.findById(productId)
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
             throw new IllegalArgumentException("Insufficient stock for product: " + catalog.getName());
         }
 
-        catalog.setStock(catalog.getStock() - quantity);
-        catalogRepository.save(catalog);
+        Catalog catalog = catalogRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
 
         return new ProductSnapshot(
                 catalog.getJastiper().getId(),
@@ -39,10 +39,9 @@ public class CatalogStockAdapter implements StockPort {
 
     @Override
     public void releaseStock(UUID productId, int quantity) {
-        Catalog catalog = catalogRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
-
-        catalog.setStock(catalog.getStock() + quantity);
-        catalogRepository.save(catalog);
+        int updated = catalogRepository.increaseStock(productId, quantity);
+        if (updated == 0) {
+            throw new IllegalArgumentException("Product not found: " + productId);
+        }
     }
 }
