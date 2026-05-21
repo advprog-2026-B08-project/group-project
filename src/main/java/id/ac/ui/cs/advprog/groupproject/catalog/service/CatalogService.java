@@ -9,6 +9,7 @@ import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
+import id.ac.ui.cs.advprog.groupproject.catalog.idempotency.IdempotentOperation;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -196,42 +196,44 @@ public class CatalogService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
     }
 
-    if (stockDecreaseEventRepository.existsByRequestId(requestId)) {
-      LOGGER.info("stock_decrease_duplicate requestId={} catalogId={}", requestId, catalogId);
-      return catalogRepository
-          .findById(catalogId)
-          .orElseThrow(
-              () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-    }
-
-    StockDecreaseEvent event = new StockDecreaseEvent();
-    event.setRequestId(requestId);
-    event.setCatalogId(catalogId);
-    event.setQuantity(quantity);
-    event.setCreatedAt(Instant.now());
-
-    try {
-      stockDecreaseEventRepository.saveAndFlush(event);
-    } catch (DataIntegrityViolationException ex) {
-      LOGGER.info("stock_decrease_duplicate_race requestId={} catalogId={}", requestId, catalogId);
-      return catalogRepository
-          .findById(catalogId)
-          .orElseThrow(
-              () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-    }
-
-    int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);
-    if (updatedRows == 0) {
-      if (!catalogRepository.existsById(catalogId)) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+    return new IdempotentOperation<UUID, Catalog>() {
+      @Override
+      protected String operationName() {
+        return "stock_decrease";
       }
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
-    }
 
-    return catalogRepository
-        .findById(catalogId)
-        .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+      @Override
+      protected boolean isAlreadyProcessed(UUID key) {
+        return stockDecreaseEventRepository.existsByRequestId(key);
+      }
+
+      @Override
+      protected void recordEvent(UUID key) {
+        StockDecreaseEvent event = new StockDecreaseEvent();
+        event.setRequestId(key);
+        event.setCatalogId(catalogId);
+        event.setQuantity(quantity);
+        event.setCreatedAt(Instant.now());
+        stockDecreaseEventRepository.saveAndFlush(event);
+      }
+
+      @Override
+      protected Catalog performAction(UUID key) {
+        int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);
+        if (updatedRows == 0) {
+          if (!catalogRepository.existsById(catalogId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+          }
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
+        }
+        return requireCatalog(catalogId);
+      }
+
+      @Override
+      protected Catalog buildDuplicateResponse(UUID key) {
+        return requireCatalog(catalogId);
+      }
+    }.execute(requestId);
   }
 
   @Transactional
@@ -243,56 +245,65 @@ public class CatalogService {
               ? "role_forbidden"
               : "buyer_mismatch";
       meterRegistry.counter("catalog.rating.rejected", "reason", reason).increment();
-      // Delegate to policy for the canonical exception/message
       catalogPolicy.requireCanSubmitRating(currentUser, request.getBuyerId());
     }
 
-    if (catalogRatingEventRepository.existsByOrderId(request.getOrderId())) {
-      meterRegistry.counter("catalog.rating.duplicate").increment();
-      LOGGER.info("catalog_rating_duplicate orderId={} catalogId={}", request.getOrderId(), catalogId);
-      Catalog catalog = getCatalogByIdForAdmin(catalogId);
-      return new ProductRatingUpdateResponse(false, catalog.getRatingAverage(), catalog.getRatingCount());
-    }
+    return new IdempotentOperation<UUID, ProductRatingUpdateResponse>() {
+      @Override
+      protected String operationName() {
+        return "catalog_rating";
+      }
 
-    if (!catalogRepository.existsById(catalogId)) {
-      meterRegistry.counter("catalog.rating.rejected", "reason", "catalog_not_found").increment();
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
-    }
+      @Override
+      protected boolean isAlreadyProcessed(UUID orderId) {
+        return catalogRatingEventRepository.existsByOrderId(orderId);
+      }
 
-    CatalogRatingEvent event = new CatalogRatingEvent();
-    event.setOrderId(request.getOrderId());
-    event.setCatalogId(catalogId);
-    event.setBuyerId(request.getBuyerId());
-    event.setProductRating(request.getProductRating());
-    event.setCreatedAt(Instant.now());
+      @Override
+      protected void recordEvent(UUID orderId) {
+        if (!catalogRepository.existsById(catalogId)) {
+          meterRegistry.counter("catalog.rating.rejected", "reason", "catalog_not_found").increment();
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+        }
+        CatalogRatingEvent event = new CatalogRatingEvent();
+        event.setOrderId(orderId);
+        event.setCatalogId(catalogId);
+        event.setBuyerId(request.getBuyerId());
+        event.setProductRating(request.getProductRating());
+        event.setCreatedAt(Instant.now());
+        catalogRatingEventRepository.save(event);
+      }
 
-    try {
-      catalogRatingEventRepository.save(event);
-    } catch (DataIntegrityViolationException ex) {
-      meterRegistry.counter("catalog.rating.duplicate").increment();
-      LOGGER.info(
-          "catalog_rating_duplicate_race orderId={} catalogId={}", request.getOrderId(), catalogId);
-      Catalog catalog = getCatalogByIdForAdmin(catalogId);
-      return new ProductRatingUpdateResponse(false, catalog.getRatingAverage(), catalog.getRatingCount());
-    }
+      @Override
+      protected ProductRatingUpdateResponse performAction(UUID orderId) {
+        int updatedRows =
+            catalogRepository.applyProductRating(catalogId, request.getProductRating());
+        if (updatedRows == 0) {
+          meterRegistry.counter("catalog.rating.failed", "reason", "aggregate_update").increment();
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+        }
+        Catalog catalog = requireCatalog(catalogId);
+        meterRegistry.counter("catalog.rating.applied").increment();
+        LOGGER.info(
+            "catalog_rating_applied orderId={} catalogId={} rating={} ratingAverage={} ratingCount={}",
+            orderId, catalogId, request.getProductRating(),
+            catalog.getRatingAverage(), catalog.getRatingCount());
+        return new ProductRatingUpdateResponse(
+            true, catalog.getRatingAverage(), catalog.getRatingCount());
+      }
 
-    int updatedRows = catalogRepository.applyProductRating(catalogId, request.getProductRating());
-    if (updatedRows == 0) {
-      meterRegistry.counter("catalog.rating.failed", "reason", "aggregate_update").increment();
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
-    }
+      @Override
+      protected ProductRatingUpdateResponse buildDuplicateResponse(UUID orderId) {
+        Catalog catalog = requireCatalog(catalogId);
+        return new ProductRatingUpdateResponse(
+            false, catalog.getRatingAverage(), catalog.getRatingCount());
+      }
 
-    Catalog catalog = getCatalogByIdForAdmin(catalogId);
-    meterRegistry.counter("catalog.rating.applied").increment();
-    LOGGER.info(
-        "catalog_rating_applied orderId={} catalogId={} rating={} ratingAverage={} ratingCount={}",
-        request.getOrderId(),
-        catalogId,
-        request.getProductRating(),
-        catalog.getRatingAverage(),
-        catalog.getRatingCount());
-
-    return new ProductRatingUpdateResponse(true, catalog.getRatingAverage(), catalog.getRatingCount());
+      @Override
+      protected void onDuplicate(UUID orderId) {
+        meterRegistry.counter("catalog.rating.duplicate").increment();
+      }
+    }.execute(request.getOrderId());
   }
 
   private String normalizeSearchTerm(String value) {
@@ -302,6 +313,13 @@ public class CatalogService {
 
     String trimmedValue = value.trim();
     return trimmedValue.isEmpty() ? null : trimmedValue;
+  }
+
+  private Catalog requireCatalog(UUID catalogId) {
+    return catalogRepository
+        .findById(catalogId)
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
   }
 
   private String getCatalogTarget(Catalog catalog) {
