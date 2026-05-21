@@ -47,6 +47,9 @@ class CatalogApiControllerTest {
     private CatalogMapper catalogMapper;
 
     @Mock
+    private id.ac.ui.cs.advprog.groupproject.catalog.service.JastiperRatingEnricher jastiperRatingEnricher;
+
+    @Mock
     private Principal principal;
 
     @InjectMocks

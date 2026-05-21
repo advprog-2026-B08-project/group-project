@@ -167,6 +167,30 @@ function displayPage() {
     var pageItems = allCatalogs.slice(start, end);
     renderCatalogGrid(pageItems);
     renderPagination(allCatalogs.length);
+
+    // Reveal grid + pagination, hide loading state once data is rendered.
+    var loadingEl = document.getElementById('catalog-loading');
+    var gridEl = document.getElementById('catalog-grid');
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (gridEl) gridEl.style.display = '';
+}
+
+function showLoadingState() {
+    var loadingEl = document.getElementById('catalog-loading');
+    var gridEl = document.getElementById('catalog-grid');
+    if (loadingEl) loadingEl.style.display = '';
+    if (gridEl) gridEl.style.display = 'none';
+}
+
+function showErrorState(message) {
+    var loadingEl = document.getElementById('catalog-loading');
+    var gridEl = document.getElementById('catalog-grid');
+    if (loadingEl) {
+        loadingEl.innerHTML = '<span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">⚠️</span>'
+            + '<p style="font-weight: 700; color: var(--me-danger); margin: 0;">' + message + '</p>';
+        loadingEl.style.display = '';
+    }
+    if (gridEl) gridEl.style.display = 'none';
 }
 
 function goToPage(page) {
@@ -194,12 +218,13 @@ async function loadCatalogs() {
 
 async function handleSearch(event) {
     if (event) event.preventDefault();
+    showLoadingState();
     try {
         allCatalogs = await loadCatalogs();
         currentPage = 1;
         displayPage();
     } catch (error) {
-        alert('Gagal mencari produk.');
+        showErrorState('Gagal mencari produk.');
     }
 }
 
@@ -210,12 +235,13 @@ function handleSearchBtn() {
 async function resetSearch() {
     var searchInput = document.getElementById('catalogSearchInput');
     if (searchInput) searchInput.value = '';
+    showLoadingState();
     try {
         allCatalogs = await loadCatalogs();
         currentPage = 1;
         displayPage();
     } catch (error) {
-        alert('Gagal mereset pencarian.');
+        showErrorState('Gagal mereset pencarian.');
     }
 }
 
@@ -233,7 +259,7 @@ function bindCardClicks() {
 
 /* ── Init ───────────────────────────────────── */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     var searchForm = document.getElementById('catalog-search-form');
     var searchInput = document.getElementById('catalogSearchInput');
     var resetButton = document.getElementById('catalog-search-reset');
@@ -258,10 +284,11 @@ document.addEventListener('DOMContentLoaded', function() {
         resetButton.addEventListener('click', resetSearch);
     }
 
-    // Use server-rendered data for initial load
-    if (window.__INITIAL_CATALOGS__ && window.__INITIAL_CATALOGS__.length > 0) {
-        allCatalogs = window.__INITIAL_CATALOGS__;
+    // Initial load via AJAX — page shell is rendered server-side, data fetched client-side.
+    try {
+        allCatalogs = await loadCatalogs();
+        displayPage();
+    } catch (error) {
+        showErrorState('Gagal memuat produk.');
     }
-
-    displayPage();
 });

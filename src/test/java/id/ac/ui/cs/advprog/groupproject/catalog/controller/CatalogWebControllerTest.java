@@ -4,7 +4,6 @@ import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
-import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -65,7 +64,7 @@ class CatalogWebControllerTest {
     private UserRepository userRepository;
 
     @MockitoBean
-    private OrderRepository orderRepository;
+    private id.ac.ui.cs.advprog.groupproject.catalog.service.JastiperRatingEnricher jastiperRatingEnricher;
 
     private User testUser;
     private User customerUser;
@@ -129,20 +128,17 @@ class CatalogWebControllerTest {
 
     @Test
     void testCatalogPage() throws Exception {
-        List<Catalog> catalogs = new ArrayList<>();
-        catalogs.add(testCatalog);
-
-        when(catalogService.getAllCatalogs()).thenReturn(catalogs);
-        when(catalogMapper.toDtoList(catalogs)).thenReturn(List.of(testCatalogDto));
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
 
         mockMvc.perform(get("/catalog")
             .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("catalog/html/catalog"))
-                .andExpect(model().attributeExists("catalogs"));
+                .andExpect(model().attributeExists("currentUserId"));
 
-        verify(catalogService, times(1)).getAllCatalogs();
-        verify(catalogMapper, times(1)).toDtoList(catalogs);
+        // Catalog list is loaded via AJAX, not via the controller.
+        verify(catalogService, never()).getAllCatalogs();
+        verify(catalogMapper, never()).toDtoList(any());
     }
 
     @Test
@@ -398,57 +394,19 @@ class CatalogWebControllerTest {
         verify(catalogMapper, times(1)).toDto(testCatalog);
     }
 
-    // ── Catalog Page (authenticated user, listing logic + enrichment) ───
+    // ── Catalog Page (server renders shell only; data is loaded via AJAX) ───
 
     @Test
-    void testCatalogPageEnrichesJastiperRating() throws Exception {
-        UUID jastiperId = UUID.randomUUID();
-        testCatalogDto.setJastiperId(jastiperId);
-
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogService.getAllCatalogs()).thenReturn(List.of(testCatalog));
+    void testUserCatalogPageEnrichesViaEnricher() throws Exception {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(catalogService.getCatalogsByUserId(userId)).thenReturn(List.of(testCatalog));
         when(catalogMapper.toDtoList(any())).thenReturn(List.of(testCatalogDto));
-        when(orderRepository.findAverageJastiperRating(jastiperId)).thenReturn(4.3);
 
-        mockMvc.perform(get("/catalog")
+        mockMvc.perform(get("/catalog/" + userId)
                 .with(user(testUser)))
             .andExpect(status().isOk());
 
-        verify(orderRepository, times(1)).findAverageJastiperRating(jastiperId);
-    }
-
-    @Test
-    void testCatalogPageSilentlyIgnoresOrderRepoException() throws Exception {
-        UUID jastiperId = UUID.randomUUID();
-        testCatalogDto.setJastiperId(jastiperId);
-
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogService.getAllCatalogs()).thenReturn(List.of(testCatalog));
-        when(catalogMapper.toDtoList(any())).thenReturn(List.of(testCatalogDto));
-        when(orderRepository.findAverageJastiperRating(jastiperId))
-                .thenThrow(new RuntimeException("DB unavailable"));
-
-        // Endpoint should still render successfully despite the exception
-        mockMvc.perform(get("/catalog")
-                .with(user(testUser)))
-            .andExpect(status().isOk())
-            .andExpect(view().name("catalog/html/catalog"));
-    }
-
-    @Test
-    void testCatalogPageSkipsEnrichmentWhenJastiperIdIsNull() throws Exception {
-        // testCatalogDto has no jastiperId — enrichment loop must skip it
-        testCatalogDto.setJastiperId(null);
-
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogService.getAllCatalogs()).thenReturn(List.of(testCatalog));
-        when(catalogMapper.toDtoList(any())).thenReturn(List.of(testCatalogDto));
-
-        mockMvc.perform(get("/catalog")
-                .with(user(testUser)))
-            .andExpect(status().isOk());
-
-        verify(orderRepository, never()).findAverageJastiperRating(any());
+        verify(jastiperRatingEnricher, times(1)).enrich(any());
     }
 
     // ── BindingResult validation paths ──────────────────────────────────
