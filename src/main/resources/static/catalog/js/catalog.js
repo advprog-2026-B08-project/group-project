@@ -45,6 +45,22 @@ function buildRatingHtml(catalog) {
     return `${stars}<span class="text-muted"> (${ratingCount})</span>`;
 }
 
+function buildJastiperRatingHtml(catalog) {
+    if (catalog.jastiperRatingAverage === null || catalog.jastiperRatingAverage === undefined) {
+        return '<span class="text-muted">-</span>';
+    }
+
+    const average = Number(catalog.jastiperRatingAverage);
+    let stars = '';
+
+    for (let i = 1; i <= 5; i += 1) {
+        const color = average >= (i - 0.5) ? '#f5b301' : '#d0d0d0';
+        stars += `<span style="color: ${color};">&#9733;</span>`;
+    }
+
+    return `${stars}<span class="text-muted" style="font-size: 0.8rem;"> (${average.toFixed(1)})</span>`;
+}
+
 function buildCatalogRow(catalog) {
     const imageHtml = catalog.imageUrl
         ? `<img src="${escapeHtml(catalog.imageUrl)}" alt="Product Image" style="width: 80px; height: 80px; object-fit: cover;">`
@@ -62,6 +78,7 @@ function buildCatalogRow(catalog) {
             <td>${escapeHtml(catalog.description || '')}</td>
             <td>Rp ${formatPrice(catalog.price)}</td>
             <td>${buildRatingHtml(catalog)}</td>
+            <td>${buildJastiperRatingHtml(catalog)}</td>
             <td id="${stockId}">${escapeHtml(catalog.stock)}</td>
             <td>${escapeHtml(catalog.originLocation || '')}</td>
             <td>${travelDate}</td>
