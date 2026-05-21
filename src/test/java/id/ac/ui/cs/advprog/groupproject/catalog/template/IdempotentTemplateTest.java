@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.catalog.idempotency;
+package id.ac.ui.cs.advprog.groupproject.catalog.template;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 
-class IdempotentOperationTest {
+class IdempotentTemplateTest {
 
     @Test
     void execute_firstCall_runsFullPipeline() {
@@ -17,7 +17,7 @@ class IdempotentOperationTest {
         AtomicInteger duplicateCount = new AtomicInteger();
         UUID key = UUID.randomUUID();
 
-        IdempotentOperation<UUID, String> op = new IdempotentOperation<>() {
+        IdempotentTemplate<UUID, String> op = new IdempotentTemplate<>() {
             @Override
             protected String operationName() { return "test"; }
             @Override
@@ -49,7 +49,7 @@ class IdempotentOperationTest {
         AtomicInteger actionCount = new AtomicInteger();
         AtomicInteger duplicateCount = new AtomicInteger();
 
-        IdempotentOperation<UUID, String> op = new IdempotentOperation<>() {
+        IdempotentTemplate<UUID, String> op = new IdempotentTemplate<>() {
             @Override
             protected String operationName() { return "test"; }
             @Override
@@ -80,7 +80,7 @@ class IdempotentOperationTest {
         AtomicInteger actionCount = new AtomicInteger();
         AtomicInteger duplicateCount = new AtomicInteger();
 
-        IdempotentOperation<UUID, String> op = new IdempotentOperation<>() {
+        IdempotentTemplate<UUID, String> op = new IdempotentTemplate<>() {
             @Override
             protected String operationName() { return "test"; }
             @Override
@@ -109,7 +109,7 @@ class IdempotentOperationTest {
 
     @Test
     void execute_otherRuntimeException_propagates() {
-        IdempotentOperation<UUID, String> op = new IdempotentOperation<>() {
+        IdempotentTemplate<UUID, String> op = new IdempotentTemplate<>() {
             @Override
             protected String operationName() { return "test"; }
             @Override

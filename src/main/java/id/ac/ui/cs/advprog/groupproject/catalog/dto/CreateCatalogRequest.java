@@ -1,10 +1,14 @@
-package id.ac.ui.cs.advprog.groupproject.catalog.command;
+package id.ac.ui.cs.advprog.groupproject.catalog.dto;
 
 import java.time.LocalDate;
 import lombok.Getter;
 
+/**
+ * Parameter Object carrying the fields needed to create a new catalog entry.
+ * Internal type — not part of the JSON API surface.
+ */
 @Getter
-public class CreateCatalogCommand {
+public class CreateCatalogRequest {
   private final String name;
   private final String description;
   private final String imageUrl;
@@ -13,7 +17,7 @@ public class CreateCatalogCommand {
   private final String originLocation;
   private final LocalDate travelDate;
 
-  public CreateCatalogCommand(
+  public CreateCatalogRequest(
       String name,
       String description,
       String imageUrl,

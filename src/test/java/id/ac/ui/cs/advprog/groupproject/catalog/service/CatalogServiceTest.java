@@ -34,18 +34,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
-import id.ac.ui.cs.advprog.groupproject.catalog.policy.CatalogActionPolicy;
-import id.ac.ui.cs.advprog.groupproject.catalog.policy.DefaultCatalogPolicy;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.strategy.CatalogActionStrategy;
+import id.ac.ui.cs.advprog.groupproject.catalog.strategy.DefaultCatalogStrategy;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -64,10 +64,8 @@ class CatalogServiceTest {
     @Mock
     private StockDecreaseEventRepository stockDecreaseEventRepository;
 
-    // Use the real policy implementation (via @Spy) so role checks behave authentically.
-    // @Spy is needed for @InjectMocks to wire it into the constructor.
     @Spy
-    private CatalogActionPolicy catalogPolicy = new DefaultCatalogPolicy();
+    private CatalogActionStrategy catalogStrategy = new DefaultCatalogStrategy();
 
     @Mock
     private MeterRegistry meterRegistry;
@@ -124,7 +122,7 @@ class CatalogServiceTest {
 
     @Test
     void testCreateCatalog() {
-        CreateCatalogCommand command = new CreateCatalogCommand(
+        CreateCatalogRequest request = new CreateCatalogRequest(
             "New Product",
             "New Description",
             "http://example.com/new.jpg",
@@ -139,19 +137,19 @@ class CatalogServiceTest {
         newCatalog.setPrice(200.0);
         newCatalog.setJastiper(testUser);
 
-        when(catalogFactory.create(command, testUser)).thenReturn(newCatalog);
+        when(catalogFactory.create(request, testUser)).thenReturn(newCatalog);
         when(catalogRepository.save(any(Catalog.class))).thenReturn(newCatalog);
 
-        Catalog result = catalogService.createCatalog(command, testUser);
+        Catalog result = catalogService.createCatalog(request, testUser);
 
         assertNotNull(result);
-        verify(catalogFactory, times(1)).create(command, testUser);
+        verify(catalogFactory, times(1)).create(request, testUser);
         verify(catalogRepository, times(1)).save(newCatalog);
     }
 
     @Test
     void testCreateCatalogForbiddenForNonJastiper() {
-        CreateCatalogCommand command = new CreateCatalogCommand(
+        CreateCatalogRequest request = new CreateCatalogRequest(
             "New Product",
             "New Description",
             "http://example.com/new.jpg",
@@ -167,11 +165,11 @@ class CatalogServiceTest {
         customerUser.setRole("CUSTOMER");
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.createCatalog(command, customerUser);
+            catalogService.createCatalog(request, customerUser);
         });
 
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
-        verify(catalogFactory, never()).create(any(CreateCatalogCommand.class), any(User.class));
+        verify(catalogFactory, never()).create(any(CreateCatalogRequest.class), any(User.class));
         verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
@@ -279,7 +277,7 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogSuccess() {
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest command = new UpdateCatalogRequest(
             "Updated Product",
             "Updated Description",
             "http://example.com/updated.jpg",
@@ -294,7 +292,7 @@ class CatalogServiceTest {
 
         doAnswer(invocation -> {
             Catalog target = invocation.getArgument(0);
-            UpdateCatalogCommand cmd = invocation.getArgument(1);
+            UpdateCatalogRequest cmd = invocation.getArgument(1);
             target.setName(cmd.getName());
             target.setDescription(cmd.getDescription());
             target.setImageUrl(cmd.getImageUrl());
@@ -303,7 +301,7 @@ class CatalogServiceTest {
             target.setOriginLocation(cmd.getOriginLocation());
             target.setTravelDate(cmd.getTravelDate());
             return null;
-        }).when(catalogFactory).applyUpdate(any(Catalog.class), any(UpdateCatalogCommand.class));
+        }).when(catalogFactory).applyUpdate(any(Catalog.class), any(UpdateCatalogRequest.class));
 
         Catalog result = catalogService.updateCatalog(catalogId, command, testUser);
 
@@ -315,7 +313,7 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogNotFound() {
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest command = new UpdateCatalogRequest(
             "Updated Product",
             "Updated Description",
             "http://example.com/updated.jpg",
@@ -338,7 +336,7 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogForbidden() {
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest command = new UpdateCatalogRequest(
             "Updated Product",
             "Updated Description",
             "http://example.com/updated.jpg",

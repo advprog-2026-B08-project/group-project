@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -211,8 +211,8 @@ class CatalogWebControllerTest {
     @Test
     void testUpdateCatalogPost() throws Exception {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogMapper.toUpdateCommand(any(CatalogDto.class))).thenReturn(
-            new UpdateCatalogCommand(
+        when(catalogMapper.toUpdateRequest(any(CatalogDto.class))).thenReturn(
+            new UpdateCatalogRequest(
                 testCatalogDto.getName(),
                 testCatalogDto.getDescription(),
                 testCatalogDto.getImageUrl(),
@@ -222,7 +222,7 @@ class CatalogWebControllerTest {
                 testCatalogDto.getTravelDate()
             )
         );
-        when(catalogService.updateCatalog(any(UUID.class), any(UpdateCatalogCommand.class), any(User.class)))
+        when(catalogService.updateCatalog(any(UUID.class), any(UpdateCatalogRequest.class), any(User.class)))
                 .thenReturn(testCatalog);
 
         mockMvc.perform(post("/catalog/edit")
@@ -233,8 +233,8 @@ class CatalogWebControllerTest {
                 .andExpect(redirectedUrl("/catalog/my"));
 
         verify(userRepository, times(1)).findByUsername("testuser");
-        verify(catalogMapper, times(1)).toUpdateCommand(any(CatalogDto.class));
-        verify(catalogService, times(1)).updateCatalog(any(UUID.class), any(UpdateCatalogCommand.class), any(User.class));
+        verify(catalogMapper, times(1)).toUpdateRequest(any(CatalogDto.class));
+        verify(catalogService, times(1)).updateCatalog(any(UUID.class), any(UpdateCatalogRequest.class), any(User.class));
     }
 
     @Test
@@ -263,8 +263,8 @@ class CatalogWebControllerTest {
     @Test
     void testCreateCatalogPost() throws Exception {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogMapper.toCreateCommand(any(CatalogDto.class))).thenReturn(
-            new CreateCatalogCommand(
+        when(catalogMapper.toCreateRequest(any(CatalogDto.class))).thenReturn(
+            new CreateCatalogRequest(
                 testCatalogDto.getName(),
                 testCatalogDto.getDescription(),
                 testCatalogDto.getImageUrl(),
@@ -274,7 +274,7 @@ class CatalogWebControllerTest {
                 testCatalogDto.getTravelDate()
             )
         );
-        when(catalogService.createCatalog(any(CreateCatalogCommand.class), any(User.class))).thenReturn(testCatalog);
+        when(catalogService.createCatalog(any(CreateCatalogRequest.class), any(User.class))).thenReturn(testCatalog);
 
         mockMvc.perform(post("/catalog/add")
                 .with(user(testUser))
@@ -284,8 +284,8 @@ class CatalogWebControllerTest {
                 .andExpect(redirectedUrl("/catalog/my"));
 
         verify(userRepository, times(1)).findByUsername("testuser");
-        verify(catalogMapper, times(1)).toCreateCommand(any(CatalogDto.class));
-        verify(catalogService, times(1)).createCatalog(any(CreateCatalogCommand.class), any(User.class));
+        verify(catalogMapper, times(1)).toCreateRequest(any(CatalogDto.class));
+        verify(catalogService, times(1)).createCatalog(any(CreateCatalogRequest.class), any(User.class));
     }
 
     @Test

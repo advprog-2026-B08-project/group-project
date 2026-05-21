@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.catalog.policy;
+package id.ac.ui.cs.advprog.groupproject.catalog.strategy;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
@@ -8,12 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Default {@link CatalogActionPolicy} implementation backed by the {@link Role} enum.
- * Centralizes the authorization rules previously scattered across CatalogService.
- */
 @Component
-public class DefaultCatalogPolicy implements CatalogActionPolicy {
+public class DefaultCatalogStrategy implements CatalogActionStrategy {
 
     private static final String ONLY_JASTIPER_CREATE = "Only Jastiper can create catalog";
     private static final String ONLY_TITIPER_RATE = "Only Titiper can submit product rating";

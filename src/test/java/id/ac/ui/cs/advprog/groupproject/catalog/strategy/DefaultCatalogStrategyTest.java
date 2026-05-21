@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.groupproject.catalog.policy;
+package id.ac.ui.cs.advprog.groupproject.catalog.strategy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-class DefaultCatalogPolicyTest {
+class DefaultCatalogStrategyTest {
 
-    private DefaultCatalogPolicy policy;
+    private DefaultCatalogStrategy strategy;
 
     @BeforeEach
     void setUp() {
-        policy = new DefaultCatalogPolicy();
+        strategy = new DefaultCatalogStrategy();
     }
 
     private User userWithRole(String role) {
@@ -33,24 +33,24 @@ class DefaultCatalogPolicyTest {
 
     @Test
     void canCreateCatalog_jastiper_returnsTrue() {
-        assertTrue(policy.canCreateCatalog(userWithRole("ROLE_JASTIPER")));
-        assertTrue(policy.canCreateCatalog(userWithRole("JASTIPER")));
+        assertTrue(strategy.canCreateCatalog(userWithRole("ROLE_JASTIPER")));
+        assertTrue(strategy.canCreateCatalog(userWithRole("JASTIPER")));
     }
 
     @Test
     void canCreateCatalog_titiper_returnsFalse() {
-        assertFalse(policy.canCreateCatalog(userWithRole("ROLE_TITIPER")));
+        assertFalse(strategy.canCreateCatalog(userWithRole("ROLE_TITIPER")));
     }
 
     @Test
     void canCreateCatalog_nullUser_returnsFalse() {
-        assertFalse(policy.canCreateCatalog(null));
+        assertFalse(strategy.canCreateCatalog(null));
     }
 
     @Test
     void requireCanCreateCatalog_titiper_throws403() {
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> policy.requireCanCreateCatalog(userWithRole("ROLE_TITIPER")));
+                () -> strategy.requireCanCreateCatalog(userWithRole("ROLE_TITIPER")));
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
     }
 
@@ -59,26 +59,26 @@ class DefaultCatalogPolicyTest {
     @Test
     void canSubmitRating_titiperWithMatchingBuyerId_returnsTrue() {
         User user = userWithRole("ROLE_TITIPER");
-        assertTrue(policy.canSubmitRating(user, user.getId()));
+        assertTrue(strategy.canSubmitRating(user, user.getId()));
     }
 
     @Test
     void canSubmitRating_titiperWithMismatchedBuyerId_returnsFalse() {
         User user = userWithRole("ROLE_TITIPER");
-        assertFalse(policy.canSubmitRating(user, UUID.randomUUID()));
+        assertFalse(strategy.canSubmitRating(user, UUID.randomUUID()));
     }
 
     @Test
     void canSubmitRating_jastiper_returnsFalse() {
         User user = userWithRole("ROLE_JASTIPER");
-        assertFalse(policy.canSubmitRating(user, user.getId()));
+        assertFalse(strategy.canSubmitRating(user, user.getId()));
     }
 
     @Test
     void requireCanSubmitRating_buyerMismatch_throws403() {
         User user = userWithRole("ROLE_TITIPER");
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> policy.requireCanSubmitRating(user, UUID.randomUUID()));
+                () -> strategy.requireCanSubmitRating(user, UUID.randomUUID()));
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
     }
 
@@ -89,7 +89,7 @@ class DefaultCatalogPolicyTest {
         User owner = userWithRole("ROLE_JASTIPER");
         Catalog catalog = new Catalog();
         catalog.setJastiper(owner);
-        assertTrue(policy.canManageCatalog(owner, catalog));
+        assertTrue(strategy.canManageCatalog(owner, catalog));
     }
 
     @Test
@@ -98,13 +98,13 @@ class DefaultCatalogPolicyTest {
         User other = userWithRole("ROLE_JASTIPER");
         Catalog catalog = new Catalog();
         catalog.setJastiper(owner);
-        assertFalse(policy.canManageCatalog(other, catalog));
+        assertFalse(strategy.canManageCatalog(other, catalog));
     }
 
     @Test
     void canManageCatalog_nullCatalog_returnsFalse() {
         User user = userWithRole("ROLE_JASTIPER");
-        assertFalse(policy.canManageCatalog(user, null));
+        assertFalse(strategy.canManageCatalog(user, null));
     }
 
     @Test
@@ -114,7 +114,7 @@ class DefaultCatalogPolicyTest {
         Catalog catalog = new Catalog();
         catalog.setJastiper(owner);
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> policy.requireCanManageCatalog(other, catalog));
+                () -> strategy.requireCanManageCatalog(other, catalog));
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
     }
 }

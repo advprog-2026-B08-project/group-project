@@ -147,7 +147,7 @@ public class CatalogWebController {
     }
 
     catalogService.updateCatalog(
-        catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto), currentUser);
+        catalogDto.getId(), catalogMapper.toUpdateRequest(catalogDto), currentUser);
     return "redirect:/catalog/my";
   }
 
@@ -182,7 +182,7 @@ public class CatalogWebController {
       catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
 
-    catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);
+    catalogService.createCatalog(catalogMapper.toCreateRequest(catalogDto), currentUser);
     return "redirect:/catalog/my";
   }
 
@@ -229,7 +229,7 @@ public class CatalogWebController {
       catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
 
-    catalogService.updateCatalogByAdmin(catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto));
+    catalogService.updateCatalogByAdmin(catalogDto.getId(), catalogMapper.toUpdateRequest(catalogDto));
     return "redirect:/catalog/admin/monitoring";
   }
 

@@ -77,7 +77,7 @@ public class CatalogApiController {
     }
 
     Catalog createdCatalog =
-        catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);
+        catalogService.createCatalog(catalogMapper.toCreateRequest(catalogDto), currentUser);
     return ResponseEntity.status(HttpStatus.CREATED).body(catalogMapper.toDto(createdCatalog));
   }
 
@@ -86,7 +86,7 @@ public class CatalogApiController {
       @PathVariable UUID id, @Valid @RequestBody CatalogDto catalogDto, Principal principal) {
     User currentUser = getCurrentUser(principal);
     Catalog updatedCatalog =
-        catalogService.updateCatalog(id, catalogMapper.toUpdateCommand(catalogDto), currentUser);
+        catalogService.updateCatalog(id, catalogMapper.toUpdateRequest(catalogDto), currentUser);
     return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));
   }
 

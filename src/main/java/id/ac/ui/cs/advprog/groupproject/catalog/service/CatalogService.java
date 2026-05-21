@@ -4,19 +4,19 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
 import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
-import id.ac.ui.cs.advprog.groupproject.catalog.idempotency.IdempotentOperation;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
-import id.ac.ui.cs.advprog.groupproject.catalog.policy.CatalogActionPolicy;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.strategy.CatalogActionStrategy;
+import id.ac.ui.cs.advprog.groupproject.catalog.template.IdempotentTemplate;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class CatalogService {
   private final CatalogRatingEventRepository catalogRatingEventRepository;
   private final StockDecreaseEventRepository stockDecreaseEventRepository;
   private final CatalogFactory catalogFactory;
-  private final CatalogActionPolicy catalogPolicy;
+  private final CatalogActionStrategy catalogStrategy;
   private final MeterRegistry meterRegistry;
   private final ActionLogService actionLogService;
 
@@ -49,22 +49,22 @@ public class CatalogService {
       CatalogRatingEventRepository catalogRatingEventRepository,
       StockDecreaseEventRepository stockDecreaseEventRepository,
       CatalogFactory catalogFactory,
-      CatalogActionPolicy catalogPolicy,
+      CatalogActionStrategy catalogStrategy,
       MeterRegistry meterRegistry,
       ActionLogService actionLogService) {
     this.catalogRepository = catalogRepository;
     this.catalogRatingEventRepository = catalogRatingEventRepository;
     this.stockDecreaseEventRepository = stockDecreaseEventRepository;
     this.catalogFactory = catalogFactory;
-    this.catalogPolicy = catalogPolicy;
+    this.catalogStrategy = catalogStrategy;
     this.meterRegistry = meterRegistry;
     this.actionLogService = actionLogService;
   }
 
-  public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
-    catalogPolicy.requireCanCreateCatalog(currentUser);
+  public Catalog createCatalog(CreateCatalogRequest request, User currentUser) {
+    catalogStrategy.requireCanCreateCatalog(currentUser);
 
-    Catalog catalog = catalogFactory.create(command, currentUser);
+    Catalog catalog = catalogFactory.create(request, currentUser);
     Catalog savedCatalog = catalogRepository.save(catalog);
     actionLogService.log(
         CREATE_CATALOG_ACTION,
@@ -99,7 +99,7 @@ public class CatalogService {
 
   public Catalog getCatalogById(UUID catalogId, User currentUser) {
     Catalog catalog = requireCatalog(catalogId);
-    catalogPolicy.requireCanManageCatalog(currentUser, catalog);
+    catalogStrategy.requireCanManageCatalog(currentUser, catalog);
     return catalog;
   }
 
@@ -107,11 +107,11 @@ public class CatalogService {
     return requireCatalog(catalogId);
   }
 
-  public Catalog updateCatalog(UUID catalogId, UpdateCatalogCommand command, User currentUser) {
+  public Catalog updateCatalog(UUID catalogId, UpdateCatalogRequest request, User currentUser) {
     Catalog catalog = requireCatalog(catalogId);
-    catalogPolicy.requireCanManageCatalog(currentUser, catalog);
+    catalogStrategy.requireCanManageCatalog(currentUser, catalog);
 
-    catalogFactory.applyUpdate(catalog, command);
+    catalogFactory.applyUpdate(catalog, request);
     Catalog updatedCatalog = catalogRepository.save(catalog);
     actionLogService.log(
         UPDATE_CATALOG_ACTION,
@@ -123,10 +123,10 @@ public class CatalogService {
     return updatedCatalog;
   }
 
-  public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogCommand command) {
+  public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogRequest request) {
     Catalog catalog = requireCatalog(catalogId);
 
-    catalogFactory.applyUpdate(catalog, command);
+    catalogFactory.applyUpdate(catalog, request);
     Catalog updatedCatalog = catalogRepository.save(catalog);
     actionLogService.log(
         UPDATE_CATALOG_ACTION,
@@ -140,7 +140,7 @@ public class CatalogService {
 
   public void deleteCatalog(UUID catalogId, User currentUser) {
     Catalog catalog = requireCatalog(catalogId);
-    catalogPolicy.requireCanManageCatalog(currentUser, catalog);
+    catalogStrategy.requireCanManageCatalog(currentUser, catalog);
 
     catalogRepository.deleteById(catalogId);
     actionLogService.log(
@@ -170,7 +170,7 @@ public class CatalogService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
     }
 
-    return new IdempotentOperation<UUID, Catalog>() {
+    return new IdempotentTemplate<UUID, Catalog>() {
       @Override
       protected String operationName() {
         return "stock_decrease";
@@ -213,16 +213,16 @@ public class CatalogService {
   @Transactional
   public ProductRatingUpdateResponse applyProductRating(
       UUID catalogId, ProductRatingUpdateRequest request, User currentUser) {
-    if (!catalogPolicy.canSubmitRating(currentUser, request.getBuyerId())) {
+    if (!catalogStrategy.canSubmitRating(currentUser, request.getBuyerId())) {
       String reason =
           (currentUser == null || !Role.ROLE_TITIPER.matches(currentUser.getRole()))
               ? "role_forbidden"
               : "buyer_mismatch";
       meterRegistry.counter("catalog.rating.rejected", "reason", reason).increment();
-      catalogPolicy.requireCanSubmitRating(currentUser, request.getBuyerId());
+      catalogStrategy.requireCanSubmitRating(currentUser, request.getBuyerId());
     }
 
-    return new IdempotentOperation<UUID, ProductRatingUpdateResponse>() {
+    return new IdempotentTemplate<UUID, ProductRatingUpdateResponse>() {
       @Override
       protected String operationName() {
         return "catalog_rating";

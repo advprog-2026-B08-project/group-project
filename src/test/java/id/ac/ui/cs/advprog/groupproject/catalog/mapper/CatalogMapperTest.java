@@ -1,10 +1,10 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.mapper;
 
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
-import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -105,33 +105,33 @@ class CatalogMapperTest {
     }
 
     @Test
-    void testToCreateCommandMapsAllDtoFields() {
+    void testToCreateRequestMapsAllDtoFields() {
         CatalogDto dto = createDto();
 
-        CreateCatalogCommand command = catalogMapper.toCreateCommand(dto);
+        CreateCatalogRequest request = catalogMapper.toCreateRequest(dto);
 
-        assertEquals(dto.getName(), command.getName());
-        assertEquals(dto.getDescription(), command.getDescription());
-        assertEquals(dto.getImageUrl(), command.getImageUrl());
-        assertEquals(dto.getPrice(), command.getPrice());
-        assertEquals(dto.getStock(), command.getStock());
-        assertEquals(dto.getOriginLocation(), command.getOriginLocation());
-        assertEquals(dto.getTravelDate(), command.getTravelDate());
+        assertEquals(dto.getName(), request.getName());
+        assertEquals(dto.getDescription(), request.getDescription());
+        assertEquals(dto.getImageUrl(), request.getImageUrl());
+        assertEquals(dto.getPrice(), request.getPrice());
+        assertEquals(dto.getStock(), request.getStock());
+        assertEquals(dto.getOriginLocation(), request.getOriginLocation());
+        assertEquals(dto.getTravelDate(), request.getTravelDate());
     }
 
     @Test
-    void testToUpdateCommandMapsAllDtoFields() {
+    void testToUpdateRequestMapsAllDtoFields() {
         CatalogDto dto = createDto();
 
-        UpdateCatalogCommand command = catalogMapper.toUpdateCommand(dto);
+        UpdateCatalogRequest request = catalogMapper.toUpdateRequest(dto);
 
-        assertEquals(dto.getName(), command.getName());
-        assertEquals(dto.getDescription(), command.getDescription());
-        assertEquals(dto.getImageUrl(), command.getImageUrl());
-        assertEquals(dto.getPrice(), command.getPrice());
-        assertEquals(dto.getStock(), command.getStock());
-        assertEquals(dto.getOriginLocation(), command.getOriginLocation());
-        assertEquals(dto.getTravelDate(), command.getTravelDate());
+        assertEquals(dto.getName(), request.getName());
+        assertEquals(dto.getDescription(), request.getDescription());
+        assertEquals(dto.getImageUrl(), request.getImageUrl());
+        assertEquals(dto.getPrice(), request.getPrice());
+        assertEquals(dto.getStock(), request.getStock());
+        assertEquals(dto.getOriginLocation(), request.getOriginLocation());
+        assertEquals(dto.getTravelDate(), request.getTravelDate());
     }
 
     private CatalogDto createDto() {
