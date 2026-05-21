@@ -34,23 +34,58 @@ public class WalletServiceImpl implements WalletService {
         this.walletTransactionRepository = walletTransactionRepository;
     }
 
+    private Wallet getOrCreateWallet(UUID userId) {
+        return walletRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    try {
+                        Wallet newWallet = new Wallet();
+                        newWallet.setUserId(userId);
+                        newWallet.setBalance(BigDecimal.ZERO);
+                        return walletRepository.saveAndFlush(newWallet);
+                    } catch (DataIntegrityViolationException e) {
+                        return walletRepository.findByUserId(userId)
+                                .orElseThrow(() -> new IllegalStateException("Failed to find or create wallet for user: " + userId, e));
+                    }
+                });
+    }
+
+    private Wallet getOrCreateWalletForUpdate(UUID userId) {
+        return walletRepository.findByUserIdForUpdate(userId)
+                .orElseGet(() -> {
+                    try {
+                        Wallet newWallet = new Wallet();
+                        newWallet.setUserId(userId);
+                        newWallet.setBalance(BigDecimal.ZERO);
+                        return walletRepository.saveAndFlush(newWallet);
+                    } catch (DataIntegrityViolationException e) {
+                        return walletRepository.findByUserIdForUpdate(userId)
+                                .orElseThrow(() -> new IllegalStateException("Failed to find or create wallet for update for user: " + userId, e));
+                    }
+                });
+    }
+
     @Override
+    @Transactional
     public Wallet createWallet(UUID userId) {
         // Cek apakah wallet sudah ada untuk user ini
         if (walletRepository.findByUserId(userId).isPresent()) {
             throw new IllegalStateException("Wallet already exists for user: " + userId);
         }
 
-        Wallet wallet = new Wallet();
-        wallet.setUserId(userId);
-        wallet.setBalance(BigDecimal.ZERO);
-        return walletRepository.save(wallet);
+        try {
+            Wallet wallet = new Wallet();
+            wallet.setUserId(userId);
+            wallet.setBalance(BigDecimal.ZERO);
+            return walletRepository.saveAndFlush(wallet);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Wallet already exists for user: " + userId, e);
+        }
     }
 
     @Override
+    @Transactional
     public WalletResponse getBalance(UUID userId) {
-        Wallet wallet = walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+        Wallet wallet = getOrCreateWallet(userId);
 
         return new WalletResponse(
                 wallet.getUserId(),
@@ -66,17 +101,17 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Top-up amount must be greater than zero");
         }
 
-        // 2. Cari wallet
-        Wallet wallet = walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+        // 2. Cari atau buat wallet
+        Wallet wallet = getOrCreateWallet(userId);
 
         // 3. Catat transaksi pending
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setType(TransactionType.TOP_UP);
-        transaction.setAmount(request.getAmount());
-        transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setDescription("Top-up pending sebesar " + request.getAmount());
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.TOP_UP)
+                .amount(request.getAmount())
+                .status(TransactionStatus.PENDING)
+                .description("Top-up pending sebesar " + request.getAmount())
+                .build();
         walletTransactionRepository.save(transaction);
 
         // 4. Return response
@@ -93,19 +128,19 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Withdrawal destination is required");
         }
 
-        Wallet wallet = walletRepository.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+        Wallet wallet = getOrCreateWalletForUpdate(userId);
 
         if (wallet.getBalance().compareTo(amount) < 0) {
             throw new IllegalArgumentException("Insufficient balance for user: " + userId);
         }
 
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setType(TransactionType.WITHDRAWAL);
-        transaction.setAmount(amount);
-        transaction.setStatus(TransactionStatus.PENDING);
-        transaction.setDescription("Withdrawal pending ke " + destination);
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.WITHDRAWAL)
+                .amount(amount)
+                .status(TransactionStatus.PENDING)
+                .description("Withdrawal pending ke " + destination)
+                .build();
         walletTransactionRepository.save(transaction);
 
         return toResponse(transaction);
@@ -118,8 +153,7 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Deduct amount must be greater than zero");
         }
 
-        Wallet wallet = walletRepository.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+        Wallet wallet = getOrCreateWalletForUpdate(userId);
 
         if (wallet.getBalance().compareTo(amount) < 0) {
             throw new IllegalArgumentException("Insufficient balance for user: " + userId);
@@ -128,16 +162,37 @@ public class WalletServiceImpl implements WalletService {
         wallet.setBalance(wallet.getBalance().subtract(amount));
         walletRepository.save(wallet);
 
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setType(TransactionType.DEBIT);
-        transaction.setAmount(amount);
-        transaction.setStatus(TransactionStatus.SUCCESS);
-        if (description == null || description.isBlank()) {
-            transaction.setDescription("Deduct sebesar " + amount);
-        } else {
-            transaction.setDescription(description);
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.DEBIT)
+                .amount(amount)
+                .status(TransactionStatus.SUCCESS)
+                .description(description == null || description.isBlank() ? "Deduct sebesar " + amount : description)
+                .build();
+        walletTransactionRepository.save(transaction);
+
+        return toResponse(transaction);
+    }
+
+    @Override
+    @Transactional
+    public TransactionResponse creditBalance(UUID userId, BigDecimal amount, String description) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Credit amount must be greater than zero");
         }
+
+        Wallet wallet = getOrCreateWalletForUpdate(userId);
+
+        wallet.setBalance(wallet.getBalance().add(amount));
+        walletRepository.save(wallet);
+
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .type(TransactionType.CREDIT)
+                .amount(amount)
+                .status(TransactionStatus.SUCCESS)
+                .description(description == null || description.isBlank() ? "Pendapatan sebesar " + amount : description)
+                .build();
         walletTransactionRepository.save(transaction);
 
         return toResponse(transaction);
@@ -153,23 +208,19 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Reference ID is required for refund");
         }
 
-        Wallet wallet = walletRepository.findByUserIdForUpdate(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+        Wallet wallet = getOrCreateWalletForUpdate(userId);
 
         wallet.setBalance(wallet.getBalance().add(amount));
         walletRepository.save(wallet);
 
-        WalletTransaction transaction = new WalletTransaction();
-        transaction.setWalletId(wallet.getId());
-        transaction.setReferenceId(referenceId);
-        transaction.setType(TransactionType.REFUND);
-        transaction.setAmount(amount);
-        transaction.setStatus(TransactionStatus.SUCCESS);
-        if (description == null || description.isBlank()) {
-            transaction.setDescription("Refund sebesar " + amount);
-        } else {
-            transaction.setDescription(description);
-        }
+        WalletTransaction transaction = WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .referenceId(referenceId)
+                .type(TransactionType.REFUND)
+                .amount(amount)
+                .status(TransactionStatus.SUCCESS)
+                .description(description == null || description.isBlank() ? "Refund sebesar " + amount : description)
+                .build();
 
         try {
             walletTransactionRepository.saveAndFlush(transaction);
@@ -187,7 +238,7 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalArgumentException("Status must be SUCCESS or FAILED");
         }
 
-        WalletTransaction transaction = walletTransactionRepository.findById(transactionId)
+        WalletTransaction transaction = walletTransactionRepository.findByIdForUpdate(transactionId)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + transactionId));
 
         if (transaction.getStatus() != TransactionStatus.PENDING) {
@@ -221,9 +272,9 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional
     public List<TransactionResponse> getTransactionHistory(UUID userId) {
-        Wallet wallet = walletRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user: " + userId));
+        Wallet wallet = getOrCreateWallet(userId);
 
         return walletTransactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId())
                 .stream()
@@ -232,6 +283,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AdminTransactionResponse> getAllTransactions() {
         List<WalletTransaction> transactions = walletTransactionRepository.findAllByOrderByCreatedAtDesc();
         Set<UUID> walletIds = transactions.stream()

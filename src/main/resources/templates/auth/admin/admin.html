@@ -1,62 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin page</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Admin Dashboard — JSON')"></head>
 <body>
     <div th:replace="fragments/navbar :: navbar"></div>
 
-    <!-- TODO : sections (user list (done), promotion request (done), log) -->
-    <div class="container mt-5">
-        <div class="justify-content-center">
-            <h1 style="margin-bottom: 40px; font-family: 'Arial Black'">Admin dashboard</h1>
-            <div class="col md-3 containerRowGray">
-                <div class="col md-3 contents">
-                    <div style="margin-bottom: 20px">
-                        <a th:href="@{/admin/userList}"><h2>User List</h2></a>
-                    </div>
-                    <div class="containerRowWhite">
-                        <div>
-                            <p>Admin</p>
-                            <p class="bigNum" th:text="${roleCount.get('ROLE_ADMIN') ?: 0}"></p>
-                        </div>
-                        <div>
-                            <p>Jastiper</p>
-                            <p class="bigNum" th:text="${roleCount.get('ROLE_JASTIPER') ?: 0}"></p>
-                        </div>
-                        <div>
-                            <p>Titiper</p>
-                            <p class="bigNum" th:text="${roleCount.get('ROLE_TITIPER') ?: 0    }"></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col md-3 contents">
-                    <div style="margin-bottom: 20px">
-                        <a th:href="@{/admin/kycRequestList}"><h2>KYC requests</h2></a>
-                    </div>
-                    <div class="containerRowWhite" style="justify-content: center">
-                        <div>
-                            <p>Pending requests</p>
-                            <p class="bigNum" th:text="${requestCount.get('ACTIVE') ?: 0}"></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col md-3 contents">
-                    <div>
-                        <a th:href="@{/admin/logs}">
-                            <h2>Logs</h2>
-                        </a>
-                    </div>
-                    <div style="font-family: Arial">
+    <div class="me-container me-page">
+        <div class="me-page-header">
+            <h1>Admin Dashboard</h1>
+        </div>
 
+        <div class="me-grid me-grid--3">
+            <!-- User List Bento Card -->
+            <div class="me-card me-stack" style="justify-content: space-between;">
+                <div>
+                    <h3 style="margin-bottom: 8px;">Daftar Pengguna</h3>
+                    <p style="color: var(--me-text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+                        Kelola data pengguna, periksa role, dan status aktif.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+                        <div class="text-center" style="padding: 12px 8px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-bg);">
+                            <div class="me-stat-value" th:text="${roleCount.get('ROLE_ADMIN') ?: 0}" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+                            <div class="me-stat-label" style="font-size: 0.65rem;">Admin</div>
+                        </div>
+                        <div class="text-center" style="padding: 12px 8px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-bg);">
+                            <div class="me-stat-value" th:text="${roleCount.get('ROLE_JASTIPER') ?: 0}" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+                            <div class="me-stat-label" style="font-size: 0.65rem;">Jastiper</div>
+                        </div>
+                        <div class="text-center" style="padding: 12px 8px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-bg);">
+                            <div class="me-stat-value" th:text="${roleCount.get('ROLE_TITIPER') ?: 0}" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+                            <div class="me-stat-label" style="font-size: 0.65rem;">Titiper</div>
+                        </div>
                     </div>
+                </div>
+                <div>
+                    <a th:href="@{/admin/userList}" class="me-btn me-btn--primary me-btn--block">Buka User List →</a>
+                </div>
+            </div>
+
+            <!-- KYC Requests Bento Card -->
+            <div class="me-card me-stack" style="justify-content: space-between;">
+                <div>
+                    <h3 style="margin-bottom: 8px;">Permintaan KYC</h3>
+                    <p style="color: var(--me-text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+                        Verifikasi identitas pengguna untuk promosi menjadi Jastiper terpercaya.
+                    </p>
+
+                    <div class="text-center" style="padding: 24px 16px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-success-bg); border-color: var(--me-success); margin-bottom: 16px;">
+                        <div class="me-stat-value" th:text="${requestCount.get('ACTIVE') ?: 0}" style="color: #065F46; font-size: 2.2rem; margin-bottom: 4px;">0</div>
+                        <div class="me-stat-label" style="color: #065F46; font-size: 0.75rem;">Menunggu Persetujuan</div>
+                    </div>
+                </div>
+                <div>
+                    <a th:href="@{/admin/kycRequestList}" class="me-btn me-btn--primary me-btn--block">Kelola KYC →</a>
+                </div>
+            </div>
+
+            <!-- Logs Bento Card -->
+            <div class="me-card me-stack" style="justify-content: space-between;">
+                <div>
+                    <h3 style="margin-bottom: 8px;">Audit Logs</h3>
+                    <p style="color: var(--me-text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+                        Pantau riwayat aktivitas admin dan tindakan sistem secara real-time.
+                    </p>
+
+                    <div class="text-center" style="padding: 24px 16px; border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); background: var(--me-info-bg); border-color: var(--me-info); margin-bottom: 16px;">
+                        <div style="font-size: 2.2rem; margin-bottom: 4px;">📄</div>
+                        <div class="me-stat-label" style="color: #1E40AF; font-size: 0.75rem;">Sistem Log Terpantau</div>
+                    </div>
+                </div>
+                <div>
+                    <a th:href="@{/admin/logs}" class="me-btn me-btn--primary me-btn--block">Buka Audit Logs →</a>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

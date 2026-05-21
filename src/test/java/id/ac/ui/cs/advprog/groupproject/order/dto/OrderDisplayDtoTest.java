@@ -31,6 +31,7 @@ class OrderDisplayDtoTest {
         order.setTotalPrice(BigDecimal.valueOf(150000));
         order.setStatus(OrderStatus.PAID);
         order.setRatingProduk(4);
+        order.setRatingJastiper(5);
 
         OrderDisplayDto dto = OrderDisplayDto.from(order);
 
@@ -43,6 +44,7 @@ class OrderDisplayDtoTest {
         assertEquals(BigDecimal.valueOf(150000), dto.getTotalPrice());
         assertEquals(OrderStatus.PAID, dto.getStatus());
         assertEquals(4, dto.getRatingProduk());
+        assertEquals(5, dto.getRatingJastiper());
         // Enriched fields should be null by default
         assertNull(dto.getProductName());
         assertNull(dto.getProductImageUrl());

@@ -31,6 +31,8 @@ public class CatalogDto {
   private Integer stock;
   private Double ratingAverage;
   private Integer ratingCount;
+  private Float jastiperSuccessRate;
+  private Double jastiperRatingAverage;
 
   @NotNull(message = "originLocation is required")
   private String originLocation;

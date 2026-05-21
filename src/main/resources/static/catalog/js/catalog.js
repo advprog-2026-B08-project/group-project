@@ -45,29 +45,23 @@ function buildRatingHtml(catalog) {
     return `${stars}<span class="rating-count">${average.toFixed(1)} / 5 (${ratingCount} ulasan)</span>`;
 }
 
-function getCurrentUserId() {
-    const meta = document.querySelector('meta[name="current-user-id"]');
-    return meta ? meta.getAttribute('content') : '';
-}
-
-function buildFooterAction(catalog) {
-    const currentUserId = getCurrentUserId();
-    const jastiperId = catalog.jastiperId ? String(catalog.jastiperId) : '';
-    const isOwner = currentUserId && currentUserId === jastiperId;
-
-    if (isOwner) {
-        return `
-            <div class="own-product-actions">
-                <span class="own-badge">✨ Produk Kamu</span>
-                <a href="/catalog/edit/${escapeHtml(catalog.id)}" class="edit-own-btn">✏️ Edit</a>
-            </div>
-        `;
+function buildJastiperRatingHtml(catalog) {
+    if (catalog.jastiperRatingAverage === null || catalog.jastiperRatingAverage === undefined) {
+        return '<span class="text-muted">-</span>';
     }
 
-    return `<a href="/order/checkout/${escapeHtml(catalog.id)}" class="order-btn">🛒 Order</a>`;
+    const average = Number(catalog.jastiperRatingAverage);
+    let stars = '';
+
+    for (let i = 1; i <= 5; i += 1) {
+        const color = average >= (i - 0.5) ? '#f5b301' : '#d0d0d0';
+        stars += `<span style="color: ${color};">&#9733;</span>`;
+    }
+
+    return `${stars}<span class="text-muted" style="font-size: 0.8rem;"> (${average.toFixed(1)})</span>`;
 }
 
-function buildCatalogCard(catalog) {
+function buildCatalogRow(catalog) {
     const imageHtml = catalog.imageUrl
         ? `<img src="${escapeHtml(catalog.imageUrl)}" alt="Product Image">`
         : '<span class="no-image">📷</span>';
@@ -79,28 +73,25 @@ function buildCatalogCard(catalog) {
     const stock = Number(catalog.stock || 0);
 
     return `
-        <div class="catalog-card" data-catalog-id="${escapeHtml(catalog.id)}">
-            <div class="catalog-card-image">${imageHtml}</div>
-            <div class="catalog-card-body">
-                <div class="catalog-card-name">${escapeHtml(catalog.name || '')}</div>
-                <div class="catalog-card-desc">${escapeHtml(catalog.description || '')}</div>
-                <div class="catalog-card-meta">
-                    <span class="meta-chip location">📍 ${escapeHtml(catalog.originLocation || '')}</span>
-                    <span class="meta-chip date">📅 ${travelDate}</span>
-                </div>
-                <div class="catalog-card-rating">${buildRatingHtml(catalog)}</div>
-                <div style="margin-top: auto; padding-top: 6px;">
-                    <a href="/catalog/${sellerId}" class="jastiper-link">👤 ${sellerName}</a>
-                </div>
-            </div>
-            <div class="catalog-card-footer">
-                <div>
-                    <div class="catalog-card-price">Rp ${formatPrice(catalog.price)}</div>
-                    <span class="stock-badge${stock <= 0 ? ' out' : ''}" id="${stockId}">${stock > 0 ? 'Stok: ' + stock : 'Habis'}</span>
-                </div>
-                ${buildFooterAction(catalog)}
-            </div>
-        </div>
+        <tr data-catalog-id="${escapeHtml(catalog.id)}">
+            <td>${imageHtml}</td>
+            <td>${escapeHtml(catalog.name || '')}</td>
+            <td>${escapeHtml(catalog.description || '')}</td>
+            <td>Rp ${formatPrice(catalog.price)}</td>
+            <td>${buildRatingHtml(catalog)}</td>
+            <td>${buildJastiperRatingHtml(catalog)}</td>
+            <td id="${stockId}">${escapeHtml(catalog.stock)}</td>
+            <td>${escapeHtml(catalog.originLocation || '')}</td>
+            <td>${travelDate}</td>
+            <td>
+                <a href="/catalog/${sellerId}" class="text-primary font-weight-bold">${sellerName}</a>
+            </td>
+            <td>
+                <a href="/order/checkout/${escapeHtml(catalog.id)}" class="btn btn-success btn-sm">
+                    🛒 Order
+                </a>
+            </td>
+        </tr>
     `;
 }
 

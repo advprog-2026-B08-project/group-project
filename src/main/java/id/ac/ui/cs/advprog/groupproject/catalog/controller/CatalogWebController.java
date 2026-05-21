@@ -7,8 +7,10 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
+import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import jakarta.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -31,16 +33,19 @@ public class CatalogWebController {
   private final CatalogImageService catalogImageService;
   private final CatalogMapper catalogMapper;
   private final UserRepository userRepository;
+  private final OrderRepository orderRepository;
 
   public CatalogWebController(
       CatalogService catalogService,
       CatalogImageService catalogImageService,
       CatalogMapper catalogMapper,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      OrderRepository orderRepository) {
     this.catalogService = catalogService;
     this.catalogImageService = catalogImageService;
     this.catalogMapper = catalogMapper;
     this.userRepository = userRepository;
+    this.orderRepository = orderRepository;
   }
 
   private User getCurrentUser(Principal principal) {
@@ -66,8 +71,9 @@ public class CatalogWebController {
 
   @GetMapping
   public String catalog(Model model, Principal principal) {
-    model.addAttribute(
-        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
+    List<CatalogDto> catalogs = catalogMapper.toDtoList(catalogService.getAllCatalogs());
+    enrichWithJastiperRating(catalogs);
+    model.addAttribute(CATALOGS_ATTRIBUTE, catalogs);
     if (principal != null) {
       userRepository
           .findByUsername(principal.getName())
@@ -98,9 +104,11 @@ public class CatalogWebController {
             .findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-    model.addAttribute(
-        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId)));
+    List<CatalogDto> catalogs = catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId));
+    enrichWithJastiperRating(catalogs);
+    model.addAttribute(CATALOGS_ATTRIBUTE, catalogs);
     model.addAttribute("username", user.getUsername());
+    model.addAttribute("jastiperUser", user);
     return "catalog/html/userCatalog";
   }
 
@@ -234,5 +242,18 @@ public class CatalogWebController {
 
     catalogService.deleteCatalogByAdmin(id);
     return "redirect:/catalog/admin/monitoring";
+  }
+
+  private void enrichWithJastiperRating(List<CatalogDto> catalogs) {
+    for (CatalogDto dto : catalogs) {
+      if (dto.getJastiperId() != null) {
+        try {
+          Double avgRating = orderRepository.findAverageJastiperRating(dto.getJastiperId());
+          dto.setJastiperRatingAverage(avgRating);
+        } catch (Exception e) {
+          // Silently ignore if order data not available
+        }
+      }
+    }
   }
 }

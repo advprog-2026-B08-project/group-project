@@ -5,70 +5,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="current-user-id" th:content="${currentUserId != null ? currentUserId : ''}">
-    <title>Catalog</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <title>Katalog Produk — JSON</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/catalog.css}">
 </head>
-
-<body class="catalog-body">
+<body>
     <div th:replace="fragments/navbar :: navbar"></div>
 
-    <main class="catalog-shell">
-        <!-- Hero Header -->
-        <div class="catalog-hero">
+    <div class="me-container me-page">
+        <!-- Page Header -->
+        <div class="me-page-header">
             <div>
-                <span class="eyebrow">Katalog Produk</span>
-                <h1>Temukan Produk Jastip Favoritmu</h1>
-                <p class="hero-subtitle">Jelajahi semua produk dari jastiper terpercaya. Pesan langsung dari katalog.
-                </p>
+                <h1>Katalog Produk</h1>
+                <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">Temukan produk unik dari seluruh dunia yang ditawarkan oleh Jastiper terpercaya.</p>
             </div>
-            <div class="hero-actions">
-                <a th:if="${userRole != null and (userRole == 'ROLE_JASTIPER' or userRole == 'JASTIPER')}" th:href="@{/catalog/my}"
-                    class="btn-primary-pill">📦 My Catalog</a>
-                <a href="/homepage" class="btn-ghost">← Kembali</a>
+
+            <div style="display: flex; gap: 12px;">
+                <a th:href="@{/homepage}" class="me-btn me-btn--secondary me-btn--sm">← Beranda</a>
+                <a th:if="${user != null and user.role == 'ROLE_JASTIPER'}"
+                   th:href="@{/catalog/my}" class="me-btn me-btn--primary me-btn--sm">Katalog Saya</a>
             </div>
         </div>
 
-        <!-- Search Bar -->
-        <div class="catalog-search">
-            <input type="text" id="catalogSearchInput" placeholder="Cari produk... contoh: Baju bola SiSeSa FC">
-            <button type="button" id="catalog-search-submit" class="search-btn" onclick="handleSearchBtn()">🔍
-                Cari</button>
-            <button type="button" id="catalog-search-reset" class="reset-btn">Reset</button>
-        </div>
-
-        <!-- Product Grid -->
-        <div class="catalog-grid" id="catalog-grid">
-            <th:block th:if="${catalogs.isEmpty()}">
-                <div class="catalog-empty" style="grid-column: 1 / -1;">
-                    <span class="catalog-empty-icon">🛍️</span>
-                    <p>Belum ada produk tersedia.</p>
-                    <a href="/homepage" class="btn-ghost" style="display: inline-block;">Kembali ke Home</a>
+        <!-- Search Bar Card -->
+        <div class="me-card" style="padding: 20px; margin-bottom: 24px;">
+            <form id="catalog-search-form" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column;">
+                    <label for="catalogSearchInput" style="margin-bottom: 6px; font-weight: 700; font-size: 0.85rem;">Cari Produk</label>
+                    <input type="text" id="catalogSearchInput" placeholder="Ketik nama produk, e.g. Baju Bola, Cokelat..." class="form-control" style="width: 100%;">
                 </div>
-            </th:block>
+                <div style="display: flex; gap: 8px; min-width: 200px;">
+                    <button type="submit" class="me-btn me-btn--primary" style="flex: 2; height: 44px;">Cari</button>
+                    <button type="button" id="catalog-search-reset" class="me-btn me-btn--outline" style="flex: 1; height: 44px;">Reset</button>
+                </div>
+            </form>
+        </div>
 
-            <th:block th:each="catalog : ${catalogs}">
-                <div class="catalog-card" th:attr="data-catalog-id=${catalog.id}">
-                    <div class="catalog-card-image">
-                        <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}"
-                            th:src="${catalog.imageUrl}" alt="Product Image">
-                        <span th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}"
-                            class="no-image">📷</span>
-                    </div>
-                    <div class="catalog-card-body">
-                        <div class="catalog-card-name" th:text="${catalog.name}"></div>
-                        <div class="catalog-card-desc" th:text="${catalog.description}"></div>
-                        <div class="catalog-card-meta">
-                            <span class="meta-chip location" th:text="'📍 ' + ${catalog.originLocation}"></span>
-                            <span class="meta-chip date"
-                                th:text="'📅 ' + ${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMM yyyy') : '-'}"></span>
-                        </div>
-                        <div class="catalog-card-rating">
+        <!-- Table Card -->
+        <div class="me-card me-stack" style="padding: 12px; overflow-x: auto;">
+            <table class="table me-table" style="margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 100px;">Foto</th>
+                        <th scope="col">Nama Produk</th>
+                        <th scope="col">Deskripsi</th>
+                        <th scope="col">Harga</th>
+                        <th scope="col">Rating</th>
+                        <th scope="col">Rating Jastiper</th>
+                        <th scope="col">Stok</th>
+                        <th scope="col">Asal Negara</th>
+                        <th scope="col">Tgl Keberangkatan</th>
+                        <th scope="col">Jastiper</th>
+                        <th scope="col" style="width: 110px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="catalog-table-body">
+                    <tr th:if="${catalogs.isEmpty()}" id="catalog-empty-row">
+                        <td colspan="11" class="text-center text-muted" style="padding: 40px 16px;">
+                            <span style="font-size: 2rem; display: block; margin-bottom: 8px;">📦</span>
+                            <em>Belum ada produk yang tersedia</em>
+                        </td>
+                    </tr>
+                    <tr th:each="catalog : ${catalogs}" th:attr="data-catalog-id=${catalog.id}">
+                        <td>
+                            <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}"
+                                 th:src="${catalog.imageUrl}"
+                                 alt="Product Image"
+                                 style="width: 70px; height: 70px; object-fit: cover; border-radius: var(--me-radius); border: var(--me-border-w) solid var(--me-border);">
+                            <span th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}" class="text-muted" style="font-size: 0.8rem;">No Image</span>
+                        </td>
+                        <td style="font-weight: 700;" th:text="${catalog.name}"></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" th:text="${catalog.description}"></td>
+                        <td style="font-weight: 700; color: var(--me-text);" th:text="${'Rp ' + #numbers.formatDecimal(catalog.price, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td>
                             <span th:with="avg=${catalog.ratingAverage != null ? catalog.ratingAverage : 0.0}">
                                 <span th:style="${avg >= 0.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
                                 <span th:style="${avg >= 1.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
@@ -76,37 +86,45 @@
                                 <span th:style="${avg >= 3.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
                                 <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
                             </span>
-                            <span class="rating-count"
-                                th:text="${(catalog.ratingAverage != null ? #numbers.formatDecimal(catalog.ratingAverage, 1, 1) : '0.0') + ' / 5 (' + (catalog.ratingCount != null ? catalog.ratingCount : 0) + ' ulasan)'}"></span>
-                        </div>
-                        <div style="margin-top: auto; padding-top: 6px;">
-                            <a th:href="@{/catalog/{userId}(userId=${catalog.jastiperId})}" class="jastiper-link"
-                                th:text="'👤 ' + ${catalog.jastiperUsername}"></a>
-                        </div>
-                    </div>
-                    <div class="catalog-card-footer">
-                        <div>
-                            <div class="catalog-card-price"
-                                th:text="'Rp ' + ${#numbers.formatDecimal(catalog.price, 0, 'COMMA', 0, 'POINT')}">
-                            </div>
-                            <span class="stock-badge" th:id="'stock-' + ${catalog.id}"
-                                th:classappend="${catalog.stock <= 0 ? 'out' : ''}"
-                                th:text="${catalog.stock > 0 ? 'Stok: ' + catalog.stock : 'Habis'}"></span>
-                        </div>
-                        <div th:if="${currentUserId != null and currentUserId == catalog.jastiperId.toString()}"
-                            class="own-product-actions">
-                            <span class="own-badge">✨ Produk Kamu</span>
-                            <a th:href="@{/catalog/edit/{id}(id=${catalog.id})}" class="edit-own-btn">✏️ Edit</a>
-                        </div>
-                        <a th:if="${currentUserId == null or currentUserId != catalog.jastiperId.toString()}"
-                            th:href="@{/order/checkout/{productId}(productId=${catalog.id})}" class="order-btn">🛒
-                            Order</a>
-                    </div>
-                </div>
-            </th:block>
+                            <span class="text-muted" style="font-size: 0.8rem;"
+                                  th:text="${' (' + (catalog.ratingCount != null ? catalog.ratingCount : 0) + ')'}"></span>
+                        </td>
+                        <td>
+                            <span th:if="${catalog.jastiperRatingAverage != null}"
+                                  th:with="avg=${catalog.jastiperRatingAverage}">
+                                <span th:style="${avg >= 0.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                                <span th:style="${avg >= 1.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                                <span th:style="${avg >= 2.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                                <span th:style="${avg >= 3.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                                <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            </span>
+                            <span th:if="${catalog.jastiperRatingAverage != null}"
+                                  class="text-muted"
+                                  style="font-size: 0.8rem;"
+                                  th:text="${' (' + #numbers.formatDecimal(catalog.jastiperRatingAverage, 0, 'POINT', 1, 'COMMA') + ')'}">(3.5)</span>
+                            <span th:if="${catalog.jastiperRatingAverage == null}" class="text-muted" style="font-size: 0.8rem;">-</span>
+                        </td>
+                        <td style="font-weight: 700;" th:id="${'stock-' + catalog.id}" th:text="${catalog.stock}"></td>
+                        <td th:text="${catalog.originLocation}"></td>
+                        <td th:text="${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMM yyyy') : '-'}"></td>
+                        <td>
+                            <a th:href="@{/catalog/{userId}(userId=${catalog.jastiperId})}"
+                               style="font-weight: 700; color: var(--me-info);"
+                               th:text="${catalog.jastiperUsername}"></a>
+                        </td>
+                        <td>
+                            <a th:href="@{/order/checkout/{productId}(productId=${catalog.id})}"
+                               class="me-btn me-btn--success me-btn--sm" style="padding: 6px 12px; font-size: 0.8rem;">
+                                🛒 Beli
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-    </main>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script th:src="@{/catalog/js/catalog.js}" defer></script>
 </body>
 

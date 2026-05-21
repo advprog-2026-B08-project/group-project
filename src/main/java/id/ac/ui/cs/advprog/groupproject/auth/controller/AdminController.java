@@ -73,6 +73,13 @@ public class AdminController {
         return "redirect:/admin/userList";
     }
 
+    @PostMapping("/admin/liftBan")
+    public String liftBan(@AuthenticationPrincipal User admin,
+                      @RequestParam UUID userId) {
+        userDetailService.liftBan(admin, userId);
+        return "redirect:/admin/userList";
+    }
+
     @PostMapping("/admin/kyc/accept")
     public String acceptRequest(@AuthenticationPrincipal User admin,
                                 @RequestParam UUID requestId) {

@@ -1,69 +1,97 @@
 <!DOCTYPE html>
-<html lang="id" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Jastiper</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/catalog.css}">
-</head>
-<body class="catalog-body">
-<div th:replace="fragments/navbar :: navbar"></div>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Catalog — JSON')"></head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
 
-<main class="catalog-shell">
-    <!-- Hero Header -->
-    <div class="catalog-hero">
-        <div>
-            <span class="eyebrow">Katalog Jastiper</span>
-            <h1>Produk dari <span th:text="${username}">User</span></h1>
-            <p class="hero-subtitle">Lihat semua produk jastip yang ditawarkan oleh jastiper ini.</p>
-        </div>
-        <div class="hero-actions">
-            <a th:href="@{/catalog}" class="btn-ghost">📋 Semua Katalog</a>
-            <a href="/homepage" class="btn-ghost">← Kembali</a>
-        </div>
-    </div>
-
-    <!-- Product Grid -->
-    <div class="catalog-grid">
-        <th:block th:if="${catalogs.isEmpty()}">
-            <div class="catalog-empty" style="grid-column: 1 / -1;">
-                <span class="catalog-empty-icon">📦</span>
-                <p>Jastiper ini belum memiliki produk.</p>
-                <a th:href="@{/catalog}" class="btn-ghost" style="display: inline-block;">Lihat Semua Katalog</a>
+    <div class="me-container me-page">
+        <!-- Page Header -->
+        <div class="me-page-header">
+            <div>
+                <h1>Katalog oleh <span th:text="${username}">User</span></h1>
+                <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">
+                    Temukan produk-produk impor/jastip eksklusif yang ditawarkan oleh <strong th:text="${username}">User</strong>.
+                </p>
             </div>
-        </th:block>
 
-        <th:block th:each="catalog : ${catalogs}">
-            <div class="catalog-card">
-                <div class="catalog-card-image">
-                    <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}"
-                         th:src="${catalog.imageUrl}" alt="Product Image">
-                    <span th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}" class="no-image">📷</span>
-                </div>
-                <div class="catalog-card-body">
-                    <div class="catalog-card-name" th:text="${catalog.name}"></div>
-                    <div class="catalog-card-desc" th:text="${catalog.description}"></div>
-                    <div class="catalog-card-meta">
-                        <span class="meta-chip location" th:text="'📍 ' + ${catalog.originLocation}"></span>
-                        <span class="meta-chip date" th:text="'📅 ' + ${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMM yyyy') : '-'}"></span>
-                    </div>
-                </div>
-                <div class="catalog-card-footer">
+            <div style="display: flex; gap: 12px;">
+                <a th:href="@{/catalog}" class="me-btn me-btn--primary me-btn--sm">Lihat Semua Katalog</a>
+                <a th:href="@{/homepage}" class="me-btn me-btn--outline me-btn--sm">Kembali</a>
+            </div>
+        </div>
+
+        <!-- Jastiper Info Card -->
+        <div th:if="${jastiperUser != null and jastiperUser.role == 'ROLE_JASTIPER'}"
+             class="me-card" style="padding: 16px 20px; margin-bottom: 24px; border-left: 4px solid var(--me-info);">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img th:src="${jastiperUser.profilePictureURL != null ? jastiperUser.profilePictureURL : '/images/defaultProfilePicture.png'}"
+                         onerror="this.onerror=null; this.src='/images/defaultProfilePicture.png';"
+                         style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: var(--me-border-w) solid var(--me-border);">
                     <div>
-                        <div class="catalog-card-price" th:text="'Rp ' + ${#numbers.formatDecimal(catalog.price, 0, 'COMMA', 0, 'POINT')}"></div>
-                        <span class="stock-badge"
-                              th:classappend="${catalog.stock <= 0 ? 'out' : ''}"
-                              th:text="${catalog.stock > 0 ? 'Stok: ' + catalog.stock : 'Habis'}"></span>
+                        <span style="font-weight: 700; font-size: 1rem;" th:text="${jastiperUser.username}">Jastiper</span>
+                        <span class="me-badge me-badge--success" style="font-size: 0.6rem; padding: 1px 6px; margin-left: 6px;">Jastiper</span>
+                        <p style="font-size: 0.8rem; color: var(--me-text-muted); margin: 2px 0 0 0;" th:text="${jastiperUser.email}">email</p>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div th:if="${catalogs != null and !catalogs.isEmpty() and catalogs[0].jastiperRatingAverage != null}">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary);">Rating: </span>
+                        <span th:with="avg=${catalogs[0].jastiperRatingAverage}">
+                            <span th:style="${avg >= 0.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 1.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 2.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 3.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                            <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                        </span>
+                        <small class="text-muted"
+                               th:text="${'(' + #numbers.formatDecimal(catalogs[0].jastiperRatingAverage, 0, 'POINT', 1, 'COMMA') + '/5)'}"></small>
                     </div>
                 </div>
             </div>
-        </th:block>
-    </div>
-</main>
+        </div>
 
+        <!-- Table Card -->
+        <div class="me-card me-stack" style="padding: 12px; overflow-x: auto;">
+            <table class="table me-table" style="margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 100px;">Foto</th>
+                        <th scope="col">Nama Produk</th>
+                        <th scope="col">Deskripsi</th>
+                        <th scope="col">Harga</th>
+                        <th scope="col">Stok</th>
+                        <th scope="col">Asal Negara</th>
+                        <th scope="col">Tgl Keberangkatan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${catalogs.isEmpty()}">
+                        <td colspan="7" class="text-center text-muted" style="padding: 40px 16px;">
+                            <span style="font-size: 2rem; display: block; margin-bottom: 8px;">📦</span>
+                            <em>Jastiper ini belum memiliki produk</em>
+                        </td>
+                    </tr>
+                    <tr th:each="catalog : ${catalogs}">
+                        <td>
+                            <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}"
+                                 th:src="${catalog.imageUrl}"
+                                 alt="Product Image"
+                                 style="width: 70px; height: 70px; object-fit: cover; border-radius: var(--me-radius); border: var(--me-border-w) solid var(--me-border);">
+                            <span th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}" class="text-muted" style="font-size: 0.8rem;">No Image</span>
+                        </td>
+                        <td style="font-weight: 700;" th:text="${catalog.name}"></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" th:text="${catalog.description}"></td>
+                        <td style="font-weight: 700; color: var(--me-text);" th:text="${'Rp ' + #numbers.formatDecimal(catalog.price, 0, 'COMMA', 2, 'POINT')}"></td>
+                        <td style="font-weight: 700;" th:text="${catalog.stock}"></td>
+                        <td th:text="${catalog.originLocation}"></td>
+                        <td th:text="${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMM yyyy') : '-'}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnik9KikU7q+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>
