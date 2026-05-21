@@ -1,3 +1,5 @@
+/* ── Helpers ─────────────────────────────────── */
+
 function escapeHtml(value) {
     return String(value)
         .replaceAll('&', '&amp;')
@@ -8,106 +10,99 @@ function escapeHtml(value) {
 }
 
 function formatDate(value) {
-    if (!value) {
-        return '-';
-    }
-
+    if (!value) return '-';
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-        return '-';
-    }
-
-    return new Intl.DateTimeFormat('id-ID', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-    }).format(date);
+    if (Number.isNaN(date.getTime())) return '-';
+    return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
 }
 
 function formatPrice(value) {
     const amount = Number(value || 0);
-    return new Intl.NumberFormat('id-ID', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(amount);
+    return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
-function buildRatingHtml(catalog) {
-    const average = Number(catalog.ratingAverage ?? 0);
-    const ratingCount = Number(catalog.ratingCount ?? 0);
+function buildStarsHtml(average) {
     let stars = '';
-
-    for (let i = 1; i <= 5; i += 1) {
-        const color = average >= (i - 0.5) ? '#f5b301' : '#d0d0d0';
-        stars += `<span style="color: ${color};">&#9733;</span>`;
+    for (let i = 1; i <= 5; i++) {
+        const cls = average >= (i - 0.5) ? 'me-star-on' : 'me-star-off';
+        stars += '<span class="' + cls + '">&#9733;</span>';
     }
-
-    return `${stars}<span class="rating-count">${average.toFixed(1)} / 5 (${ratingCount} ulasan)</span>`;
+    return stars;
 }
 
-function buildJastiperRatingHtml(catalog) {
-    if (catalog.jastiperRatingAverage === null || catalog.jastiperRatingAverage === undefined) {
-        return '<span class="text-muted">-</span>';
-    }
+/* ── Pagination State ───────────────────────── */
 
-    const average = Number(catalog.jastiperRatingAverage);
-    let stars = '';
+const ITEMS_PER_PAGE = 12;
+let currentPage = 1;
+let allCatalogs = [];
 
-    for (let i = 1; i <= 5; i += 1) {
-        const color = average >= (i - 0.5) ? '#f5b301' : '#d0d0d0';
-        stars += `<span style="color: ${color};">&#9733;</span>`;
-    }
+/* ── Card Builder ───────────────────────────── */
 
-    return `${stars}<span class="text-muted" style="font-size: 0.8rem;"> (${average.toFixed(1)})</span>`;
-}
-
-function buildCatalogRow(catalog) {
+function buildCatalogCard(catalog) {
     const imageHtml = catalog.imageUrl
-        ? `<img src="${escapeHtml(catalog.imageUrl)}" alt="Product Image">`
-        : '<span class="no-image">📷</span>';
+        ? '<img src="' + escapeHtml(catalog.imageUrl) + '" alt="' + escapeHtml(catalog.name) + '" class="catalog-card__img">'
+        : '<div class="catalog-card__img-placeholder">📷</div>';
 
+    const avg = Number(catalog.ratingAverage || 0);
+    const count = Number(catalog.ratingCount || 0);
+    const stock = Number(catalog.stock || 0);
     const sellerName = catalog.jastiperUsername ? escapeHtml(catalog.jastiperUsername) : '-';
     const sellerId = catalog.jastiperId ? escapeHtml(catalog.jastiperId) : '';
     const travelDate = formatDate(catalog.travelDate);
-    const stockId = `stock-${escapeHtml(catalog.id)}`;
-    const stock = Number(catalog.stock || 0);
+    const origin = catalog.originLocation ? escapeHtml(catalog.originLocation) : '-';
 
-    return `
-        <tr data-catalog-id="${escapeHtml(catalog.id)}">
-            <td>${imageHtml}</td>
-            <td>${escapeHtml(catalog.name || '')}</td>
-            <td>${escapeHtml(catalog.description || '')}</td>
-            <td>Rp ${formatPrice(catalog.price)}</td>
-            <td>${buildRatingHtml(catalog)}</td>
-            <td>${buildJastiperRatingHtml(catalog)}</td>
-            <td id="${stockId}">${escapeHtml(catalog.stock)}</td>
-            <td>${escapeHtml(catalog.originLocation || '')}</td>
-            <td>${travelDate}</td>
-            <td>
-                <a href="/catalog/${sellerId}" class="text-primary font-weight-bold">${sellerName}</a>
-            </td>
-            <td>
-                <a href="/order/checkout/${escapeHtml(catalog.id)}" class="btn btn-success btn-sm">
-                    🛒 Order
-                </a>
-            </td>
-        </tr>
-    `;
-}
+    const currentUserId = document.querySelector('meta[name="current-user-id"]')?.content || '';
+    const isOwner = currentUserId && sellerId === currentUserId;
 
-function renderCatalogGrid(catalogs) {
-    const grid = document.getElementById('catalog-grid');
-    if (!grid) {
-        return;
+    let actionHtml;
+    if (isOwner) {
+        actionHtml = '<a href="/catalog/edit/' + escapeHtml(catalog.id) + '" class="me-btn me-btn--outline me-btn--sm">✏️ Edit</a>';
+    } else if (stock > 0) {
+        actionHtml = '<a href="/order/checkout/' + escapeHtml(catalog.id) + '" class="me-btn me-btn--success me-btn--sm">🛒 Beli</a>';
+    } else {
+        actionHtml = '<span class="me-badge me-badge--danger">Habis</span>';
     }
 
+    const stockBadge = stock > 0
+        ? '<span class="me-badge me-badge--success">Stok: ' + stock + '</span>'
+        : '<span class="me-badge me-badge--danger">Habis</span>';
+
+    return '<div class="me-card catalog-card" data-catalog-id="' + escapeHtml(catalog.id) + '">'
+        + '<div class="catalog-card__image">' + imageHtml + '</div>'
+        + '<div class="catalog-card__body">'
+        +   '<div class="catalog-card__name">' + escapeHtml(catalog.name || '') + '</div>'
+        +   '<div class="catalog-card__desc">' + escapeHtml(catalog.description || '') + '</div>'
+        +   '<div class="catalog-card__price">Rp ' + formatPrice(catalog.price) + '</div>'
+        +   '<div class="catalog-card__rating me-stars">'
+        +     buildStarsHtml(avg)
+        +     ' <span style="font-size: 0.8rem; color: var(--me-text-muted);">' + avg.toFixed(1) + ' (' + count + ')</span>'
+        +   '</div>'
+        +   '<div class="catalog-card__meta">'
+        +     '<span>📍 ' + origin + '</span>'
+        +     '<span>🗓 ' + travelDate + '</span>'
+        +   '</div>'
+        +   '<div class="catalog-card__seller">'
+        +     '<a href="/catalog/' + sellerId + '" style="font-weight: 700; color: var(--me-info);">👤 ' + sellerName + '</a>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="catalog-card__footer">'
+        +   stockBadge
+        +   actionHtml
+        + '</div>'
+        + '</div>';
+}
+
+/* ── Rendering ──────────────────────────────── */
+
+function renderCatalogGrid(catalogs) {
+    var grid = document.getElementById('catalog-grid');
+    if (!grid) return;
+
     if (!catalogs || catalogs.length === 0) {
-        grid.innerHTML = `
-            <div class="catalog-empty" style="grid-column: 1 / -1;">
-                <span class="catalog-empty-icon">🔍</span>
-                <p>Tidak ada produk ditemukan.</p>
-            </div>
-        `;
+        grid.innerHTML = '<div class="me-card me-center" style="grid-column: 1 / -1; padding: 48px; border-style: dashed; background: var(--me-surface);">'
+            + '<span style="font-size: 3rem; display: block; margin-bottom: 16px;">🔍</span>'
+            + '<p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0;">Tidak ada produk ditemukan.</p>'
+            + '</div>';
         return;
     }
 
@@ -115,31 +110,94 @@ function renderCatalogGrid(catalogs) {
     bindCardClicks();
 }
 
+function renderPagination(totalItems) {
+    var container = document.getElementById('catalog-pagination');
+    if (!container) return;
+
+    var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    var html = '';
+
+    // Previous button
+    if (currentPage > 1) {
+        html += '<button class="me-btn me-btn--outline me-btn--sm" onclick="goToPage(' + (currentPage - 1) + ')">&laquo; Prev</button>';
+    }
+
+    // Page numbers
+    var maxVisible = 5;
+    var startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    var endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    if (startPage > 1) {
+        html += '<button class="me-btn me-btn--outline me-btn--sm" onclick="goToPage(1)">1</button>';
+        if (startPage > 2) html += '<span style="padding: 0 4px; color: var(--me-text-muted);">…</span>';
+    }
+
+    for (var i = startPage; i <= endPage; i++) {
+        if (i === currentPage) {
+            html += '<button class="me-btn me-btn--primary me-btn--sm">' + i + '</button>';
+        } else {
+            html += '<button class="me-btn me-btn--outline me-btn--sm" onclick="goToPage(' + i + ')">' + i + '</button>';
+        }
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += '<span style="padding: 0 4px; color: var(--me-text-muted);">…</span>';
+        html += '<button class="me-btn me-btn--outline me-btn--sm" onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>';
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        html += '<button class="me-btn me-btn--outline me-btn--sm" onclick="goToPage(' + (currentPage + 1) + ')">Next &raquo;</button>';
+    }
+
+    container.innerHTML = html;
+}
+
+function displayPage() {
+    var start = (currentPage - 1) * ITEMS_PER_PAGE;
+    var end = start + ITEMS_PER_PAGE;
+    var pageItems = allCatalogs.slice(start, end);
+    renderCatalogGrid(pageItems);
+    renderPagination(allCatalogs.length);
+}
+
+function goToPage(page) {
+    var totalPages = Math.ceil(allCatalogs.length / ITEMS_PER_PAGE);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    displayPage();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Search / Load ──────────────────────────── */
+
 async function loadCatalogs() {
-    const searchInput = document.getElementById('catalogSearchInput');
-    const params = new URLSearchParams();
+    var searchInput = document.getElementById('catalogSearchInput');
+    var params = new URLSearchParams();
 
     if (searchInput && searchInput.value.trim()) {
-        const keyword = searchInput.value.trim();
-        params.set('keyword', keyword);
+        params.set('keyword', searchInput.value.trim());
     }
 
-    const response = await fetch('/api/catalogs/search?' + params.toString());
-    if (!response.ok) {
-        throw new Error('Failed to load catalogs');
-    }
-
+    var response = await fetch('/api/catalogs/search?' + params.toString());
+    if (!response.ok) throw new Error('Failed to load catalogs');
     return response.json();
 }
 
 async function handleSearch(event) {
-    if (event) {
-        event.preventDefault();
-    }
-
+    if (event) event.preventDefault();
     try {
-        const catalogs = await loadCatalogs();
-        renderCatalogGrid(catalogs);
+        allCatalogs = await loadCatalogs();
+        currentPage = 1;
+        displayPage();
     } catch (error) {
         alert('Gagal mencari produk.');
     }
@@ -150,19 +208,18 @@ function handleSearchBtn() {
 }
 
 async function resetSearch() {
-    const searchInput = document.getElementById('catalogSearchInput');
-
-    if (searchInput) {
-        searchInput.value = '';
-    }
-
+    var searchInput = document.getElementById('catalogSearchInput');
+    if (searchInput) searchInput.value = '';
     try {
-        const catalogs = await loadCatalogs();
-        renderCatalogGrid(catalogs);
+        allCatalogs = await loadCatalogs();
+        currentPage = 1;
+        displayPage();
     } catch (error) {
         alert('Gagal mereset pencarian.');
     }
 }
+
+/* ── Card Click → Detail ────────────────────── */
 
 function bindCardClicks() {
     document.querySelectorAll('.catalog-card[data-catalog-id]').forEach(function(card) {
@@ -174,12 +231,22 @@ function bindCardClicks() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('catalogSearchInput');
-    const resetButton = document.getElementById('catalog-search-reset');
+/* ── Init ───────────────────────────────────── */
+
+document.addEventListener('DOMContentLoaded', function() {
+    var searchForm = document.getElementById('catalog-search-form');
+    var searchInput = document.getElementById('catalogSearchInput');
+    var resetButton = document.getElementById('catalog-search-reset');
+
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleSearch(null);
+        });
+    }
 
     if (searchInput) {
-        searchInput.addEventListener('keydown', (e) => {
+        searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 handleSearch(null);
@@ -191,5 +258,10 @@ document.addEventListener('DOMContentLoaded', () => {
         resetButton.addEventListener('click', resetSearch);
     }
 
-    bindCardClicks();
+    // Use server-rendered data for initial load
+    if (window.__INITIAL_CATALOGS__ && window.__INITIAL_CATALOGS__.length > 0) {
+        allCatalogs = window.__INITIAL_CATALOGS__;
+    }
+
+    displayPage();
 });
