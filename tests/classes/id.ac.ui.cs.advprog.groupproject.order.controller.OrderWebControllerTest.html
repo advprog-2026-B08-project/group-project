@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.231s</div>
+<div class="counter">0.335s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,12 +79,12 @@
 </thead>
 <tr>
 <td class="success">checkoutForm_noPrincipal_redirectsToLogin()</td>
-<td class="success">0.010s</td>
+<td class="success">0.021s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkoutForm_productNotFound_returns404()</td>
-<td class="success">0.104s</td>
+<td class="success">0.124s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -94,47 +94,47 @@
 </tr>
 <tr>
 <td class="success">checkoutForm_withPrincipal_returnsCheckoutView()</td>
-<td class="success">0.009s</td>
+<td class="success">0.012s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getAllOrders_asAdmin_showsAllOrders()</td>
-<td class="success">0.011s</td>
+<td class="success">0.020s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getAllOrders_asJastiper_returnsListViewWithTabs()</td>
-<td class="success">0.013s</td>
+<td class="success">0.020s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getAllOrders_asTitiper_returnsListView()</td>
-<td class="success">0.012s</td>
+<td class="success">0.018s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getAllOrders_catalogEnrichment_withProductInfo()</td>
-<td class="success">0.009s</td>
+<td class="success">0.014s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getAllOrders_noPrincipal_redirectsToLogin()</td>
-<td class="success">0.011s</td>
+<td class="success">0.014s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getAllOrders_userNotFound_returns401()</td>
-<td class="success">0.011s</td>
+<td class="success">0.018s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getOrderDetail_found_returnsDetailView()</td>
-<td class="success">0.012s</td>
+<td class="success">0.040s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">getOrderDetail_noPrincipal_returnsDetailView()</td>
-<td class="success">0.009s</td>
+<td class="success">0.014s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -147,45 +147,45 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-22T10:41:03.192Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.193Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.193Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.203Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.203Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.204Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
-2026-05-22T10:41:03.212Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.212Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.212Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.222Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.222Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.222Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.233Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.234Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.234Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.244Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.245Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.245Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.257Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.257Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.258Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
-2026-05-22T10:41:03.268Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.269Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.269Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.281Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.281Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.281Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.293Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.293Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.293Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.304Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.304Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.304Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.316Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.317Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.317Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-05-22T10:41:03.327Z  INFO 2314 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-05-22T10:41:03.327Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-05-22T10:41:03.327Z  INFO 2314 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+<pre>2026-05-22T10:43:19.390Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.390Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.391Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-05-22T10:43:19.404Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.404Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.404Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.416Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.417Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.417Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.435Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.435Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.436Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.447Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.447Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.448Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.465Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.466Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.466Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.482Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.483Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.483Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.497Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.498Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.498Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.533Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.534Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.535Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.558Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.558Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.558Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.574Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.574Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.575Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-05-22T10:43:19.602Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.602Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.603Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-05-22T10:43:19.612Z  INFO 2558 --- [group-project] [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-05-22T10:43:19.612Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-05-22T10:43:19.613Z  INFO 2558 --- [group-project] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
 </pre>
 </span>
 </div>
@@ -197,7 +197,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 10:41:05 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 10:43:22 AM</p>
 </div>
 </div>
 </body>

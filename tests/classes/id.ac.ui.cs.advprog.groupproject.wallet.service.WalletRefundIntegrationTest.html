@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.180s</div>
+<div class="counter">0.188s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,12 +79,12 @@
 </thead>
 <tr>
 <td class="success">refundBalance_DuplicateReference_ThrowsException()</td>
-<td class="success">0.052s</td>
+<td class="success">0.043s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">refundBalance_PersistsTransaction()</td>
-<td class="success">0.128s</td>
+<td class="success">0.145s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -92,8 +92,8 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-22T10:41:04.109Z  INFO 2314 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest]: WalletRefundIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-05-22T10:41:04.119Z  INFO 2314 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest
+<pre>2026-05-22T10:43:20.412Z  INFO 2558 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest]: WalletRefundIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-05-22T10:43:20.425Z  INFO 2558 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -104,18 +104,18 @@
 
  :: Spring Boot ::               (v3.5.10)
 
-2026-05-22T10:41:04.140Z  INFO 2314 --- [group-project] [    Test worker] .u.c.a.g.w.s.WalletRefundIntegrationTest : Starting WalletRefundIntegrationTest using Java 21.0.11 with PID 2314 (started by runner in /home/runner/work/group-project/group-project)
-2026-05-22T10:41:04.140Z  INFO 2314 --- [group-project] [    Test worker] .u.c.a.g.w.s.WalletRefundIntegrationTest : The following 1 profile is active: &quot;test&quot;
-2026-05-22T10:41:04.368Z  INFO 2314 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-05-22T10:41:04.388Z  INFO 2314 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 19 ms. Found 10 JPA repository interfaces.
-2026-05-22T10:41:04.509Z  INFO 2314 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-05-22T10:41:04.516Z  INFO 2314 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-05-22T10:41:04.526Z  INFO 2314 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-05-22T10:41:04.527Z  INFO 2314 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
-2026-05-22T10:41:04.529Z  INFO 2314 --- [group-project] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn30: url=jdbc:h2:mem:testdb user=SA
-2026-05-22T10:41:04.530Z  INFO 2314 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
-2026-05-22T10:41:04.562Z  WARN 2314 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-05-22T10:41:04.565Z  INFO 2314 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-05-22T10:43:20.448Z  INFO 2558 --- [group-project] [    Test worker] .u.c.a.g.w.s.WalletRefundIntegrationTest : Starting WalletRefundIntegrationTest using Java 21.0.11 with PID 2558 (started by runner in /home/runner/work/group-project/group-project)
+2026-05-22T10:43:20.449Z  INFO 2558 --- [group-project] [    Test worker] .u.c.a.g.w.s.WalletRefundIntegrationTest : The following 1 profile is active: &quot;test&quot;
+2026-05-22T10:43:20.750Z  INFO 2558 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-22T10:43:20.783Z  INFO 2558 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 31 ms. Found 10 JPA repository interfaces.
+2026-05-22T10:43:20.873Z  INFO 2558 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-22T10:43:20.876Z  INFO 2558 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-22T10:43:20.885Z  INFO 2558 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-22T10:43:20.888Z  INFO 2558 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-05-22T10:43:20.891Z  INFO 2558 --- [group-project] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn30: url=jdbc:h2:mem:testdb user=SA
+2026-05-22T10:43:20.891Z  INFO 2558 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-05-22T10:43:20.892Z  WARN 2558 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-22T10:43:20.892Z  INFO 2558 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-3)']
 	Database driver: undefined/unknown
 	Database version: 2.3.232
@@ -123,14 +123,14 @@
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-05-22T10:41:04.673Z  INFO 2314 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-05-22T10:41:04.707Z  INFO 2314 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-05-22T10:41:04.894Z  WARN 2314 --- [group-project] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-05-22T10:41:05.065Z  INFO 2314 --- [group-project] [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 13 endpoints beneath base path '/actuator'
-2026-05-22T10:41:05.082Z  INFO 2314 --- [group-project] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
-2026-05-22T10:41:05.219Z  INFO 2314 --- [group-project] [    Test worker] .u.c.a.g.w.s.WalletRefundIntegrationTest : Started WalletRefundIntegrationTest in 1.097 seconds (process running for 25.381)
-2026-05-22T10:41:05.370Z  WARN 2314 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23505, SQLState: 23505
-2026-05-22T10:41:05.371Z ERROR 2314 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : Unique index or primary key violation: &quot;PUBLIC.UQ_WALLET_TRANSACTIONS_REFERENCE_INDEX_8 ON PUBLIC.WALLET_TRANSACTIONS(WALLET_ID NULLS FIRST, REFERENCE_ID NULLS FIRST, TYPE NULLS FIRST) VALUES ( /* key:2 */ UUID '0d5b7981-ac54-4b12-b6f9-2d04a2e1d939', UUID '2fd78fff-0a54-4654-a71c-eee391064883', CAST('REFUND' AS ENUM('CREDIT', 'DEBIT', 'REFUND', 'TOP_UP', 'WITHDRAWAL')))&quot;; SQL statement:
+2026-05-22T10:43:20.999Z  INFO 2558 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-22T10:43:21.040Z  INFO 2558 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-22T10:43:21.280Z  WARN 2558 --- [group-project] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-22T10:43:21.418Z  INFO 2558 --- [group-project] [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 13 endpoints beneath base path '/actuator'
+2026-05-22T10:43:21.445Z  INFO 2558 --- [group-project] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
+2026-05-22T10:43:21.600Z  INFO 2558 --- [group-project] [    Test worker] .u.c.a.g.w.s.WalletRefundIntegrationTest : Started WalletRefundIntegrationTest in 1.172 seconds (process running for 30.364)
+2026-05-22T10:43:21.771Z  WARN 2558 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23505, SQLState: 23505
+2026-05-22T10:43:21.772Z ERROR 2558 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : Unique index or primary key violation: &quot;PUBLIC.UQ_WALLET_TRANSACTIONS_REFERENCE_INDEX_8 ON PUBLIC.WALLET_TRANSACTIONS(WALLET_ID NULLS FIRST, REFERENCE_ID NULLS FIRST, TYPE NULLS FIRST) VALUES ( /* key:2 */ UUID '2da353ba-76ef-4791-b670-ed1c2e72544d', UUID '15bd54d3-6986-4a92-b769-54af0786d2d3', CAST('REFUND' AS ENUM('CREDIT', 'DEBIT', 'REFUND', 'TOP_UP', 'WITHDRAWAL')))&quot;; SQL statement:
 insert into wallet_transactions (amount,created_at,description,reference_id,status,type,wallet_id,id) values (?,?,?,?,?,?,?,?) [23505-232]
 </pre>
 </span>
@@ -143,7 +143,7 @@ insert into wallet_transactions (amount,created_at,description,reference_id,stat
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 10:41:05 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 10:43:22 AM</p>
 </div>
 </div>
 </body>
