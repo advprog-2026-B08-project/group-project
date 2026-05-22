@@ -43,3 +43,6 @@ out/
 
 ### Local K8s Secrets ###
 k8s/secrets-local.yaml
+
+rubrik_penilaian.md
+connectedMode.json
