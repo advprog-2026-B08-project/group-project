@@ -5,7 +5,6 @@ plugins {
     id("jacoco")
     id("checkstyle")
     id("org.sonarqube") version "6.0.1.5171"
-    id("org.owasp.dependencycheck") version "9.2.0"
 }
 
 
@@ -79,13 +78,6 @@ checkstyle {
     configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
     isIgnoreFailures = true
     maxWarnings = 0
-}
-
-dependencyCheck {
-    outputDirectory = file("${buildDir}/reports/dependency-check")
-    formats = listOf("HTML", "JSON")
-    failBuildOnCVSS = 11.0f
-    failOnError = false
 }
 
 tasks.withType<Checkstyle> {

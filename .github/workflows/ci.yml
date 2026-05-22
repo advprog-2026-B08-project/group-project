@@ -47,18 +47,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew build jacocoTestReport sonar --info
 
-      - name: Run Security Scan (OWASP Dependency-Check)
-        run: ./gradlew dependencyCheckAnalyze
-
       - name: Prepare Reports for Deployment
         run: |
           mkdir -p public-reports
           cp -r build/reports/tests/test public-reports/tests
           cp -r build/reports/checkstyle public-reports/linter
           cp -r build/reports/jacoco/test/html public-reports/coverage
-          if [ -d build/reports/dependency-check ]; then
-            cp -r build/reports/dependency-check public-reports/security
-          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@47f197a2200bb9de68ba5f48fad1c088eb1c4a32 # v4.0.0

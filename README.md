@@ -111,9 +111,6 @@ Proyek ini telah dilengkapi dengan metrik observabilitas (Spring Actuator + Micr
    ```
    Ini akan mengaktifkan container **Prometheus** dan **Grafana**.
 
-   **Catatan best practice:** target Prometheus disetel ke **staging** agar tidak membebani production.
-   Jika perlu ubah target, edit `monitoring/prometheus.yml` (contoh: prod atau lokal).
-
 2. **Akses Dashboard Grafana:**
    * Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
    * Masuk menggunakan kredensial default: **Username:** `admin`, **Password:** `admin`.
