@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,13 +168,25 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order cancelOrder(UUID orderId) {
         Order cancelled = updateStatusInternal(orderId, OrderStatus.CANCELLED);
-        stockPort.releaseStock(cancelled.getProductId(), cancelled.getQuantity());
-        paymentPort.refund(
-                cancelled.getBuyerId(),
-                cancelled.getTotalPrice(),
-                "Refund for cancelled order: " + cancelled.getId(),
-                cancelled.getId()
+
+        // Optimisasi: jalankan releaseStock dan refund secara PARALEL
+        // karena keduanya independen satu sama lain
+        CompletableFuture<Void> releaseFuture = CompletableFuture.runAsync(() ->
+                stockPort.releaseStock(cancelled.getProductId(), cancelled.getQuantity())
         );
+
+        CompletableFuture<Void> refundFuture = CompletableFuture.runAsync(() ->
+                paymentPort.refund(
+                        cancelled.getBuyerId(),
+                        cancelled.getTotalPrice(),
+                        "Refund for cancelled order: " + cancelled.getId(),
+                        cancelled.getId()
+                )
+        );
+
+        // Tunggu kedua operasi selesai secara bersamaan
+        CompletableFuture.allOf(releaseFuture, refundFuture).join();
+
         LOGGER.info("order_cancelled orderId={} refundAmount={}",
                 cancelled.getId(), cancelled.getTotalPrice());
         return cancelled;
