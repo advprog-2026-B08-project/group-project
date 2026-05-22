@@ -111,9 +111,8 @@ Proyek ini telah dilengkapi dengan metrik observabilitas (Spring Actuator + Micr
    ```
    Ini akan mengaktifkan container **Prometheus** dan **Grafana**.
 
-2. **Akses Dashboard Grafana:**
-   * Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
-   * Masuk menggunakan kredensial default: **Username:** `admin`, **Password:** `admin`.
+    * Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
+    * Akses Grafana di http://localhost:3000 dengan kredensial default: **Username:** `admin`, **Password:** `admin`.
    * Dashboard pemantauan JVM, Database HikariCP, dan HTTP Request sudah otomatis terkonfigurasi (*provisioned*).
 
 ---
