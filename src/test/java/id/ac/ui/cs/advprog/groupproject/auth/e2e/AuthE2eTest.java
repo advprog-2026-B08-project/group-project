@@ -27,12 +27,6 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-/**
- * End-to-end functional tests for the Auth module covering registration, login,
- * profile, and logout flows. Disabled by default; enable in CI by exporting
- * {@code E2E=true}. Run via:
- * <pre>./gradlew test --tests "id.ac.ui.cs.advprog.groupproject.auth.e2e.AuthE2eTest"</pre>
- */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {

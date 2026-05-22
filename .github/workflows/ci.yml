@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       run_e2e:
-        description: "Force-run E2E (Selenium) tests for all modules"
+        description: "Run E2E tests for all modules"
         required: false
         default: "true"
 

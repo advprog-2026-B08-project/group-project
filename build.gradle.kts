@@ -57,15 +57,12 @@ tasks.named<Test>("test") {
     finalizedBy(tasks.jacocoTestReport) 
 }
 
-// Packages excluded from coverage: DTOs, generated config, and test bootstrap.
 val coverageExclusions = listOf(
-    "**/dto/**",
     "**/config/**",
     "**/event/**",
     "**/GroupProjectApplication*",
     "**/*Config*",
     "**/*Application*",
-    "**/model/**",      // pure JPA entities (Lombok-generated getters/setters)
     "**/enums/**"
 )
 
@@ -94,19 +91,16 @@ tasks.jacocoTestCoverageVerification {
         })
     )
     violationRules {
-        // Repository-wide gate. Target is 90% per rubric; baseline kept lower to
-        // avoid breaking the build while we ratchet coverage up. Increase the
-        // minimum values once new coverage lands.
         rule {
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.70".toBigDecimal()
+                minimum = "0.80".toBigDecimal()
             }
             limit {
                 counter = "BRANCH"
                 value = "COVEREDRATIO"
-                minimum = "0.60".toBigDecimal()
+                minimum = "0.80".toBigDecimal()
             }
         }
     }

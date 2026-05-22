@@ -44,11 +44,6 @@ import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepos
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-/**
- * End-to-end functional tests for the Order module covering the checkout flow,
- * order list view, order detail view, and cancellation. Disabled by default;
- * enable in CI by exporting {@code E2E=true}.
- */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
@@ -221,8 +216,8 @@ class OrderE2eTest {
                     By.cssSelector(".cancel-btn[data-id='" + existingOrder.getId() + "']")));
             cancelButton.click();
 
-            acceptAlert(driver, wait); // confirm("Batalkan order ini? ...")
-            acceptAlert(driver, wait); // alert("Order dibatalkan ...")
+            acceptAlert(driver, wait);
+            acceptAlert(driver, wait);
 
             wait.until(ExpectedConditions.urlContains("/order/list"));
 
@@ -284,7 +279,6 @@ class OrderE2eTest {
             Alert alert = driver.switchTo().alert();
             alert.accept();
         } catch (Exception ignored) {
-            // No alert appeared in time; this is best-effort handling.
         }
     }
 
@@ -339,7 +333,6 @@ class OrderE2eTest {
 
     @SuppressWarnings("unused")
     private UUID parseId(String url) {
-        // helper kept for future expansion
         return UUID.fromString(url.substring(url.lastIndexOf('/') + 1));
     }
 }
