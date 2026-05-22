@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - WalletE2eTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>WalletE2eTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/id.ac.ui.cs.advprog.groupproject.wallet.e2e.html">id.ac.ui.cs.advprog.groupproject.wallet.e2e</a> &gt; WalletE2eTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">4</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">11.860s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="tab-container">
+<ul class="tabLinks">
+<li>
+<a href="#">Tests</a>
+</li>
+<li>
+<a href="#">Standard output</a>
+</li>
+<li>
+<a href="#">Standard error</a>
+</li>
+</ul>
+<div class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">adminCanVerifyPendingTopUp()</td>
+<td class="success">2.035s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">loginAndOpenWalletPage()</td>
+<td class="success">1.531s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">topUpShowsPendingStatusAndHistory()</td>
+<td class="success">6.062s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">withdrawShowsPendingStatusAndHistory()</td>
+<td class="success">2.232s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>16:28:45.177 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.wallet.e2e.WalletE2eTest]: WalletE2eTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:28:45.398 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.wallet.e2e.WalletE2eTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.10)
+
+2026-05-22T16:28:46.286Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.wallet.e2e.WalletE2eTest     : Starting WalletE2eTest using Java 21.0.11 with PID 2420 (started by runner in /home/runner/work/group-project/group-project)
+2026-05-22T16:28:46.290Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.wallet.e2e.WalletE2eTest     : The following 1 profile is active: &quot;test&quot;
+2026-05-22T16:28:47.878Z  INFO 2420 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-22T16:28:47.995Z  INFO 2420 --- [group-project] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 103 ms. Found 10 JPA repository interfaces.
+2026-05-22T16:28:48.886Z  INFO 2420 --- [group-project] [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-05-22T16:28:48.909Z  INFO 2420 --- [group-project] [    Test worker] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-22T16:28:48.910Z  INFO 2420 --- [group-project] [    Test worker] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.50]
+2026-05-22T16:28:48.985Z  INFO 2420 --- [group-project] [    Test worker] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-22T16:28:48.987Z  INFO 2420 --- [group-project] [    Test worker] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2645 ms
+2026-05-22T16:28:49.342Z  INFO 2420 --- [group-project] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-22T16:28:49.418Z  INFO 2420 --- [group-project] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.41.Final
+2026-05-22T16:28:49.476Z  INFO 2420 --- [group-project] [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-22T16:28:49.928Z  INFO 2420 --- [group-project] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-22T16:28:49.983Z  INFO 2420 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-22T16:28:50.369Z  INFO 2420 --- [group-project] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2026-05-22T16:28:50.372Z  INFO 2420 --- [group-project] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-22T16:28:50.405Z  WARN 2420 --- [group-project] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-05-22T16:28:50.428Z  INFO 2420 --- [group-project] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-22T16:28:51.987Z  INFO 2420 --- [group-project] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-22T16:28:52.070Z  INFO 2420 --- [group-project] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-22T16:28:52.404Z  INFO 2420 --- [group-project] [    Test worker] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-22T16:28:54.192Z  WARN 2420 --- [group-project] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-22T16:28:54.655Z  INFO 2420 --- [group-project] [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 13 endpoints beneath base path '/actuator'
+2026-05-22T16:28:54.700Z  INFO 2420 --- [group-project] [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailService
+2026-05-22T16:28:55.469Z  INFO 2420 --- [group-project] [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 45133 (http) with context path '/'
+2026-05-22T16:28:55.489Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.wallet.e2e.WalletE2eTest     : Started WalletE2eTest in 9.815 seconds (process running for 11.857)
+2026-05-22T16:28:56.670Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=0818fe90-9cc3-48df-a745-8fb11e24e785
+2026-05-22T16:28:57.407Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Using chromedriver 148.0.7778.178 (resolved driver for Chrome 148)
+2026-05-22T16:28:57.449Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.online.Downloader     : Downloading https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/148.0.7778.178/linux64/chromedriver-linux64.zip
+2026-05-22T16:28:57.956Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.online.Downloader     : Extracting driver from compressed file chromedriver-linux64.zip
+2026-05-22T16:28:58.098Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Exporting webdriver.chrome.driver as /home/runner/.cache/selenium/chromedriver/linux64/148.0.7778.178/chromedriver
+2026-05-22T16:28:59.200Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 148
+2026-05-22T16:28:59.201Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 148.0.7778.167. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.31.0` where the version (&quot;v86&quot;) matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+2026-05-22T16:28:59.293Z  INFO 2420 --- [group-project] [o-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-22T16:28:59.294Z  INFO 2420 --- [group-project] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-22T16:28:59.295Z  INFO 2420 --- [group-project] [o-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+
+ User : null
+2026-05-22T16:28:59.604Z  WARN 2420 --- [group-project] [o-auto-1-exec-1] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-1][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:28:59.823Z  WARN 2420 --- [group-project] [o-auto-1-exec-3] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-3][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:28:59.925Z  WARN 2420 --- [group-project] [o-auto-1-exec-5] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-5][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+2026-05-22T16:29:00.507Z  WARN 2420 --- [group-project] [o-auto-1-exec-8] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-8][homepage] Deprecated unwrapped fragment expression &quot;fragments/head :: head('JSON — Jastip Online Nasional')&quot; found in template homepage, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('JSON — Jastip Online Nasional')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-22T16:29:00.509Z  WARN 2420 --- [group-project] [o-auto-1-exec-8] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-8][homepage] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template homepage, line 5, col 10. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+2026-05-22T16:29:00.840Z  WARN 2420 --- [group-project] [o-auto-1-exec-2] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-2][wallet/index] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template wallet/index, line 10, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+2026-05-22T16:29:01.196Z  INFO 2420 --- [group-project] [o-auto-1-exec-6] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_pending walletId=0818fe90-9cc3-48df-a745-8fb11e24e785 txId=366bbd3b-b0a7-4da1-b010-5ffcdb14568d
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@31f4a435
+2026-05-22T16:29:02.017Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=6cb1e2fb-8c0f-4f45-b43b-ce0e537630c1
+2026-05-22T16:29:02.085Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Using chromedriver 148.0.7778.178 (resolved driver for Chrome 148)
+2026-05-22T16:29:02.089Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Exporting webdriver.chrome.driver as /home/runner/.cache/selenium/chromedriver/linux64/148.0.7778.178/chromedriver
+2026-05-22T16:29:02.346Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 148
+2026-05-22T16:29:02.346Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 148.0.7778.167. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.31.0` where the version (&quot;v86&quot;) matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+
+ User : null
+2026-05-22T16:29:02.371Z  WARN 2420 --- [group-project] [o-auto-1-exec-4] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-4][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:29:02.400Z  WARN 2420 --- [group-project] [o-auto-1-exec-8] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-8][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:29:02.511Z  WARN 2420 --- [group-project] [o-auto-1-exec-6] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-6][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@4ca238cb
+2026-05-22T16:29:02.779Z  WARN 2420 --- [group-project] [o-auto-1-exec-9] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-9][homepage] Deprecated unwrapped fragment expression &quot;fragments/head :: head('JSON — Jastip Online Nasional')&quot; found in template homepage, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('JSON — Jastip Online Nasional')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-22T16:29:02.780Z  WARN 2420 --- [group-project] [o-auto-1-exec-9] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-9][homepage] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template homepage, line 5, col 10. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@4ca238cb
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@4ca238cb
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@4ca238cb
+2026-05-22T16:29:03.196Z  WARN 2420 --- [group-project] [o-auto-1-exec-5] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-5][wallet/index] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template wallet/index, line 10, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@4ca238cb
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@4ca238cb
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@4ca238cb
+2026-05-22T16:29:03.549Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=b813be7e-3f5f-4f2c-abab-87015f1299d9
+2026-05-22T16:29:03.575Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Using chromedriver 148.0.7778.178 (resolved driver for Chrome 148)
+2026-05-22T16:29:03.578Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Exporting webdriver.chrome.driver as /home/runner/.cache/selenium/chromedriver/linux64/148.0.7778.178/chromedriver
+2026-05-22T16:29:03.811Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 148
+2026-05-22T16:29:03.812Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 148.0.7778.167. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.31.0` where the version (&quot;v86&quot;) matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+
+ User : null
+2026-05-22T16:29:03.827Z  WARN 2420 --- [group-project] [o-auto-1-exec-4] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-4][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:29:03.866Z  WARN 2420 --- [group-project] [o-auto-1-exec-7] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-7][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:29:03.910Z  WARN 2420 --- [group-project] [o-auto-1-exec-6] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-6][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+2026-05-22T16:29:04.193Z  WARN 2420 --- [group-project] [o-auto-1-exec-9] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-9][homepage] Deprecated unwrapped fragment expression &quot;fragments/head :: head('JSON — Jastip Online Nasional')&quot; found in template homepage, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('JSON — Jastip Online Nasional')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-22T16:29:04.194Z  WARN 2420 --- [group-project] [o-auto-1-exec-9] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-9][homepage] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template homepage, line 5, col 10. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+2026-05-22T16:29:04.612Z  WARN 2420 --- [group-project] [o-auto-1-exec-5] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-5][wallet/index] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template wallet/index, line 10, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@471c821f
+2026-05-22T16:29:05.782Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=0864f29e-4714-4f28-a1f7-c4fd956c3b20
+2026-05-22T16:29:05.785Z  INFO 2420 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_pending walletId=0864f29e-4714-4f28-a1f7-c4fd956c3b20 txId=2a562d98-6543-4d57-94fa-605b312352a3
+2026-05-22T16:29:05.790Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Using chromedriver 148.0.7778.178 (resolved driver for Chrome 148)
+2026-05-22T16:29:05.792Z  INFO 2420 --- [group-project] [    Test worker] i.g.bonigarcia.wdm.WebDriverManager      : Exporting webdriver.chrome.driver as /home/runner/.cache/selenium/chromedriver/linux64/148.0.7778.178/chromedriver
+2026-05-22T16:29:06.035Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.devtools.CdpVersionFinder   : Unable to find CDP implementation matching 148
+2026-05-22T16:29:06.035Z  WARN 2420 --- [group-project] [    Test worker] o.o.selenium.chromium.ChromiumDriver     : Unable to find version of CDP to use for 148.0.7778.167. You may need to include a dependency on a specific version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.31.0` where the version (&quot;v86&quot;) matches the version of the chromium-based browser you're using and the version number of the artifact is the same as Selenium's.
+
+ User : null
+2026-05-22T16:29:06.050Z  WARN 2420 --- [group-project] [o-auto-1-exec-8] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-8][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:29:06.093Z  WARN 2420 --- [group-project] [o-auto-1-exec-6] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-6][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : null
+2026-05-22T16:29:06.169Z  WARN 2420 --- [group-project] [o-auto-1-exec-1] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-1][auth/login] Deprecated unwrapped fragment expression &quot;fragments/head :: head('Login — JSON')&quot; found in template auth/login, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('Login — JSON')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+2026-05-22T16:29:06.442Z  WARN 2420 --- [group-project] [o-auto-1-exec-2] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-2][homepage] Deprecated unwrapped fragment expression &quot;fragments/head :: head('JSON — Jastip Online Nasional')&quot; found in template homepage, line 3, col 7. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/head :: head('JSON — Jastip Online Nasional')}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-22T16:29:06.443Z  WARN 2420 --- [group-project] [o-auto-1-exec-2] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-2][homepage] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template homepage, line 5, col 10. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+2026-05-22T16:29:06.868Z  WARN 2420 --- [group-project] [-auto-1-exec-10] actStandardFragmentInsertionTagProcessor : [THYMELEAF][http-nio-auto-1-exec-10][wallet/admin] Deprecated unwrapped fragment expression &quot;fragments/navbar :: navbar&quot; found in template wallet/admin, line 10, col 6. Please use the complete syntax of fragment expressions instead (&quot;~{fragments/navbar :: navbar}&quot;). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+2026-05-22T16:29:07.047Z  INFO 2420 --- [group-project] [o-auto-1-exec-2] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verified txId=2a562d98-6543-4d57-94fa-605b312352a3 type=TOP_UP status=SUCCESS
+
+ User : id.ac.ui.cs.advprog.groupproject.auth.model.User@68e1163a
+</pre>
+</span>
+</div>
+<div class="tab">
+<h2>Standard error</h2>
+<span class="code">
+<pre>Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/home/runner/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.8/f09415827a71be7ed621c7bd02550678f28bc81c/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 4:29:07 PM</p>
+</div>
+</div>
+</body>
+</html>
