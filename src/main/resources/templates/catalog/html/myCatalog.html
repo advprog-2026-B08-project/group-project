@@ -1,69 +1,115 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>My Catalog</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Saya — JSON</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
 </head>
 <body>
-
-<div class="container my-2">
     <div th:replace="fragments/navbar :: navbar"></div>
-    <h2>My Catalog</h2>
-    <p>Welcome, <strong th:text="${username}">User</strong>!</p>
-    <a th:href="@{/catalog/add}" class="btn btn-primary btn-sm mb-3">Add Product</a>
-    <a th:href="@{/catalog}" class="btn btn-secondary btn-sm mb-3">View All Catalogs</a>
-    <a th:href="@{/homepage}" class="btn btn-secondary btn-sm mb-3">Back to Home</a>
 
-    <table border="1" class="table table-striped table-responsive-md">
-        <thead>
-        <tr>
-            <th scope="col">Image</th>
-            <th scope="col">Product Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Price</th>
-            <th scope="col">Stock</th>
-            <th scope="col">Origin Location</th>
-            <th scope="col">Travel Date</th>
-            <th scope="col">Edit</th>
-            <th scope="col">Delete</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:if="${catalogs.isEmpty()}">
-            <td colspan="9" class="text-center text-muted">
-                <em>You haven't added any products yet</em>
-            </td>
-        </tr>
-        <tr th:each="catalog : ${catalogs}" th:attr="data-catalog-id=${catalog.id}">
-            <td>
-                <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}"
-                     th:src="${catalog.imageUrl}"
-                     alt="Product Image"
-                     style="width: 80px; height: 80px; object-fit: cover;">
-                <span th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}" class="text-muted">No image</span>
-            </td>
-            <td th:text="${catalog.name}"></td>
-            <td th:text="${catalog.description}"></td>
-            <td th:text="${'Rp ' + #numbers.formatDecimal(catalog.price, 0, 'COMMA', 2, 'POINT')}"></td>
-            <td th:text="${catalog.stock}"></td>
-            <td th:text="${catalog.originLocation}"></td>
-            <td th:text="${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMM yyyy') : '-'}"></td>
-            <td>
-                <a th:href="@{/catalog/edit/{id}(id=${catalog.id})}" class="btn btn-info btn-sm">Edit</a>
-            </td>
-            <td>
-                <button class="btn btn-danger btn-sm" th:data-catalog-id="${catalog.id}" onclick="deleteCatalog(this.dataset.catalogId)">
-                    Delete
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <main class="me-container me-page">
+        <!-- Page Header -->
+        <div class="me-page-header" style="margin-bottom: 32px;">
+            <div>
+                <span style="text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.75rem; font-weight: 800; color: var(--me-text-secondary); display: block; margin-bottom: 6px;">Jastiper</span>
+                <h1 style="font-size: 2.5rem; font-weight: 900; margin: 0;">Katalog Saya</h1>
+                <p style="color: var(--me-text-secondary); margin-top: 6px; margin-bottom: 0;">
+                    Selamat datang, <strong th:text="${username}">User</strong>! Kelola produk jastip Anda di sini.
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <a th:href="@{/catalog/add}" class="me-btn me-btn--primary">+ Tambah Produk</a>
+                <a th:href="@{/catalog}" class="me-btn me-btn--outline">Lihat Semua Katalog</a>
+            </div>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-<script th:src="@{/catalog/js/my-catalog.js}" defer></script>
+        <!-- Empty State -->
+        <div th:if="${catalogs == null or catalogs.isEmpty()}"
+             class="me-card me-center" style="padding: 64px 24px; border-style: dashed; background: var(--me-surface);">
+            <span style="font-size: 3.5rem; display: block; margin-bottom: 16px;">📦</span>
+            <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">Anda belum menambahkan produk apa pun.</p>
+            <p style="color: var(--me-text-secondary); margin-bottom: 24px;">Mulai tambahkan produk jastip pertama Anda sekarang.</p>
+            <a th:href="@{/catalog/add}" class="me-btn me-btn--primary">+ Tambah Produk Pertama</a>
+        </div>
+
+        <!-- Product Card Grid -->
+        <div th:if="${catalogs != null and !catalogs.isEmpty()}">
+            <!-- Stats bar -->
+            <div class="me-card me-card--flat" style="padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <span style="font-weight: 700; color: var(--me-text-secondary);">
+                    <span style="font-size: 1.25rem; font-weight: 900; color: var(--me-text);" th:text="${catalogs.size()}">0</span>
+                    produk terdaftar
+                </span>
+                <a th:href="@{/catalog/add}" class="me-btn me-btn--primary me-btn--sm">+ Tambah Produk</a>
+            </div>
+
+            <div class="catalog-card-grid" id="my-catalog-grid">
+                <div th:each="catalog : ${catalogs}"
+                     class="me-card catalog-card my-catalog-card"
+                     th:attr="data-catalog-id=${catalog.id}">
+
+                    <!-- Image (clickable via JS) -->
+                    <div class="catalog-card__image">
+                        <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}"
+                             th:src="${catalog.imageUrl}"
+                             th:alt="${catalog.name}"
+                             class="catalog-card__img">
+                        <div th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}"
+                             class="catalog-card__img-placeholder">📷</div>
+                    </div>
+
+                    <!-- Body (clickable via JS) -->
+                    <div class="catalog-card__body">
+                        <div class="catalog-card__name" th:text="${catalog.name}">Nama Produk</div>
+                        <div class="catalog-card__desc" th:text="${catalog.description}">Deskripsi produk</div>
+                        <div class="catalog-card__price"
+                             th:text="'Rp ' + ${#numbers.formatDecimal(catalog.price, 0, 'COMMA', 0, 'POINT')}">Rp 0</div>
+
+                        <!-- Rating -->
+                        <div class="catalog-card__rating me-stars" th:with="avg=${catalog.ratingAverage != null ? catalog.ratingAverage : 0.0}">
+                            <span th:class="${avg >= 0.5 ? 'me-star-on' : 'me-star-off'}">&#9733;</span>
+                            <span th:class="${avg >= 1.5 ? 'me-star-on' : 'me-star-off'}">&#9733;</span>
+                            <span th:class="${avg >= 2.5 ? 'me-star-on' : 'me-star-off'}">&#9733;</span>
+                            <span th:class="${avg >= 3.5 ? 'me-star-on' : 'me-star-off'}">&#9733;</span>
+                            <span th:class="${avg >= 4.5 ? 'me-star-on' : 'me-star-off'}">&#9733;</span>
+                            <span style="font-size: 0.8rem; color: var(--me-text-muted);"
+                                  th:text="${#numbers.formatDecimal(avg, 0, 'POINT', 1, 'COMMA') + ' (' + (catalog.ratingCount != null ? catalog.ratingCount : 0) + ')'}"></span>
+                        </div>
+
+                        <!-- Meta -->
+                        <div class="catalog-card__meta">
+                            <span th:text="'📍 ' + ${catalog.originLocation}">📍 -</span>
+                            <span th:if="${catalog.travelDate != null}"
+                                  th:text="'🗓 ' + ${#temporals.format(catalog.travelDate, 'dd MMM yyyy')}">🗓 -</span>
+                            <span th:if="${catalog.travelDate == null}">🗓 -</span>
+                        </div>
+                    </div>
+
+                    <!-- Footer: owner actions -->
+                    <div class="catalog-card__footer">
+                        <span th:if="${catalog.stock > 0}" class="me-badge me-badge--success"
+                              th:text="'Stok: ' + ${catalog.stock}">Stok: 0</span>
+                        <span th:if="${catalog.stock <= 0}" class="me-badge me-badge--danger">Habis</span>
+                        <div style="display: flex; gap: 6px;">
+                            <a th:href="@{/catalog/edit/{id}(id=${catalog.id})}"
+                               class="me-btn me-btn--outline me-btn--sm"
+                               onclick="event.stopPropagation()">✏️ Edit</a>
+                            <button class="me-btn me-btn--danger me-btn--sm"
+                                    th:attr="data-catalog-id=${catalog.id}"
+                                    onclick="event.stopPropagation(); deleteCatalog(this.getAttribute('data-catalog-id'))">🗑 Hapus</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination (client-side) -->
+            <nav class="catalog-paging" id="my-catalog-pagination" aria-label="Pagination" style="display: none;"></nav>
+        </div>
+    </main>
+
+    <script th:src="@{/catalog/js/my-catalog.js}" defer></script>
 </body>
 </html>

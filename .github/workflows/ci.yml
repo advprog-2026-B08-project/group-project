@@ -4,24 +4,30 @@ on:
     branches: [ "main", "staging" ]
   pull_request:
     branches: [ "main", "staging" ]
-    
+  workflow_dispatch:
+    inputs:
+      run_e2e:
+        description: "Run E2E tests for all modules"
+        required: false
+        default: "true"
+
 jobs:
   build:
     name: Build, Lint, and Analyze
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
         with:
           java-version: 21
           distribution: 'temurin'
 
       - name: Cache Sonar & Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.sonar/cache
@@ -39,7 +45,7 @@ jobs:
           SPRING_PROFILES_ACTIVE: test
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew build jacocoTestReport sonar --info
+        run: ./gradlew build jacocoTestReport jacocoTestCoverageVerification sonar --info
 
       - name: Prepare Reports for Deployment
         run: |
@@ -49,14 +55,95 @@ jobs:
           cp -r build/reports/jacoco/test/html public-reports/coverage
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@47f197a2200bb9de68ba5f48fad1c088eb1c4a32 # v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public-reports
           publish_branch: gh-pages
 
-  deploy-staging:
+  e2e:
+    name: E2E Tests (${{ matrix.module }})
     needs: build
+    runs-on: ubuntu-22.04
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_dispatch' && inputs.run_e2e == 'true')
+    concurrency:
+      group: e2e-gh-pages-publish
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - module: auth
+            test_class: id.ac.ui.cs.advprog.groupproject.auth.e2e.AuthE2eTest
+          - module: wallet
+            test_class: id.ac.ui.cs.advprog.groupproject.wallet.e2e.WalletE2eTest
+          - module: catalog
+            test_class: id.ac.ui.cs.advprog.groupproject.catalog.e2e.CatalogE2eTest
+          - module: order
+            test_class: id.ac.ui.cs.advprog.groupproject.order.e2e.OrderE2eTest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@19ae4b339ee18925ab85cf12c1041150ea4a44c8 # v1
+
+      - name: Cache Gradle
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Run ${{ matrix.module }} E2E Test
+        env:
+          E2E: "true"
+          SPRING_PROFILES_ACTIVE: test
+        run: ./gradlew test --tests "${{ matrix.test_class }}"
+
+      - name: Stage E2E Report
+        if: always()
+        run: |
+          mkdir -p public-reports
+          if [ -d build/reports/tests/test ]; then
+            cp -r build/reports/tests/test/* public-reports/
+          else
+            echo "<html><body><h1>No test report produced for ${{ matrix.module }}</h1></body></html>" > public-reports/index.html
+          fi
+
+      - name: Publish ${{ matrix.module }} E2E Report to GitHub Pages
+        if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: peaceiris/actions-gh-pages@47f197a2200bb9de68ba5f48fad1c088eb1c4a32 # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public-reports
+          publish_branch: gh-pages
+          destination_dir: e2e/${{ matrix.module }}
+          keep_files: true
+          commit_message: "ci: publish ${{ matrix.module }} E2E report"
+
+      - name: Upload E2E Test Report (artifact backup)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.module }}-e2e-report
+          path: build/reports/tests/test
+          if-no-files-found: warn
+
+  deploy-staging:
+    needs: [ build, e2e ]
     environment: staging
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: ubuntu-22.04
@@ -65,7 +152,7 @@ jobs:
         run: echo "Deploying to Heroku Staging..."
 
   deploy-production:
-    needs: build
+    needs: [ build, e2e ]
     environment: production
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-22.04

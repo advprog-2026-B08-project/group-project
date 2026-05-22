@@ -80,7 +80,8 @@ public class OrderApiController {
         try {
             Order order = orderService.submitRating(
                     id,
-                    request.getRatingProduk()
+                    request.getRatingProduk(),
+                    request.getRatingJastiper()
             );
             return ResponseEntity.ok(order);
         } catch (IllegalArgumentException e) {

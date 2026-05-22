@@ -1,9 +1,9 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.factory;
 
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,9 +22,9 @@ class CatalogFactoryTest {
     }
 
     @Test
-    void testCreateMapsCommandFieldsAndJastiper() {
+    void testCreateMapsRequestFieldsAndJastiper() {
         LocalDate travelDate = LocalDate.of(2026, 9, 1);
-        CreateCatalogCommand command = new CreateCatalogCommand(
+        CreateCatalogRequest request = new CreateCatalogRequest(
             "Coffee Beans",
             "Single origin",
             "https://example.com/beans.jpg",
@@ -39,7 +39,7 @@ class CatalogFactoryTest {
         jastiper.setUsername("bean-hunter");
         jastiper.setRole("JASTIPER");
 
-        Catalog result = catalogFactory.create(command, jastiper);
+        Catalog result = catalogFactory.create(request, jastiper);
 
         assertEquals("Coffee Beans", result.getName());
         assertEquals("Single origin", result.getDescription());
@@ -62,7 +62,7 @@ class CatalogFactoryTest {
         catalog.setOriginLocation("Old City");
         catalog.setTravelDate(LocalDate.of(2026, 1, 1));
 
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest request = new UpdateCatalogRequest(
             "New Name",
             "New Desc",
             "https://example.com/new.jpg",
@@ -72,7 +72,7 @@ class CatalogFactoryTest {
             LocalDate.of(2026, 12, 31)
         );
 
-        catalogFactory.applyUpdate(catalog, command);
+        catalogFactory.applyUpdate(catalog, request);
 
         assertEquals("New Name", catalog.getName());
         assertEquals("New Desc", catalog.getDescription());

@@ -4,7 +4,7 @@ on:
   branch_protection_rule:
   
   push:
-    branches: [ "main", "staging" ]
+    branches: [ "main" ]
   
   pull_request:
     branches: [ "main", "staging" ]
@@ -42,6 +42,6 @@ jobs:
           retention-days: 5
 
       - name: "Upload to code-scanning"
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@78ed0c7291d93e40c51b085850dc669a4c3ab73b # v3
         with:
           sarif_file: results.sarif

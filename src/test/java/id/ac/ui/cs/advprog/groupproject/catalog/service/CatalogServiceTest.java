@@ -1,35 +1,53 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
-import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
-import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
-import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
-import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
-import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.strategy.CatalogActionStrategy;
+import id.ac.ui.cs.advprog.groupproject.catalog.strategy.DefaultCatalogStrategy;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @ExtendWith(MockitoExtension.class)
 class CatalogServiceTest {
@@ -42,6 +60,12 @@ class CatalogServiceTest {
 
     @Mock
     private CatalogRatingEventRepository catalogRatingEventRepository;
+
+    @Mock
+    private StockDecreaseEventRepository stockDecreaseEventRepository;
+
+    @Spy
+    private CatalogActionStrategy catalogStrategy = new DefaultCatalogStrategy();
 
     @Mock
     private MeterRegistry meterRegistry;
@@ -98,7 +122,7 @@ class CatalogServiceTest {
 
     @Test
     void testCreateCatalog() {
-        CreateCatalogCommand command = new CreateCatalogCommand(
+        CreateCatalogRequest request = new CreateCatalogRequest(
             "New Product",
             "New Description",
             "http://example.com/new.jpg",
@@ -113,19 +137,19 @@ class CatalogServiceTest {
         newCatalog.setPrice(200.0);
         newCatalog.setJastiper(testUser);
 
-        when(catalogFactory.create(command, testUser)).thenReturn(newCatalog);
+        when(catalogFactory.create(request, testUser)).thenReturn(newCatalog);
         when(catalogRepository.save(any(Catalog.class))).thenReturn(newCatalog);
 
-        Catalog result = catalogService.createCatalog(command, testUser);
+        Catalog result = catalogService.createCatalog(request, testUser);
 
         assertNotNull(result);
-        verify(catalogFactory, times(1)).create(command, testUser);
+        verify(catalogFactory, times(1)).create(request, testUser);
         verify(catalogRepository, times(1)).save(newCatalog);
     }
 
     @Test
     void testCreateCatalogForbiddenForNonJastiper() {
-        CreateCatalogCommand command = new CreateCatalogCommand(
+        CreateCatalogRequest request = new CreateCatalogRequest(
             "New Product",
             "New Description",
             "http://example.com/new.jpg",
@@ -141,11 +165,11 @@ class CatalogServiceTest {
         customerUser.setRole("CUSTOMER");
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.createCatalog(command, customerUser);
+            catalogService.createCatalog(request, customerUser);
         });
 
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
-        verify(catalogFactory, never()).create(any(CreateCatalogCommand.class), any(User.class));
+        verify(catalogFactory, never()).create(any(CreateCatalogRequest.class), any(User.class));
         verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
@@ -253,7 +277,7 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogSuccess() {
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest command = new UpdateCatalogRequest(
             "Updated Product",
             "Updated Description",
             "http://example.com/updated.jpg",
@@ -268,7 +292,7 @@ class CatalogServiceTest {
 
         doAnswer(invocation -> {
             Catalog target = invocation.getArgument(0);
-            UpdateCatalogCommand cmd = invocation.getArgument(1);
+            UpdateCatalogRequest cmd = invocation.getArgument(1);
             target.setName(cmd.getName());
             target.setDescription(cmd.getDescription());
             target.setImageUrl(cmd.getImageUrl());
@@ -277,7 +301,7 @@ class CatalogServiceTest {
             target.setOriginLocation(cmd.getOriginLocation());
             target.setTravelDate(cmd.getTravelDate());
             return null;
-        }).when(catalogFactory).applyUpdate(any(Catalog.class), any(UpdateCatalogCommand.class));
+        }).when(catalogFactory).applyUpdate(any(Catalog.class), any(UpdateCatalogRequest.class));
 
         Catalog result = catalogService.updateCatalog(catalogId, command, testUser);
 
@@ -289,7 +313,7 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogNotFound() {
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest command = new UpdateCatalogRequest(
             "Updated Product",
             "Updated Description",
             "http://example.com/updated.jpg",
@@ -312,7 +336,7 @@ class CatalogServiceTest {
 
     @Test
     void testUpdateCatalogForbidden() {
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest command = new UpdateCatalogRequest(
             "Updated Product",
             "Updated Description",
             "http://example.com/updated.jpg",
@@ -370,22 +394,40 @@ class CatalogServiceTest {
 
     @Test
     void testDecreaseStockSuccess() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(false);
+        when(stockDecreaseEventRepository.saveAndFlush(any(StockDecreaseEvent.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(catalogRepository.decreaseStockIfAvailable(catalogId, 3)).thenReturn(1);
         when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
 
-        Catalog result = catalogService.decreaseStock(catalogId, 3);
+        Catalog result = catalogService.decreaseStock(catalogId, requestId, 3);
 
         assertNotNull(result);
         assertEquals(10, result.getStock());
+        verify(stockDecreaseEventRepository, times(1)).saveAndFlush(any(StockDecreaseEvent.class));
         verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 3);
         verify(catalogRepository, times(1)).findById(catalogId);
-        verify(catalogRepository, never()).save(any(Catalog.class));
+    }
+
+    @Test
+    void testDecreaseStockIdempotentWhenDuplicate() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(true);
+        when(catalogRepository.findById(catalogId)).thenReturn(Optional.of(testCatalog));
+
+        Catalog result = catalogService.decreaseStock(catalogId, requestId, 3);
+
+        assertNotNull(result);
+        verify(catalogRepository, never()).decreaseStockIfAvailable(any(UUID.class), anyInt());
+        verify(stockDecreaseEventRepository, never()).saveAndFlush(any(StockDecreaseEvent.class));
     }
 
     @Test
     void testDecreaseStockBadRequestWhenQuantityInvalid() {
+        UUID requestId = UUID.randomUUID();
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.decreaseStock(catalogId, 0);
+            catalogService.decreaseStock(catalogId, requestId, 0);
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -396,34 +438,40 @@ class CatalogServiceTest {
 
     @Test
     void testDecreaseStockNotFound() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(false);
+        when(stockDecreaseEventRepository.saveAndFlush(any(StockDecreaseEvent.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(catalogRepository.decreaseStockIfAvailable(catalogId, 2)).thenReturn(0);
         when(catalogRepository.existsById(catalogId)).thenReturn(false);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.decreaseStock(catalogId, 2);
+            catalogService.decreaseStock(catalogId, requestId, 2);
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 2);
         verify(catalogRepository, times(1)).existsById(catalogId);
         verify(catalogRepository, never()).findById(catalogId);
-        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test
     void testDecreaseStockConflictWhenInsufficientStock() {
+        UUID requestId = UUID.randomUUID();
+        when(stockDecreaseEventRepository.existsByRequestId(requestId)).thenReturn(false);
+        when(stockDecreaseEventRepository.saveAndFlush(any(StockDecreaseEvent.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(catalogRepository.decreaseStockIfAvailable(catalogId, 999)).thenReturn(0);
         when(catalogRepository.existsById(catalogId)).thenReturn(true);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            catalogService.decreaseStock(catalogId, 999);
+            catalogService.decreaseStock(catalogId, requestId, 999);
         });
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
         verify(catalogRepository, times(1)).decreaseStockIfAvailable(catalogId, 999);
         verify(catalogRepository, times(1)).existsById(catalogId);
         verify(catalogRepository, never()).findById(catalogId);
-        verify(catalogRepository, never()).save(any(Catalog.class));
     }
 
     @Test

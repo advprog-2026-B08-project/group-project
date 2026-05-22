@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="current-user-id" th:content="${currentUserId != null ? currentUserId : ''}">
+    <title th:text="'Detail — ' + ${catalog.name}">Detail Produk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/catalog.css}">
+</head>
+<body class="catalog-body">
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="catalog-shell">
+    <!-- Header -->
+    <div class="detail-back">
+        <a href="/catalog" class="btn-ghost">← Kembali ke Katalog</a>
+    </div>
+
+    <div class="detail-layout">
+        <!-- LEFT: Product Image -->
+        <div class="detail-image-card">
+            <div class="detail-image-wrapper">
+                <img th:if="${catalog.imageUrl != null and !catalog.imageUrl.isEmpty()}"
+                     th:src="${catalog.imageUrl}" alt="Product Image">
+                <span th:if="${catalog.imageUrl == null or catalog.imageUrl.isEmpty()}" class="detail-no-image">📷</span>
+            </div>
+        </div>
+
+        <!-- RIGHT: Product Info -->
+        <div class="detail-info-card">
+            <span class="eyebrow">Detail Produk</span>
+            <h1 class="detail-product-name" th:text="${catalog.name}">Nama Produk</h1>
+
+            <div class="detail-price-row">
+                <span class="detail-price" th:text="'Rp ' + ${#numbers.formatDecimal(catalog.price, 0, 'COMMA', 0, 'POINT')}">Rp 0</span>
+                <span class="stock-badge"
+                      th:classappend="${catalog.stock <= 0 ? 'out' : ''}"
+                      th:text="${catalog.stock > 0 ? 'Stok: ' + catalog.stock : 'Habis'}">Stok: 0</span>
+            </div>
+
+            <!-- Rating -->
+            <div class="detail-rating">
+                <span th:with="avg=${catalog.ratingAverage != null ? catalog.ratingAverage : 0.0}">
+                    <span th:style="${avg >= 0.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 1.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 2.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 3.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                    <span th:style="${avg >= 4.5 ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                </span>
+                <span class="detail-rating-text"
+                      th:text="${(catalog.ratingAverage != null ? #numbers.formatDecimal(catalog.ratingAverage, 1, 1) : '0.0') + ' / 5 (' + (catalog.ratingCount != null ? catalog.ratingCount : 0) + ' ulasan)'}">0.0 / 5 (0 ulasan)</span>
+            </div>
+
+            <!-- Description -->
+            <div class="detail-section">
+                <h3>📝 Deskripsi</h3>
+                <p class="detail-description" th:text="${catalog.description != null and !catalog.description.isEmpty() ? catalog.description : 'Tidak ada deskripsi.'}">Deskripsi produk</p>
+            </div>
+
+            <!-- Meta Info -->
+            <div class="detail-meta-grid">
+                <div class="detail-meta-item">
+                    <span class="detail-meta-label">📍 Asal Lokasi</span>
+                    <span class="detail-meta-value" th:text="${catalog.originLocation}">-</span>
+                </div>
+                <div class="detail-meta-item">
+                    <span class="detail-meta-label">📅 Tanggal Perjalanan</span>
+                    <span class="detail-meta-value" th:text="${catalog.travelDate != null ? #temporals.format(catalog.travelDate, 'dd MMMM yyyy') : '-'}">-</span>
+                </div>
+                <div class="detail-meta-item">
+                    <span class="detail-meta-label">👤 Jastiper</span>
+                    <a th:href="@{/catalog/{userId}(userId=${catalog.jastiperId})}"
+                       class="jastiper-link" th:text="${catalog.jastiperUsername}">-</a>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="detail-actions-row">
+                <!-- Owner actions -->
+                <th:block th:if="${currentUserId != null and currentUserId == catalog.jastiperId.toString()}">
+                    <span class="own-badge" style="font-size: 14px; padding: 10px 20px;">✨ Produk Kamu</span>
+                    <a th:href="@{/catalog/edit/{id}(id=${catalog.id})}" class="btn-primary-pill">✏️ Edit Produk</a>
+                </th:block>
+                <!-- Buyer actions -->
+                <th:block th:if="${currentUserId == null or currentUserId != catalog.jastiperId.toString()}">
+                    <a th:href="@{/order/checkout/{productId}(productId=${catalog.id})}"
+                       class="detail-order-btn">🛒 Order Sekarang</a>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

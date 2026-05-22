@@ -1,157 +1,244 @@
 <!DOCTYPE html>
 <html lang="id" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Detail</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/order.css}">
-</head>
-<body class="order-body">
+<head th:replace="fragments/head :: head('Detail Pesanan — JSON')"></head>
+<body>
 <div th:replace="fragments/navbar :: navbar"></div>
 
-<main class="order-shell">
-    <!-- Header -->
-    <div class="detail-header">
-        <a href="/order/list" class="btn-ghost">← Kembali</a>
-        <h1>Detail Pesanan</h1>
+<main class="me-container me-page">
+    <!-- Page Header -->
+    <div class="me-page-header">
+        <div>
+            <h1>Detail Pesanan</h1>
+            <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">
+                Kelola status pengiriman, detail pembayaran, dan berikan penilaian untuk pesanan jastip ini.
+            </p>
+        </div>
+        <div>
+            <a href="/order/list" class="me-btn me-btn--secondary me-btn--sm">← Kembali</a>
+        </div>
     </div>
 
-    <div class="detail-grid">
-        <!-- LEFT: Order Information -->
-        <div>
-            <div class="detail-card">
-                <div class="detail-status-row">
-                    <h3 style="margin: 0;">📋 Informasi Order</h3>
-                    <span class="status-badge-lg"
+    <!-- Grid Layout -->
+    <div class="row">
+        <!-- LEFT: Order Information (7 columns) -->
+        <div class="col-md-7 mb-4">
+            <div class="me-card me-stack">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--me-border); padding-bottom: 12px; margin-bottom: 8px;">
+                    <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <span>📋</span> Informasi Order
+                    </h3>
+
+                    <span class="me-badge"
                           th:classappend="${
-                              order.status.name() == 'PAID' ? 'status-paid' :
-                              (order.status.name() == 'PURCHASED' ? 'status-purchased' :
-                              (order.status.name() == 'SHIPPED' ? 'status-shipped' :
-                              (order.status.name() == 'COMPLETED' ? 'status-completed' : 'status-cancelled')))
+                              order.status.name() == 'PAID' ? 'me-badge--warning' :
+                              (order.status.name() == 'PURCHASED' ? 'me-badge--info' :
+                              (order.status.name() == 'SHIPPED' ? 'me-badge--info' :
+                              (order.status.name() == 'COMPLETED' ? 'me-badge--success' : 'me-badge--danger')))
                           }"
                           th:text="${order.status}">PAID</span>
                 </div>
 
-                <div class="detail-info-grid">
-                    <div class="detail-info-item full-width">
-                        <span class="detail-info-label">Order ID</span>
-                        <span class="detail-info-value mono" th:text="${order.id}">-</span>
+                <div style="display: grid; gap: 14px;">
+                    <div style="display: flex; flex-direction: column; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Order ID</span>
+                        <span style="font-weight: 700; font-family: monospace; word-break: break-all;" th:text="${order.id}">-</span>
                     </div>
-                    <div class="detail-info-item">
-                        <span class="detail-info-label">Pembeli</span>
-                        <span class="detail-info-value" th:text="${order.buyerUsername != null ? order.buyerUsername : order.buyerId}">-</span>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Pembeli</span>
+                            <span style="font-weight: 700;" th:text="${order.buyerUsername != null ? order.buyerUsername : order.buyerId}">-</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Jastiper</span>
+                            <span style="font-weight: 700;" th:text="${order.jastiperUsername != null ? order.jastiperUsername : order.jastiperId}">-</span>
+                        </div>
                     </div>
-                    <div class="detail-info-item">
-                        <span class="detail-info-label">Jastiper</span>
-                        <span class="detail-info-value" th:text="${order.jastiperUsername != null ? order.jastiperUsername : order.jastiperId}">-</span>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Nama Produk</span>
+                            <span style="font-weight: 700;" th:text="${order.productName != null ? order.productName : order.productId}">-</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Jumlah</span>
+                            <span style="font-weight: 700;" th:text="${order.quantity + ' pcs'}">-</span>
+                        </div>
                     </div>
-                    <div class="detail-info-item full-width">
-                        <span class="detail-info-label">Produk</span>
-                        <span class="detail-info-value" th:text="${order.productName != null ? order.productName : order.productId}">-</span>
-                    </div>
-                    <div class="detail-info-item">
-                        <span class="detail-info-label">Jumlah</span>
-                        <span class="detail-info-value" th:text="${order.quantity + ' pcs'}">-</span>
-                    </div>
-                    <div class="detail-info-item full-width">
-                        <span class="detail-info-label">Total Harga</span>
-                        <span class="detail-info-value price"
+
+                    <div style="display: flex; flex-direction: column; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Total Harga</span>
+                        <span style="font-size: 1.5rem; font-weight: 900;"
                               th:text="${'Rp ' + #numbers.formatDecimal(order.totalPrice, 0, 'POINT', 0, 'COMMA')}">-</span>
                     </div>
-                    <div class="detail-info-item full-width">
-                        <span class="detail-info-label">Alamat Pengiriman</span>
-                        <span class="detail-info-value" th:text="${order.shippingAddress}">-</span>
+
+                    <div style="display: flex; flex-direction: column; border-bottom: 1px solid #E5E7EB; padding-bottom: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Alamat Pengiriman</span>
+                        <span style="font-weight: 600;" th:text="${order.shippingAddress}">-</span>
                     </div>
-                    <div class="detail-info-item">
-                        <span class="detail-info-label">Dibuat</span>
-                        <span class="detail-info-value" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">-</span>
-                    </div>
-                    <div class="detail-info-item">
-                        <span class="detail-info-label">Diperbarui</span>
-                        <span class="detail-info-value" th:text="${#temporals.format(order.updatedAt, 'dd MMM yyyy HH:mm')}">-</span>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Dibuat</span>
+                            <span style="font-weight: 600;" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy HH:mm')}">-</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--me-text-secondary); text-transform: uppercase;">Diperbarui</span>
+                            <span style="font-weight: 600;" th:text="${#temporals.format(order.updatedAt, 'dd MMM yyyy HH:mm')}">-</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Rating Display (if already rated) -->
-                <div class="rating-display" th:if="${order.ratingProduk != null}">
-                    <h4>⭐ Rating Produk</h4>
-                    <div class="rating-row">
-                        <span class="rating-label">Rating Produk</span>
-                        <span class="stars">
+                <div th:if="${order.ratingProduk != null or order.ratingJastiper != null}" style="margin-top: 12px; padding: 16px; background: var(--me-success-bg); border: var(--me-border-w) solid var(--me-success); border-radius: var(--me-radius);">
+                    <h4 style="margin-top: 0; font-size: 1rem; font-weight: 800; color: #065F46;">⭐ Rating dari Pembeli</h4>
+                    <div th:if="${order.ratingProduk != null}" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                        <span style="font-size: 0.85rem; font-weight: 700; color: #065F46; min-width: 60px;">Produk</span>
+                        <span style="color: #f5b301; font-size: 1.2rem; line-height: 1;">
                             <span th:each="i : ${#numbers.sequence(1,5)}"
-                                  th:classappend="${i <= order.ratingProduk ? 'star-filled' : 'star-empty'}"
-                                  class="star">&#9733;</span>
+                                  th:style="${i <= order.ratingProduk ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
                         </span>
+                        <span style="font-weight: 700; color: #065F46;" th:text="${order.ratingProduk + ' / 5'}">5 / 5</span>
+                    </div>
+                    <div th:if="${order.ratingJastiper != null}" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                        <span style="font-size: 0.85rem; font-weight: 700; color: #065F46; min-width: 60px;">Jastiper</span>
+                        <span style="color: #f5b301; font-size: 1.2rem; line-height: 1;">
+                            <span th:each="i : ${#numbers.sequence(1,5)}"
+                                  th:style="${i <= order.ratingJastiper ? 'color: #f5b301;' : 'color: #d0d0d0;'}">&#9733;</span>
+                        </span>
+                        <span style="font-weight: 700; color: #065F46;" th:text="${order.ratingJastiper + ' / 5'}">5 / 5</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: Timeline + Actions + Rating -->
-        <div>
-            <div class="detail-card">
-                <h3>🕐 Riwayat Status</h3>
-                <div class="timeline">
-                    <div class="timeline-item" th:each="history : ${statusHistory}">
-                        <div class="timeline-dot"
-                             th:classappend="${history.status.name() == 'COMPLETED' ? 'dot-completed' :
-                                             (history.status.name() == 'CANCELLED' ? 'dot-cancelled' : '')}"></div>
-                        <div class="timeline-content">
-                            <span class="status-badge"
-                                  th:classappend="${
-                                      history.status.name() == 'PAID' ? 'status-paid' :
-                                      (history.status.name() == 'PURCHASED' ? 'status-purchased' :
-                                      (history.status.name() == 'SHIPPED' ? 'status-shipped' :
-                                      (history.status.name() == 'COMPLETED' ? 'status-completed' : 'status-cancelled')))
-                                  }"
-                                  th:text="${history.status}">STATUS</span>
-                            <div class="timeline-time"
-                                 th:text="${#temporals.format(history.timestamp, 'dd MMM yyyy HH:mm:ss')}">-</div>
+        <!-- RIGHT: Timeline & Actions (5 columns) -->
+        <div class="col-md-5 mb-4">
+            <div class="me-stack">
+                <!-- Timeline Card -->
+                <div class="me-card">
+                    <h3 style="border-bottom: 2px solid var(--me-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <span>🕐</span> Riwayat Status
+                    </h3>
+
+                    <div class="me-stack" style="gap: 16px; position: relative; padding-left: 20px; border-left: 2px solid var(--me-border); margin-left: 8px;">
+                        <div th:each="history : ${statusHistory}" style="position: relative;">
+                            <!-- Bullet Dot -->
+                            <div style="position: absolute; left: -27px; top: 6px; width: 12px; height: 12px; background: #FFFFFF; border: 3px solid var(--me-border); border-radius: 50%;"></div>
+
+                            <div>
+                                <span class="me-badge"
+                                      th:classappend="${
+                                          history.status.name() == 'PAID' ? 'me-badge--warning' :
+                                          (history.status.name() == 'PURCHASED' ? 'me-badge--info' :
+                                          (history.status.name() == 'SHIPPED' ? 'me-badge--info' :
+                                          (history.status.name() == 'COMPLETED' ? 'me-badge--success' : 'me-badge--danger')))
+                                      }"
+                                      th:text="${history.status}"
+                                      style="font-size: 0.7rem; padding: 2px 8px;">STATUS</span>
+                                <div style="font-size: 0.75rem; color: var(--me-text-secondary); margin-top: 4px;"
+                                     th:text="${#temporals.format(history.timestamp, 'dd MMM yyyy HH:mm:ss')}">-</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="detail-actions">
-                    <input type="hidden" id="currentUserId" th:value="${currentUserId}">
-                    <input type="hidden" id="orderId" th:value="${order.id}">
-                    <input type="hidden" id="jastiperId" th:value="${order.jastiperId}">
-                    <input type="hidden" id="buyerId" th:value="${order.buyerId}">
-                    <input type="hidden" id="orderStatus" th:value="${order.status}">
-                    <input type="hidden" id="hasRating" th:value="${order.ratingProduk != null ? 'true' : 'false'}">
-                    <input type="hidden" id="isAdmin" th:value="${isAdmin != null ? isAdmin : false}">
+                <!-- Action Buttons Card -->
+                <div class="me-card">
+                    <h3 style="border-bottom: 2px solid var(--me-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <span>⚡</span> Aksi Pesanan
+                    </h3>
 
-                    <button id="btnBuy" class="btn-buy" style="display:none">🛒 Konfirmasi Dibeli</button>
-                    <button id="btnShip" class="btn-ship" style="display:none">✈️ Konfirmasi Dikirim</button>
-                    <button id="btnComplete" class="btn-complete" style="display:none">✅ Konfirmasi Diterima</button>
-                    <button id="btnCancel" class="btn-cancel" style="display:none">❌ Batalkan Order</button>
+                    <div class="me-stack" style="gap: 12px;">
+                        <input type="hidden" id="currentUserId" th:value="${currentUserId}">
+                        <input type="hidden" id="orderId" th:value="${order.id}">
+                        <input type="hidden" id="jastiperId" th:value="${order.jastiperId}">
+                        <input type="hidden" id="buyerId" th:value="${order.buyerId}">
+                        <input type="hidden" id="orderStatus" th:value="${order.status}">
+                        <input type="hidden" id="hasRating" th:value="${order.ratingProduk != null and order.ratingJastiper != null ? 'true' : 'false'}">
+                        <input type="hidden" id="hasRatingProduk" th:value="${order.ratingProduk != null ? 'true' : 'false'}">
+                        <input type="hidden" id="hasRatingJastiper" th:value="${order.ratingJastiper != null ? 'true' : 'false'}">
+                        <input type="hidden" id="isAdmin" th:value="${isAdmin != null ? isAdmin : false}">
+
+                        <button id="btnBuy" class="me-btn me-btn--primary me-btn--block" style="display:none">🛒 Konfirmasi Dibeli</button>
+                        <button id="btnShip" class="me-btn me-btn--primary me-btn--block" style="display:none">✈️ Konfirmasi Dikirim</button>
+                        <button id="btnComplete" class="me-btn me-btn--success me-btn--block" style="display:none">✅ Konfirmasi Diterima</button>
+                        <button id="btnCancel" class="me-btn me-btn--danger me-btn--block" style="display:none">❌ Batalkan Order</button>
+
+                        <div id="noActionsText" style="display: none; text-align: center; color: var(--me-text-secondary); font-style: italic; font-size: 0.9rem;">
+                            Tidak ada aksi aktif untuk saat ini.
+                        </div>
+                    </div>
                 </div>
 
-                <div class="rating-form" id="ratingSection" style="display:none">
-                    <h4>⭐ Beri Rating Produk</h4>
-                    <form id="ratingForm">
-                        <div class="rating-group">
-                            <label>Rating Produk</label>
-                            <div class="star-input" id="starProduk">
-                                <input type="radio" name="ratingProduk" value="5" id="p5"><label for="p5">&#9733;</label>
-                                <input type="radio" name="ratingProduk" value="4" id="p4"><label for="p4">&#9733;</label>
-                                <input type="radio" name="ratingProduk" value="3" id="p3"><label for="p3">&#9733;</label>
-                                <input type="radio" name="ratingProduk" value="2" id="p2"><label for="p2">&#9733;</label>
-                                <input type="radio" name="ratingProduk" value="1" id="p1"><label for="p1">&#9733;</label>
+                <!-- Rating Form Card -->
+                <div class="me-card" id="ratingSection" style="display:none">
+                    <h3 style="border-bottom: 2px solid var(--me-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <span>⭐</span> Beri Rating
+                    </h3>
+
+                    <form id="ratingForm" class="me-stack" style="gap: 16px;">
+                        <!-- Rating Produk -->
+                        <div id="ratingProdukGroup">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.85rem;">📦 Rating Produk</label>
+                            <div class="star-rating-selector" style="display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; font-size: 2rem;">
+                                <input type="radio" name="ratingProduk" value="5" id="p5" class="rating-radio"><label for="p5" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="4" id="p4" class="rating-radio"><label for="p4" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="3" id="p3" class="rating-radio"><label for="p3" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="2" id="p2" class="rating-radio"><label for="p2" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingProduk" value="1" id="p1" class="rating-radio"><label for="p1" class="rating-star">&#9733;</label>
                             </div>
                         </div>
-                        <button type="submit" class="rating-submit">Kirim Rating</button>
+
+                        <!-- Rating Jastiper -->
+                        <div id="ratingJastiperGroup">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.85rem;">👤 Rating Jastiper</label>
+                            <div class="star-rating-selector" style="display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; font-size: 2rem;">
+                                <input type="radio" name="ratingJastiper" value="5" id="j5" class="rating-radio"><label for="j5" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="4" id="j4" class="rating-radio"><label for="j4" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="3" id="j3" class="rating-radio"><label for="j3" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="2" id="j2" class="rating-radio"><label for="j2" class="rating-star">&#9733;</label>
+                                <input type="radio" name="ratingJastiper" value="1" id="j1" class="rating-radio"><label for="j1" class="rating-star">&#9733;</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="me-btn me-btn--primary me-btn--block">Kirim Rating</button>
                     </form>
-                    <div class="form-status" id="rating-status" aria-live="polite">&nbsp;</div>
+
+                    <div id="rating-status" style="margin-top: 12px; text-align: center; font-weight: 700; font-size: 0.9rem;">&nbsp;</div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+<style>
+/* Star rating radio styles */
+.rating-radio {
+    display: none;
+}
+.rating-star {
+    color: #d0d0d0;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+.rating-radio:checked ~ .rating-star,
+.rating-star:hover,
+.rating-star:hover ~ .rating-star {
+    color: #f5b301;
+}
+
+/* Custom tone messages for rating request status */
+.tone-success {
+    color: var(--me-success) !important;
+}
+.tone-warning {
+    color: var(--me-warning) !important;
+}
+.tone-error {
+    color: var(--me-danger) !important;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -166,24 +253,54 @@ document.addEventListener('DOMContentLoaded', function() {
     const isJastiper = currentUserId === jastiperId;
     const isBuyer = currentUserId === buyerId;
 
+    let hasVisibleAction = false;
+
     // Show relevant action buttons
-    if (isJastiper && status === 'PAID') document.getElementById('btnBuy').style.display = '';
-    if (isJastiper && status === 'PURCHASED') document.getElementById('btnShip').style.display = '';
-    if (isBuyer && status === 'SHIPPED') document.getElementById('btnComplete').style.display = '';
+    if (isJastiper && status === 'PAID') {
+        document.getElementById('btnBuy').style.display = '';
+        hasVisibleAction = true;
+    }
+    if (isJastiper && status === 'PURCHASED') {
+        document.getElementById('btnShip').style.display = '';
+        hasVisibleAction = true;
+    }
+    if (isBuyer && status === 'SHIPPED') {
+        document.getElementById('btnComplete').style.display = '';
+        hasVisibleAction = true;
+    }
     if ((isJastiper || isBuyer || isAdmin) && (status === 'PAID' || status === 'PURCHASED')) {
         document.getElementById('btnCancel').style.display = '';
+        hasVisibleAction = true;
     }
 
-    // Show rating form for buyer on COMPLETED orders that haven't been rated
+    if (!hasVisibleAction) {
+        document.getElementById('noActionsText').style.display = 'block';
+    }
+
+    // Show rating form for buyer on COMPLETED orders that haven't been fully rated
+    const hasRatingProduk = document.getElementById('hasRatingProduk').value === 'true';
+    const hasRatingJastiper = document.getElementById('hasRatingJastiper').value === 'true';
+
     if (isBuyer && status === 'COMPLETED' && !hasRating) {
         document.getElementById('ratingSection').style.display = '';
+        // Hide already-submitted rating groups
+        if (hasRatingProduk) document.getElementById('ratingProdukGroup').style.display = 'none';
+        if (hasRatingJastiper) document.getElementById('ratingJastiperGroup').style.display = 'none';
     }
 
     // Button handlers
-    document.getElementById('btnBuy').addEventListener('click', () => updateStatus('PURCHASED'));
-    document.getElementById('btnShip').addEventListener('click', () => updateStatus('SHIPPED'));
-    document.getElementById('btnComplete').addEventListener('click', () => updateStatus('COMPLETED'));
-    document.getElementById('btnCancel').addEventListener('click', () => cancelOrder());
+    if (document.getElementById('btnBuy')) {
+        document.getElementById('btnBuy').addEventListener('click', () => updateStatus('PURCHASED'));
+    }
+    if (document.getElementById('btnShip')) {
+        document.getElementById('btnShip').addEventListener('click', () => updateStatus('SHIPPED'));
+    }
+    if (document.getElementById('btnComplete')) {
+        document.getElementById('btnComplete').addEventListener('click', () => updateStatus('COMPLETED'));
+    }
+    if (document.getElementById('btnCancel')) {
+        document.getElementById('btnCancel').addEventListener('click', () => cancelOrder());
+    }
 
     // Rating form handler
     document.getElementById('ratingForm').addEventListener('submit', async function(e) {
@@ -191,9 +308,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const statusEl = document.getElementById('rating-status');
 
         const ratingProduk = document.querySelector('input[name="ratingProduk"]:checked');
+        const ratingJastiper = document.querySelector('input[name="ratingJastiper"]:checked');
 
-        if (!ratingProduk) {
-            statusEl.textContent = 'Pilih rating untuk produk.';
+        if (!ratingProduk && !ratingJastiper) {
+            statusEl.textContent = 'Pilih minimal satu rating.';
             statusEl.className = 'form-status tone-error';
             return;
         }
@@ -201,13 +319,15 @@ document.addEventListener('DOMContentLoaded', function() {
         statusEl.textContent = 'Mengirim rating...';
         statusEl.className = 'form-status tone-warning';
 
+        const body = {};
+        if (ratingProduk) body.ratingProduk = parseInt(ratingProduk.value);
+        if (ratingJastiper) body.ratingJastiper = parseInt(ratingJastiper.value);
+
         try {
             const response = await fetch('/api/orders/' + orderId + '/rating', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ratingProduk: parseInt(ratingProduk.value)
-                })
+                body: JSON.stringify(body)
             });
 
             if (response.ok) {

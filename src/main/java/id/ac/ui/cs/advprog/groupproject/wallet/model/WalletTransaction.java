@@ -34,6 +34,60 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor
 public class WalletTransaction{
+    public static class Builder {
+        private UUID walletId;
+        private UUID referenceId;
+        private TransactionType type;
+        private BigDecimal amount;
+        private String description;
+        private TransactionStatus status;
+
+        public Builder walletId(UUID walletId) {
+            this.walletId = walletId;
+            return this;
+        }
+
+        public Builder referenceId(UUID referenceId) {
+            this.referenceId = referenceId;
+            return this;
+        }
+
+        public Builder type(TransactionType type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder amount(BigDecimal amount) {
+            this.amount = amount;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder status(TransactionStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public WalletTransaction build() {
+            WalletTransaction transaction = new WalletTransaction();
+            transaction.setWalletId(this.walletId);
+            transaction.setReferenceId(this.referenceId);
+            transaction.setType(this.type);
+            transaction.setAmount(this.amount);
+            transaction.setDescription(this.description);
+            transaction.setStatus(this.status);
+            return transaction;
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @GeneratedValue
     @UuidGenerator

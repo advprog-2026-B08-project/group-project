@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import id.ac.ui.cs.advprog.groupproject.order.dto.CheckoutRequest;
+import id.ac.ui.cs.advprog.groupproject.order.dto.RatingRequest;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
 import id.ac.ui.cs.advprog.groupproject.order.model.OrderStatus;
 import id.ac.ui.cs.advprog.groupproject.order.service.OrderService;
@@ -36,6 +37,7 @@ class OrderApiControllerTest {
   private UUID buyerId;
   private UUID productId;
   private UUID orderId;
+  private UUID jastiperId;
   private Order sampleOrder;
 
   @BeforeEach
@@ -43,6 +45,7 @@ class OrderApiControllerTest {
     buyerId = UUID.randomUUID();
     productId = UUID.randomUUID();
     orderId = UUID.randomUUID();
+    jastiperId = UUID.randomUUID();
     sampleOrder = new Order();
     sampleOrder.setId(orderId);
     sampleOrder.setBuyerId(buyerId);
@@ -87,6 +90,17 @@ class OrderApiControllerTest {
     ResponseEntity<?> response = controller.checkout(request);
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+  }
+
+  @Test
+  void checkout_illegalState_returns409() {
+    when(orderService.checkout(any()))
+        .thenThrow(new IllegalStateException("Conflict state"));
+    CheckoutRequest request = new CheckoutRequest(buyerId, productId, 1, "Jl. Test");
+
+    ResponseEntity<?> response = controller.checkout(request);
+
+    assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
   }
 
   @Test
@@ -167,5 +181,93 @@ class OrderApiControllerTest {
     ResponseEntity<?> response = controller.cancelOrder(orderId);
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+  }
+
+  @Test
+  void cancelOrder_illegalState_returns409() {
+    when(orderService.cancelOrder(orderId))
+        .thenThrow(new IllegalStateException("Cannot cancel completed order"));
+
+    ResponseEntity<?> response = controller.cancelOrder(orderId);
+
+    assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+  }
+
+  @Test
+  void submitRating_success_returns200() {
+    sampleOrder.setStatus(OrderStatus.COMPLETED);
+    sampleOrder.setRatingProduk(4);
+    sampleOrder.setRatingJastiper(5);
+    when(orderService.submitRating(orderId, 4, 5)).thenReturn(sampleOrder);
+
+    RatingRequest request = new RatingRequest(4, 5);
+    ResponseEntity<?> response = controller.submitRating(orderId, request);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    Order body = (Order) response.getBody();
+    assertEquals(4, body.getRatingProduk());
+    assertEquals(5, body.getRatingJastiper());
+  }
+
+  @Test
+  void submitRating_invalidRating_returns400() {
+    when(orderService.submitRating(orderId, 0, null))
+        .thenThrow(new IllegalArgumentException("Rating produk harus antara 1 sampai 5"));
+
+    RatingRequest request = new RatingRequest(0, null);
+    ResponseEntity<?> response = controller.submitRating(orderId, request);
+
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+  }
+
+  @Test
+  void submitRating_alreadyRated_returns409() {
+    when(orderService.submitRating(orderId, 3, null))
+        .thenThrow(new IllegalStateException("Order ini sudah diberi rating produk"));
+
+    RatingRequest request = new RatingRequest(3, null);
+    ResponseEntity<?> response = controller.submitRating(orderId, request);
+
+    assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+  }
+
+  @Test
+  void getBuyerActiveOrders_returns200WithList() {
+    when(orderService.findBuyerActiveOrders(buyerId)).thenReturn(List.of(sampleOrder));
+
+    ResponseEntity<List<Order>> response = controller.getBuyerActiveOrders(buyerId);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(1, response.getBody().size());
+  }
+
+  @Test
+  void getBuyerCompletedOrders_returns200WithList() {
+    when(orderService.findBuyerCompletedOrders(buyerId)).thenReturn(List.of());
+
+    ResponseEntity<List<Order>> response = controller.getBuyerCompletedOrders(buyerId);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(0, response.getBody().size());
+  }
+
+  @Test
+  void getJastiperTodoOrders_returns200WithList() {
+    when(orderService.findJastiperTodoOrders(jastiperId)).thenReturn(List.of(sampleOrder));
+
+    ResponseEntity<List<Order>> response = controller.getJastiperTodoOrders(jastiperId);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(1, response.getBody().size());
+  }
+
+  @Test
+  void getJastiperDoneOrders_returns200WithList() {
+    when(orderService.findJastiperCompletedOrders(jastiperId)).thenReturn(List.of(sampleOrder));
+
+    ResponseEntity<List<Order>> response = controller.getJastiperDoneOrders(jastiperId);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(1, response.getBody().size());
   }
 }

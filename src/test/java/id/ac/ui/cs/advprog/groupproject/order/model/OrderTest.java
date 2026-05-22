@@ -127,4 +127,26 @@ class OrderTest {
   void orderStatus_canNotTransitionTo_cancelledToAnything() {
     assertFalse(OrderStatus.CANCELLED.canTransitionTo(OrderStatus.PAID));
   }
+
+  @Test
+  void orderStatus_purchasedCanTransitionToCancelled() {
+    assertTrue(OrderStatus.PURCHASED.canTransitionTo(OrderStatus.CANCELLED));
+  }
+
+  @Test
+  void orderStatus_shippedCannotTransitionToCancelled() {
+    assertFalse(OrderStatus.SHIPPED.canTransitionTo(OrderStatus.CANCELLED));
+  }
+
+  @Test
+  void orderStatus_shippedCannotTransitionToPurchased() {
+    assertFalse(OrderStatus.SHIPPED.canTransitionTo(OrderStatus.PURCHASED));
+  }
+
+  @Test
+  void preUpdate_setsUpdatedAt() {
+    Order order = new Order();
+    order.preUpdate();
+    assertNotNull(order.getUpdatedAt());
+  }
 }

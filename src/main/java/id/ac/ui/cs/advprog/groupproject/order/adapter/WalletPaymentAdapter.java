@@ -26,4 +26,9 @@ public class WalletPaymentAdapter implements PaymentPort {
     public void refund(UUID userId, BigDecimal amount, String description, UUID referenceId) {
         walletService.refundBalance(userId, amount, description, referenceId);
     }
+
+    @Override
+    public void creditSeller(UUID sellerId, BigDecimal amount, String description) {
+        walletService.creditBalance(sellerId, amount, description);
+    }
 }

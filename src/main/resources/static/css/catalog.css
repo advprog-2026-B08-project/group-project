@@ -1,0 +1,260 @@
+/* ============================================================
+   Catalog Module — extends the "Modern Edge" design system
+   ============================================================ */
+
+/* ── Product Card Grid ────────────────────────── */
+
+.catalog-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--me-spacing);
+}
+
+.catalog-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.catalog-card:hover {
+    transform: translateY(-3px);
+}
+
+.catalog-card__image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: var(--me-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: var(--me-border-w) solid var(--me-border);
+}
+
+.catalog-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.catalog-card__img-placeholder {
+    font-size: 3rem;
+    opacity: 0.3;
+}
+
+.catalog-card__body {
+    padding: 16px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.catalog-card__name {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.catalog-card__desc {
+    font-size: 0.85rem;
+    color: var(--me-text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+.catalog-card__price {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--me-success);
+    margin-top: 4px;
+}
+
+.catalog-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1rem;
+}
+
+.catalog-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: var(--me-text-secondary);
+    font-weight: 600;
+}
+
+.catalog-card__seller {
+    margin-top: auto;
+    padding-top: 6px;
+    font-size: 0.85rem;
+}
+
+.catalog-card__footer {
+    padding: 12px 20px;
+    border-top: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ── Pagination ───────────────────────────────── */
+
+.catalog-paging {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 28px;
+    padding: 16px 0;
+    flex-wrap: wrap;
+}
+
+/* ── Detail Page ─────────────────────────────── */
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.detail-image-card {
+    position: sticky;
+    top: 80px;
+}
+
+.detail-image-wrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--me-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--me-radius);
+    border: var(--me-border-w) solid var(--me-border);
+}
+
+.detail-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.detail-no-image {
+    font-size: 5rem;
+    opacity: 0.3;
+}
+
+.detail-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #E5E7EB;
+}
+
+.detail-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-meta-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--me-text-muted);
+    font-weight: 700;
+}
+
+.detail-meta-value {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+/* ── Form Pages ──────────────────────────────── */
+
+.catalog-form-card {
+    max-width: 680px;
+}
+
+.catalog-form {
+    display: grid;
+    gap: 16px;
+}
+
+.catalog-form .field-group {
+    display: grid;
+    gap: 6px;
+}
+
+.catalog-form .field-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--me-text-secondary);
+}
+
+/* Image Preview */
+.current-image-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--me-bg);
+    border-radius: var(--me-radius);
+    border: var(--me-border-w) solid var(--me-border);
+}
+
+.current-image-preview img {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--me-radius);
+    object-fit: cover;
+    border: var(--me-border-w) solid var(--me-border);
+}
+
+.current-image-preview span {
+    font-size: 0.85rem;
+    color: var(--me-text-secondary);
+}
+
+/* ── Responsive ───────────────────────────────── */
+
+@media (max-width: 768px) {
+    .catalog-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-image-card {
+        position: static;
+    }
+
+    .detail-meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .catalog-form-card {
+        max-width: 100%;
+    }
+}

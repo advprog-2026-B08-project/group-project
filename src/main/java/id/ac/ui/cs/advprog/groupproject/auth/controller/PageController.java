@@ -46,9 +46,4 @@ public class PageController {
     public String kycRequestJastiper() {
         return "auth/kyc/kyc-jastiper";
     }
-
-    @GetMapping("/kycRequestAdmin")
-    public String kycRequestAdmin() {
-        return "auth/kyc/kyc-admin";
-    }
 }

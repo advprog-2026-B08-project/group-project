@@ -1,14 +1,16 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
+import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.mapper.CatalogMapper;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
-import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
-import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogImageService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.JastiperRatingEnricher;
 import jakarta.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -31,16 +33,19 @@ public class CatalogWebController {
   private final CatalogImageService catalogImageService;
   private final CatalogMapper catalogMapper;
   private final UserRepository userRepository;
+  private final JastiperRatingEnricher jastiperRatingEnricher;
 
   public CatalogWebController(
       CatalogService catalogService,
       CatalogImageService catalogImageService,
       CatalogMapper catalogMapper,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      JastiperRatingEnricher jastiperRatingEnricher) {
     this.catalogService = catalogService;
     this.catalogImageService = catalogImageService;
     this.catalogMapper = catalogMapper;
     this.userRepository = userRepository;
+    this.jastiperRatingEnricher = jastiperRatingEnricher;
   }
 
   private User getCurrentUser(Principal principal) {
@@ -66,14 +71,29 @@ public class CatalogWebController {
 
   @GetMapping
   public String catalog(Model model, Principal principal) {
-    model.addAttribute(
-        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getAllCatalogs()));
+    // Initial render: only render the page shell. The product list is loaded via AJAX
+    // (GET /api/catalogs/search) on the client side. See catalog.js#init().
+    if (principal != null) {
+      userRepository
+          .findByUsername(principal.getName())
+          .ifPresent(user -> {
+            model.addAttribute("currentUserId", user.getId().toString());
+            model.addAttribute("userRole", user.getRole());
+          });
+    }
+    return "catalog/html/catalog";
+  }
+
+  @GetMapping("/detail/{id}")
+  public String catalogDetail(@PathVariable UUID id, Model model, Principal principal) {
+    Catalog catalog = catalogService.getCatalogByIdForAdmin(id);
+    model.addAttribute("catalog", catalogMapper.toDto(catalog));
     if (principal != null) {
       userRepository
           .findByUsername(principal.getName())
           .ifPresent(user -> model.addAttribute("currentUserId", user.getId().toString()));
     }
-    return "catalog/html/catalog";
+    return "catalog/html/detailCatalog";
   }
 
   @GetMapping("/{userId}")
@@ -83,9 +103,11 @@ public class CatalogWebController {
             .findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-    model.addAttribute(
-        CATALOGS_ATTRIBUTE, catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId)));
+    List<CatalogDto> catalogs = catalogMapper.toDtoList(catalogService.getCatalogsByUserId(userId));
+    jastiperRatingEnricher.enrich(catalogs);
+    model.addAttribute(CATALOGS_ATTRIBUTE, catalogs);
     model.addAttribute("username", user.getUsername());
+    model.addAttribute("jastiperUser", user);
     return "catalog/html/userCatalog";
   }
 
@@ -124,7 +146,7 @@ public class CatalogWebController {
     }
 
     catalogService.updateCatalog(
-        catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto), currentUser);
+        catalogDto.getId(), catalogMapper.toUpdateRequest(catalogDto), currentUser);
     return "redirect:/catalog/my";
   }
 
@@ -159,7 +181,7 @@ public class CatalogWebController {
       catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
 
-    catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);
+    catalogService.createCatalog(catalogMapper.toCreateRequest(catalogDto), currentUser);
     return "redirect:/catalog/my";
   }
 
@@ -206,7 +228,7 @@ public class CatalogWebController {
       catalogDto.setImageUrl(catalogImageService.uploadCatalogImage(file));
     }
 
-    catalogService.updateCatalogByAdmin(catalogDto.getId(), catalogMapper.toUpdateCommand(catalogDto));
+    catalogService.updateCatalogByAdmin(catalogDto.getId(), catalogMapper.toUpdateRequest(catalogDto));
     return "redirect:/catalog/admin/monitoring";
   }
 

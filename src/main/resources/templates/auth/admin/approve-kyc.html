@@ -1,65 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Kyc Requests</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERd`knLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Verifikasi KYC — JSON')"></head>
 <body>
     <div th:replace="fragments/navbar :: navbar"></div>
-    <!-- TODO: For admin to approve kyc-->
-    <div class="container mt-4 justify-content-center">
 
-        <h1 style="font-family: 'Arial Black'; margin-bottom: 40px">KYC Requests</h1>
-        <div class="kyc-box">
+    <div class="me-container me-page">
+        <div class="me-page-header">
+            <div>
+                <h1>Permintaan KYC</h1>
+                <p style="color: var(--me-text-secondary); margin: 4px 0 0 0;">Verifikasi dan setujui pendaftaran Jastiper baru.</p>
+            </div>
+            <a th:href="@{/admin}" class="me-btn me-btn--secondary me-btn--sm">← Dashboard</a>
+        </div>
 
-            <div class="kyc-left">
-                <div style="margin: auto">
-                    <p style="text-align: center; font-weight: bold">Pending requests</p>
-                    <p class="bigNum" th:text="${requestCount.get('ACTIVE') ?: 0}"></p>
+        <div class="me-grid" style="grid-template-columns: 1fr 2fr 2fr; align-items: start; gap: 20px;">
+            <!-- Left Panel (Counter) -->
+            <div class="me-card text-center" style="padding: 24px 16px;">
+                <div class="me-stat-value" th:text="${requestCount.get('ACTIVE') ?: 0}" style="color: var(--me-warning); font-size: 3rem; margin-bottom: 4px;">0</div>
+                <div class="me-stat-label" style="font-size: 0.75rem;">Menunggu Review</div>
+            </div>
+
+            <!-- Center Panel (Request List) -->
+            <div class="me-card me-stack" style="padding: 20px; gap: 12px;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 4px; border-bottom: 2px solid var(--me-border); padding-bottom: 8px;">Daftar Antrean</h3>
+                
+                <div th:if="${#lists.isEmpty(requestList)}" class="text-center" style="padding: 32px 16px;">
+                    <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">🎉</span>
+                    <h4 style="font-size: 0.95rem; margin-bottom: 2px;">Semua Bersih!</h4>
+                    <p style="color: var(--me-text-secondary); font-size: 0.8rem; margin: 0;">Tidak ada permintaan kyc aktif.</p>
+                </div>
+
+                <div class="me-stack" style="gap: 8px;" th:if="${!#lists.isEmpty(requestList)}">
+                    <div th:each="req : ${requestList}" 
+                         th:classappend="${selectedRequest != null && selectedRequest.getId() == req.getId()} ? 'active-req-card' : ''"
+                         class="request-item-card"
+                         style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); padding: 12px; display: flex; justify-content: space-between; align-items: center; background: var(--me-surface); transition: background var(--me-transition);">
+                        
+                        <a th:href="@{/admin/kycRequestList(selectedId = ${req.getId()})}" style="font-weight: 700; text-decoration: none; color: var(--me-text); font-size: 0.9rem;">
+                            <span th:text="${req.user.username}">Username</span>
+                        </a>
+
+                        <div style="display: flex; gap: 6px;">
+                            <form th:action="@{/admin/kyc/accept}" method="post"
+                                  onsubmit="return confirm('Apakah Anda yakin ingin menyetujui permohonan KYC ini?')">
+                                <input type="hidden" name="requestId" th:value="${req.getId()}" />
+                                <button type="submit" class="me-btn me-btn--success me-btn--sm" style="padding: 4px 8px; font-size: 0.75rem;">Setuju</button>
+                            </form>
+                            <form th:action="@{/admin/kyc/reject}" method="post"
+                                  onsubmit="return confirm('Apakah Anda yakin ingin menolak permohonan KYC ini?')">
+                                <input type="hidden" name="requestId" th:value="${req.getId()}" />
+                                <button type="submit" class="me-btn me-btn--danger me-btn--sm" style="padding: 4px 8px; font-size: 0.75rem;">Tolak</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="kyc-mid">
-                <div class="flex flexDown justifyBetween alignCenter" style="text-align: center; justify-content: center; align-items: center; margin-top: 60px" th:if="${#lists.isEmpty(requestList)}">
-                    <img src="/images/empty.png" style="height: 160px; width: 120px">
-                    <div style="font-weight: bold; margin-top: 20px">No requests available</div>
+            <!-- Right Panel (Request Detail View) -->
+            <div class="me-card me-stack" style="padding: 20px;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 4px; border-bottom: 2px solid var(--me-border); padding-bottom: 8px;">Detail Permohonan</h3>
+                
+                <div th:if="${selectedRequest == null}" class="text-center" style="padding: 48px 16px; color: var(--me-text-secondary);">
+                    <span style="font-size: 2.5rem; display: block; margin-bottom: 12px;">🔍</span>
+                    <p style="font-size: 0.85rem; margin: 0;">Pilih username di daftar antrean untuk melihat berkas dan detail kyc mereka.</p>
                 </div>
-                <div th:each="req : ${requestList}" class="request-card">
-                    <a th:href="@{/admin/kycRequestList(selectedId = ${req.getId()})}">
-                        <span class="username" th:text="${req.user.username}">Username</span>
-                    </a>
-                    <div class="actions">
-                        <form th:action="@{/admin/kyc/accept}" method="post"
-                        onsubmit="return confirm('Are you sure you want to accept this users application?')">
-                            <input type="hidden" name="requestId" th:value="${req.getId()}" />
-                            <button class="btn btn-success btn-sm">Accept</button>
-                        </form>
 
-                        <form th:action="@{/admin/kyc/reject}" method="post"
-                        onsubmit="return confirm('Are you sure you want to reject this users application?')">
-                            <input type="hidden" name="requestId" th:value="${req.getId()}" />
-                            <button class="btn btn-danger btn-sm">Reject</button>
-                        </form>
+                <div th:if="${selectedRequest != null}" class="me-stack" style="gap: 16px;">
+                    <div>
+                        <div class="me-stat-label" style="font-size: 0.7rem; margin-bottom: 2px;">Nama Lengkap</div>
+                        <h2 style="font-size: 1.4rem; margin-bottom: 0;" th:text="${selectedRequest.getFullName()}"></h2>
                     </div>
 
-                </div>
-            </div>
-
-            <div class="kyc-right">
-                <div class="flex flexDown justifyBetween alignCenter" th:if="${selectedRequest != null}">
                     <div>
-                        <p style="font-family: 'Arial Black'; font-size: 20px" th:text="${selectedRequest.getFullName()}"></p>
-                        <p style="color: #606060; font-weight: bold; margin-bottom: 120px" th:text="${selectedRequest.getEmail()}"></p>
+                        <div class="me-stat-label" style="font-size: 0.7rem; margin-bottom: 2px;">Alamat Email</div>
+                        <p style="font-weight: 600; color: var(--me-text-secondary); margin: 0; font-size: 0.9rem;" th:text="${selectedRequest.getEmail()}"></p>
                     </div>
+
                     <div>
-                        <p style="font-weight: bold" th:text="${selectedRequest.getSocials()}"></p>
+                        <div class="me-stat-label" style="font-size: 0.7rem; margin-bottom: 2px;">Media Sosial / Berkas Pendukung</div>
+                        <div style="border: var(--me-border-w) solid var(--me-border); border-radius: var(--me-radius); padding: 12px; background: var(--me-bg); word-break: break-all;">
+                            <a th:href="${selectedRequest.getSocials()}" target="_blank" style="font-weight: 700; font-size: 0.85rem;" th:text="${selectedRequest.getSocials()}"></a>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; border-top: 2px solid var(--me-border); padding-top: 16px; margin-top: 8px;">
+                        <form th:action="@{/admin/kyc/accept}" method="post" style="flex: 1;"
+                              onsubmit="return confirm('Apakah Anda yakin ingin menyetujui permohonan KYC ini?')">
+                            <input type="hidden" name="requestId" th:value="${selectedRequest.getId()}" />
+                            <button type="submit" class="me-btn me-btn--success me-btn--block">Setujui Aplikasi</button>
+                        </form>
+                        <form th:action="@{/admin/kyc/reject}" method="post" style="flex: 1;"
+                              onsubmit="return confirm('Apakah Anda yakin ingin menolak permohonan KYC ini?')">
+                            <input type="hidden" name="requestId" th:value="${selectedRequest.getId()}" />
+                            <button type="submit" class="me-btn me-btn--danger me-btn--block">Tolak Aplikasi</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+    <!-- Custom CSS styles specifically for Active/Hover Request Items -->
+    <style>
+        .request-item-card:hover {
+            background: var(--me-bg) !important;
+        }
+        .active-req-card {
+            background: var(--me-info-bg) !important;
+            border-color: var(--me-info) !important;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

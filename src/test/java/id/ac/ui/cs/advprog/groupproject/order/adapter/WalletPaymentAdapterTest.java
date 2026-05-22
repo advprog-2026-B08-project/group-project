@@ -44,4 +44,15 @@ class WalletPaymentAdapterTest {
 
         verify(walletService).refundBalance(userId, amount, description, referenceId);
     }
+
+    @Test
+    void creditSeller_DelegatesToWalletService() {
+        UUID sellerId = UUID.randomUUID();
+        BigDecimal amount = new BigDecimal("15000");
+        String description = "Pendapatan dari pesanan";
+
+        walletPaymentAdapter.creditSeller(sellerId, amount, description);
+
+        verify(walletService).creditBalance(sellerId, amount, description);
+    }
 }
