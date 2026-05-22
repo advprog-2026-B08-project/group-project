@@ -9,7 +9,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+    @Index(name = "idx_order_buyer_id", columnList = "buyerId"),
+    @Index(name = "idx_order_jastiper_id", columnList = "jastiperId"),
+    @Index(name = "idx_order_status", columnList = "status"),
+    @Index(name = "idx_order_buyer_status", columnList = "buyerId, status"),
+    @Index(name = "idx_order_jastiper_status", columnList = "jastiperId, status")
+})
 @Getter
 @Setter
 public class Order {
@@ -18,8 +24,13 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "buyer_id", nullable = false)
     private UUID buyerId;
+
+    @Column(name = "jastiper_id", nullable = false)
     private UUID jastiperId;
+
+    @Column(name = "product_id", nullable = false)
     private UUID productId;
 
     private Integer quantity;
