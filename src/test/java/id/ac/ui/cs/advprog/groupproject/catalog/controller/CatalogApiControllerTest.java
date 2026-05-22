@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.controller;
 
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.DecreaseStockRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
@@ -45,6 +45,9 @@ class CatalogApiControllerTest {
 
     @Mock
     private CatalogMapper catalogMapper;
+
+    @Mock
+    private id.ac.ui.cs.advprog.groupproject.catalog.service.JastiperRatingEnricher jastiperRatingEnricher;
 
     @Mock
     private Principal principal;
@@ -112,7 +115,7 @@ class CatalogApiControllerTest {
 
     @Test
     void testCreateCatalogSuccess() {
-        CreateCatalogCommand command = new CreateCatalogCommand(
+        CreateCatalogRequest command = new CreateCatalogRequest(
             testCatalogDto.getName(),
             testCatalogDto.getDescription(),
             testCatalogDto.getImageUrl(),
@@ -124,8 +127,8 @@ class CatalogApiControllerTest {
 
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogMapper.toCreateCommand(any(CatalogDto.class))).thenReturn(command);
-        when(catalogService.createCatalog(any(CreateCatalogCommand.class), any(User.class))).thenReturn(testCatalog);
+        when(catalogMapper.toCreateRequest(any(CatalogDto.class))).thenReturn(command);
+        when(catalogService.createCatalog(any(CreateCatalogRequest.class), any(User.class))).thenReturn(testCatalog);
         when(catalogMapper.toDto(testCatalog)).thenReturn(testCatalogDto);
 
         ResponseEntity<CatalogDto> response = catalogApiController.createCatalog(testCatalogDto, principal);
@@ -134,8 +137,8 @@ class CatalogApiControllerTest {
         assertNotNull(response.getBody());
         assertEquals("Test Product", response.getBody().getName());
         verify(userRepository, times(1)).findByUsername("testuser");
-        verify(catalogMapper, times(1)).toCreateCommand(testCatalogDto);
-        verify(catalogService, times(1)).createCatalog(any(CreateCatalogCommand.class), any(User.class));
+        verify(catalogMapper, times(1)).toCreateRequest(testCatalogDto);
+        verify(catalogService, times(1)).createCatalog(any(CreateCatalogRequest.class), any(User.class));
         verify(catalogMapper, times(1)).toDto(testCatalog);
     }
 
@@ -159,7 +162,7 @@ class CatalogApiControllerTest {
 
     @Test
     void testUpdateCatalogSuccess() {
-        UpdateCatalogCommand command = new UpdateCatalogCommand(
+        UpdateCatalogRequest command = new UpdateCatalogRequest(
             testCatalogDto.getName(),
             testCatalogDto.getDescription(),
             testCatalogDto.getImageUrl(),
@@ -171,8 +174,8 @@ class CatalogApiControllerTest {
 
         when(principal.getName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
-        when(catalogMapper.toUpdateCommand(any(CatalogDto.class))).thenReturn(command);
-        when(catalogService.updateCatalog(eq(catalogId), any(UpdateCatalogCommand.class), any(User.class)))
+        when(catalogMapper.toUpdateRequest(any(CatalogDto.class))).thenReturn(command);
+        when(catalogService.updateCatalog(eq(catalogId), any(UpdateCatalogRequest.class), any(User.class)))
                 .thenReturn(testCatalog);
         when(catalogMapper.toDto(testCatalog)).thenReturn(testCatalogDto);
 
@@ -182,8 +185,8 @@ class CatalogApiControllerTest {
         assertNotNull(response.getBody());
         assertEquals("Test Product", response.getBody().getName());
         verify(userRepository, times(1)).findByUsername("testuser");
-        verify(catalogMapper, times(1)).toUpdateCommand(testCatalogDto);
-        verify(catalogService, times(1)).updateCatalog(eq(catalogId), any(UpdateCatalogCommand.class), any(User.class));
+        verify(catalogMapper, times(1)).toUpdateRequest(testCatalogDto);
+        verify(catalogService, times(1)).updateCatalog(eq(catalogId), any(UpdateCatalogRequest.class), any(User.class));
         verify(catalogMapper, times(1)).toDto(testCatalog);
     }
 
@@ -254,7 +257,9 @@ class CatalogApiControllerTest {
 
     @Test
     void testDecreaseStockSuccess() {
+        UUID requestId = UUID.randomUUID();
         DecreaseStockRequest request = new DecreaseStockRequest();
+        request.setRequestId(requestId);
         request.setQuantity(2);
 
         Catalog updatedCatalog = new Catalog();
@@ -265,7 +270,7 @@ class CatalogApiControllerTest {
         updatedDto.setId(catalogId);
         updatedDto.setStock(8);
 
-        when(catalogService.decreaseStock(catalogId, 2)).thenReturn(updatedCatalog);
+        when(catalogService.decreaseStock(catalogId, requestId, 2)).thenReturn(updatedCatalog);
         when(catalogMapper.toDto(updatedCatalog)).thenReturn(updatedDto);
 
         ResponseEntity<CatalogDto> response = catalogApiController.decreaseStock(catalogId, request);
@@ -273,16 +278,18 @@ class CatalogApiControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(8, response.getBody().getStock());
-        verify(catalogService, times(1)).decreaseStock(catalogId, 2);
+        verify(catalogService, times(1)).decreaseStock(catalogId, requestId, 2);
         verify(catalogMapper, times(1)).toDto(updatedCatalog);
     }
 
     @Test
     void testDecreaseStockConflict() {
+        UUID requestId = UUID.randomUUID();
         DecreaseStockRequest request = new DecreaseStockRequest();
+        request.setRequestId(requestId);
         request.setQuantity(99);
 
-        when(catalogService.decreaseStock(catalogId, 99))
+        when(catalogService.decreaseStock(catalogId, requestId, 99))
                 .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
@@ -290,7 +297,7 @@ class CatalogApiControllerTest {
         });
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
-        verify(catalogService, times(1)).decreaseStock(catalogId, 99);
+        verify(catalogService, times(1)).decreaseStock(catalogId, requestId, 99);
     }
 
     @Test
