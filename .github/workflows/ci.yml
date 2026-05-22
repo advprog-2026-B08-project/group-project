@@ -143,19 +143,155 @@ jobs:
           if-no-files-found: warn
 
   deploy-staging:
+    name: Deploy to Heroku Staging
     needs: [ build, e2e ]
     environment: staging
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: ubuntu-22.04
     steps:
-      - name: Deploy to Heroku Staging
-        run: echo "Deploying to Heroku Staging..."
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      - name: Set up JDK 21
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Cache Gradle
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Build JAR
+        env:
+          SPRING_PROFILES_ACTIVE: test
+        run: ./gradlew bootJar -x test --no-daemon
+
+      - name: Deploy to Heroku Staging
+        uses: akhileshns/heroku-deploy@581dd286c962b6972d427fcf8980971d4e4b4b3e # v3.13.15
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME_STAGING }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          buildpack: "https://github.com/heroku/heroku-buildpack-java"
+
+      - name: Verify Staging Health
+        run: |
+          echo "Waiting for staging to boot..."
+          sleep 30
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://${{ secrets.HEROKU_APP_NAME_STAGING }}.herokuapp.com/actuator/health)
+          echo "Health check status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Staging health check failed with status $STATUS"
+            exit 1
+          fi
+          echo "Staging deployment verified successfully"
+
+  # ── Deployment Strategy: Blue/Green via Heroku Pipeline Promotion ──────────
+  # The exact same slug deployed and verified on staging is PROMOTED to production.
+  # No rebuild — guarantees artifact consistency between environments.
+  #
+  # Blue  = Staging  (new version, tested)
+  # Green = Production (stable, receives promoted slug)
+  #
+  # Prerequisite: Create pipeline from Heroku Dashboard (no CLI needed):
+  #   1. dashboard.heroku.com → New → Create new pipeline → name: json-pipeline
+  #   2. Staging column  → Add app → json-staging-cdf3ecf67eca
+  #   3. Production column → Add app → json-prod-0561d3767929
   deploy-production:
-    needs: [ build, e2e ]
+    name: Promote Staging → Production (Blue/Green)
+    needs: [ deploy-staging ]
     environment: production
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: ubuntu-22.04
     steps:
-      - name: Deploy to Heroku Production
-        run: echo "Deploying to Heroku Production..."
+      - name: Promote Staging Slug to Production via Heroku API
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          STAGING_APP: ${{ secrets.HEROKU_APP_NAME_STAGING }}
+          PROD_APP: ${{ secrets.HEROKU_APP_NAME_PRODUCTION }}
+        run: |
+          echo "=== Blue/Green: Promoting staging slug to production ==="
+
+          # Get staging app ID
+          STAGING_ID=$(curl -sf \
+            -H "Authorization: Bearer $HEROKU_API_KEY" \
+            -H "Accept: application/vnd.heroku+json; version=3" \
+            "https://api.heroku.com/apps/$STAGING_APP" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+          # Get production app ID
+          PROD_ID=$(curl -sf \
+            -H "Authorization: Bearer $HEROKU_API_KEY" \
+            -H "Accept: application/vnd.heroku+json; version=3" \
+            "https://api.heroku.com/apps/$PROD_APP" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+          # Get pipeline ID from staging app's coupling
+          PIPELINE_ID=$(curl -sf \
+            -H "Authorization: Bearer $HEROKU_API_KEY" \
+            -H "Accept: application/vnd.heroku+json; version=3" \
+            "https://api.heroku.com/apps/$STAGING_APP/pipeline-couplings" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['pipeline']['id'])")
+
+          echo "Staging ID: $STAGING_ID"
+          echo "Production ID: $PROD_ID"
+          echo "Pipeline ID: $PIPELINE_ID"
+
+          # Trigger pipeline promotion
+          HTTP_CODE=$(curl -s -o /tmp/promote_response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer $HEROKU_API_KEY" \
+            -H "Accept: application/vnd.heroku+json; version=3" \
+            -H "Content-Type: application/json" \
+            "https://api.heroku.com/pipeline-promotions" \
+            -d "{
+              \"pipeline\": {\"id\": \"$PIPELINE_ID\"},
+              \"source\": {\"app\": {\"id\": \"$STAGING_ID\"}},
+              \"targets\": [{\"app\": {\"id\": \"$PROD_ID\"}}]
+            }")
+
+          cat /tmp/promote_response.json
+          if [ "$HTTP_CODE" != "201" ]; then
+            echo "Promotion failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+          echo "Promotion initiated successfully"
+
+      - name: Wait for Promotion to Complete
+        run: sleep 30
+
+      - name: Verify Production Health After Promotion
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          PROD_APP: ${{ secrets.HEROKU_APP_NAME_PRODUCTION }}
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://$PROD_APP.herokuapp.com/actuator/health")
+          echo "Production health check: $STATUS"
+
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check FAILED — triggering automatic rollback via API"
+            # Get the second-to-last release ID (previous stable release)
+            PREV_RELEASE=$(curl -sf \
+              -H "Authorization: Bearer $HEROKU_API_KEY" \
+              -H "Accept: application/vnd.heroku+json; version=3" \
+              "https://api.heroku.com/apps/$PROD_APP/releases?order=desc&range=version;max=5" \
+              | python3 -c "import sys,json; releases=json.load(sys.stdin); print(releases[1]['id'])")
+
+            curl -s -X POST \
+              -H "Authorization: Bearer $HEROKU_API_KEY" \
+              -H "Accept: application/vnd.heroku+json; version=3" \
+              -H "Content-Type: application/json" \
+              "https://api.heroku.com/apps/$PROD_APP/releases" \
+              -d "{\"release\": \"$PREV_RELEASE\"}"
+
+            echo "Rollback triggered to previous release."
+            exit 1
+          fi
+          echo "Production promotion verified successfully"
