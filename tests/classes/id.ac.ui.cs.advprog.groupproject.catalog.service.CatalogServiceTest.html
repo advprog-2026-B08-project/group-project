@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.725s</div>
+<div class="counter">0.703s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,12 +79,12 @@
 </thead>
 <tr>
 <td class="success">testApplyProductRatingDuplicateOrderId()</td>
-<td class="success">0.007s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testApplyProductRatingForbiddenWhenRoleNotTitiper()</td>
-<td class="success">0.009s</td>
+<td class="success">0.010s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -94,27 +94,27 @@
 </tr>
 <tr>
 <td class="success">testCreateCatalog()</td>
-<td class="success">0.010s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">testCreateCatalogForbiddenForNonJastiper()</td>
-<td class="success">0.008s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">testDecreaseStockBadRequestWhenQuantityInvalid()</td>
 <td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
+<td class="success">testCreateCatalogForbiddenForNonJastiper()</td>
+<td class="success">0.003s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">testDecreaseStockBadRequestWhenQuantityInvalid()</td>
+<td class="success">0.003s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
 <td class="success">testDecreaseStockConflictWhenInsufficientStock()</td>
-<td class="success">0.026s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testDecreaseStockIdempotentWhenDuplicate()</td>
-<td class="success">0.007s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -124,12 +124,12 @@
 </tr>
 <tr>
 <td class="success">testDecreaseStockSuccess()</td>
-<td class="success">0.005s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testDeleteCatalogForbidden()</td>
-<td class="success">0.006s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -144,12 +144,12 @@
 </tr>
 <tr>
 <td class="success">testFindAllCatalogs()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testGetAllCatalogs()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -159,7 +159,7 @@
 </tr>
 <tr>
 <td class="success">testGetCatalogByIdNotFound()</td>
-<td class="success">0.582s</td>
+<td class="success">0.620s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -169,7 +169,7 @@
 </tr>
 <tr>
 <td class="success">testGetCatalogsByUserId()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -179,22 +179,22 @@
 </tr>
 <tr>
 <td class="success">testSearchCatalogsByKeyword()</td>
-<td class="success">0.005s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testUpdateCatalogForbidden()</td>
-<td class="success">0.006s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testUpdateCatalogNotFound()</td>
-<td class="success">0.008s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">testUpdateCatalogSuccess()</td>
-<td class="success">0.008s</td>
+<td class="success">0.005s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -202,9 +202,9 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-22T11:47:20.082Z  INFO 2503 --- [group-project] [    Test worker] i.a.u.c.a.g.c.service.CatalogService     : catalog_rating_applied orderId=cf301936-75f0-4ead-9132-a4e7e624e085 catalogId=7f142073-e2d9-4025-9bd7-ae9ab99f047b rating=5 ratingAverage=5.0 ratingCount=1
-2026-05-22T11:47:20.103Z  INFO 2503 --- [group-project] [    Test worker] i.a.u.c.a.g.c.t.IdempotentTemplate       : idempotent_duplicate operation=stock_decrease path=soft_check key=ec7eac18-adde-432c-9e99-c90480fa51d6
-2026-05-22T11:47:20.189Z  INFO 2503 --- [group-project] [    Test worker] i.a.u.c.a.g.c.t.IdempotentTemplate       : idempotent_duplicate operation=catalog_rating path=soft_check key=955a1100-c4e2-49a0-89d1-009b4df97ccb
+<pre>2026-05-22T12:44:23.078Z  INFO 2581 --- [group-project] [    Test worker] i.a.u.c.a.g.c.service.CatalogService     : catalog_rating_applied orderId=286321b1-50e8-4f90-bcfc-7eb89d2f9288 catalogId=fac5d8fa-8ca4-413f-895e-a780880b0710 rating=5 ratingAverage=5.0 ratingCount=1
+2026-05-22T12:44:23.091Z  INFO 2581 --- [group-project] [    Test worker] i.a.u.c.a.g.c.t.IdempotentTemplate       : idempotent_duplicate operation=stock_decrease path=soft_check key=ff085479-fef1-4dcb-a9aa-8005aa00abc2
+2026-05-22T12:44:23.131Z  INFO 2581 --- [group-project] [    Test worker] i.a.u.c.a.g.c.t.IdempotentTemplate       : idempotent_duplicate operation=catalog_rating path=soft_check key=2d81a9b0-eef0-46d6-a2a7-b39d43081c63
 </pre>
 </span>
 </div>
@@ -216,7 +216,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 11:47:23 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 12:44:26 PM</p>
 </div>
 </div>
 </body>
