@@ -7,6 +7,8 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 
 import id.ac.ui.cs.advprog.groupproject.event.UserRegisteredEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,8 @@ import java.util.UUID;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomUserDetailService.class);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
@@ -41,9 +45,11 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
-                new UsernameNotFoundException("User not found"));
-
+        User user = userRepository.findByEmail(email).orElseThrow(() -> {
+            LOGGER.warn("auth_login_failed reason=user_not_found email={}", email);
+            return new UsernameNotFoundException("User not found");
+        });
+        LOGGER.debug("auth_user_loaded userId={} role={}", user.getId(), user.getRole());
         return user;
     }
 
@@ -70,6 +76,9 @@ public class CustomUserDetailService implements UserDetailsService {
 
         userRepository.save(user);
         eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));
+
+        LOGGER.info("auth_user_created userId={} username={} role={}",
+                user.getId(), user.getUsername(), user.getRole());
 
         String description = user.getUsername()
                 + " created a new account!";

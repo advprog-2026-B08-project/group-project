@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ import id.ac.ui.cs.advprog.groupproject.order.port.ProductRatingPort;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     private final OrderRepository orderRepository;
     private final StatusHistoryRepository statusHistoryRepository;
@@ -49,10 +53,15 @@ public class OrderServiceImpl implements OrderService {
     public Order checkout(CheckoutRequest request) {
         validateCheckoutRequest(request);
 
+        LOGGER.info("order_checkout_started buyerId={} productId={} quantity={}",
+                request.getBuyerId(), request.getProductId(), request.getQuantity());
+
         ProductSnapshot productInfo = stockPort.reserveStock(request.getProductId(), request.getQuantity());
 
         if (request.getBuyerId().equals(productInfo.jastiperId())) {
             stockPort.releaseStock(request.getProductId(), request.getQuantity());
+            LOGGER.warn("order_checkout_rejected buyerId={} productId={} reason=self_purchase",
+                    request.getBuyerId(), request.getProductId());
             throw new IllegalArgumentException("Jastiper tidak boleh memesan dari jasanya sendiri!");
         }
 
@@ -62,6 +71,8 @@ public class OrderServiceImpl implements OrderService {
             paymentPort.pay(request.getBuyerId(), totalPrice, "Payment for " + productInfo.productName());
         } catch (Exception e) {
             stockPort.releaseStock(request.getProductId(), request.getQuantity());
+            LOGGER.warn("order_checkout_payment_failed buyerId={} productId={} totalPrice={} reason={}",
+                    request.getBuyerId(), request.getProductId(), totalPrice, e.getMessage());
             throw new IllegalArgumentException("Payment failed: " + e.getMessage());
         }
 
@@ -83,6 +94,9 @@ public class OrderServiceImpl implements OrderService {
 
         // Increment triedToSell for jastiper (new order = jastiper mencoba menjual)
         jastiperMetricsPort.incrementTriedToSell(productInfo.jastiperId());
+
+        LOGGER.info("order_checkout_completed orderId={} buyerId={} jastiperId={} totalPrice={}",
+                savedOrder.getId(), savedOrder.getBuyerId(), savedOrder.getJastiperId(), totalPrice);
 
         return savedOrder;
     }
@@ -114,9 +128,12 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
         if (!order.getStatus().canTransitionTo(newStatus)) {
+            LOGGER.warn("order_status_transition_rejected orderId={} from={} to={} reason=invalid_transition",
+                    orderId, order.getStatus(), newStatus);
             throw new IllegalStateException("Cannot transition from " + order.getStatus() + " to " + newStatus);
         }
 
+        OrderStatus previousStatus = order.getStatus();
         order.setStatus(newStatus);
         Order savedOrder = orderRepository.save(order);
 
@@ -124,6 +141,9 @@ public class OrderServiceImpl implements OrderService {
         history.setOrder(savedOrder);
         history.setStatus(newStatus);
         statusHistoryRepository.save(history);
+
+        LOGGER.info("order_status_updated orderId={} from={} to={}",
+                orderId, previousStatus, newStatus);
 
         // Increment successfullySold and credit Jastiper's wallet when order is completed
         if (newStatus == OrderStatus.COMPLETED) {
@@ -133,6 +153,8 @@ public class OrderServiceImpl implements OrderService {
                     savedOrder.getTotalPrice(),
                     "Pendapatan dari pesanan: " + savedOrder.getId()
             );
+            LOGGER.info("order_completed orderId={} jastiperId={} amountCredited={}",
+                    savedOrder.getId(), savedOrder.getJastiperId(), savedOrder.getTotalPrice());
         }
 
         return savedOrder;
@@ -151,6 +173,8 @@ public class OrderServiceImpl implements OrderService {
             "Refund for cancelled order: " + cancelled.getId(),
             cancelled.getId()
         );
+        LOGGER.info("order_cancelled orderId={} buyerId={} refundAmount={}",
+                cancelled.getId(), cancelled.getBuyerId(), cancelled.getTotalPrice());
         return cancelled;
     }
 
