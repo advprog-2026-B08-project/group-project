@@ -15,17 +15,19 @@ import id.ac.ui.cs.advprog.groupproject.order.dto.ProductSnapshot;
 import id.ac.ui.cs.advprog.groupproject.order.model.Order;
 import id.ac.ui.cs.advprog.groupproject.order.model.OrderStatus;
 import id.ac.ui.cs.advprog.groupproject.order.model.StatusHistory;
+import id.ac.ui.cs.advprog.groupproject.order.port.JastiperMetricsPort;
 import id.ac.ui.cs.advprog.groupproject.order.port.PaymentPort;
+import id.ac.ui.cs.advprog.groupproject.order.port.ProductRatingPort;
 import id.ac.ui.cs.advprog.groupproject.order.port.StockPort;
 import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
-import id.ac.ui.cs.advprog.groupproject.order.port.JastiperMetricsPort;
-import id.ac.ui.cs.advprog.groupproject.order.port.ProductRatingPort;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+    private static final String ORDER_NOT_FOUND_PREFIX = "Order not found: ";
 
     private final OrderRepository orderRepository;
     private final StatusHistoryRepository statusHistoryRepository;
@@ -124,8 +126,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order updateStatus(UUID orderId, OrderStatus newStatus) {
+        return updateStatusInternal(orderId, newStatus);
+    }
+    
+    private Order updateStatusInternal(UUID orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+                .orElseThrow(() -> new IllegalArgumentException(ORDER_NOT_FOUND_PREFIX + orderId));
 
         if (!order.getStatus().canTransitionTo(newStatus)) {
             LOGGER.warn("order_status_transition_rejected orderId={} from={} to={} reason=invalid_transition",
@@ -163,15 +169,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order cancelOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
-        Order cancelled = updateStatus(orderId, OrderStatus.CANCELLED);
+        Order cancelled = updateStatusInternal(orderId, OrderStatus.CANCELLED);
         stockPort.releaseStock(cancelled.getProductId(), cancelled.getQuantity());
         paymentPort.refund(
                 cancelled.getBuyerId(),
                 cancelled.getTotalPrice(),
-            "Refund for cancelled order: " + cancelled.getId(),
-            cancelled.getId()
+                "Refund for cancelled order: " + cancelled.getId(),
+                cancelled.getId()
         );
         LOGGER.info("order_cancelled orderId={} buyerId={} refundAmount={}",
                 cancelled.getId(), cancelled.getBuyerId(), cancelled.getTotalPrice());
@@ -182,7 +186,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order submitRating(UUID orderId, Integer ratingProduk, Integer ratingJastiper) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+                .orElseThrow(() -> new IllegalArgumentException(ORDER_NOT_FOUND_PREFIX + orderId));
 
         if (order.getStatus() != OrderStatus.COMPLETED) {
             throw new IllegalStateException("Rating hanya bisa diberikan untuk order yang sudah COMPLETED");
@@ -192,27 +196,8 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Minimal satu rating (produk atau jastiper) harus diisi");
         }
 
-        // Handle rating produk
-        if (ratingProduk != null) {
-            if (order.getRatingProduk() != null) {
-                throw new IllegalStateException("Order ini sudah diberi rating produk");
-            }
-            if (ratingProduk < 1 || ratingProduk > 5) {
-                throw new IllegalArgumentException("Rating produk harus antara 1 sampai 5");
-            }
-            order.setRatingProduk(ratingProduk);
-        }
-
-        // Handle rating jastiper
-        if (ratingJastiper != null) {
-            if (order.getRatingJastiper() != null) {
-                throw new IllegalStateException("Order ini sudah diberi rating jastiper");
-            }
-            if (ratingJastiper < 1 || ratingJastiper > 5) {
-                throw new IllegalArgumentException("Rating jastiper harus antara 1 sampai 5");
-            }
-            order.setRatingJastiper(ratingJastiper);
-        }
+        applyProductRating(order, ratingProduk);
+        applyJastiperRating(order, ratingJastiper);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -222,6 +207,32 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return savedOrder;
+    }
+
+    private void applyProductRating(Order order, Integer ratingProduk) {
+        if (ratingProduk == null) {
+            return;
+        }
+        if (order.getRatingProduk() != null) {
+            throw new IllegalStateException("Order ini sudah diberi rating produk");
+        }
+        if (ratingProduk < 1 || ratingProduk > 5) {
+            throw new IllegalArgumentException("Rating produk harus antara 1 sampai 5");
+        }
+        order.setRatingProduk(ratingProduk);
+    }
+
+    private void applyJastiperRating(Order order, Integer ratingJastiper) {
+        if (ratingJastiper == null) {
+            return;
+        }
+        if (order.getRatingJastiper() != null) {
+            throw new IllegalStateException("Order ini sudah diberi rating jastiper");
+        }
+        if (ratingJastiper < 1 || ratingJastiper > 5) {
+            throw new IllegalArgumentException("Rating jastiper harus antara 1 sampai 5");
+        }
+        order.setRatingJastiper(ratingJastiper);
     }
 
     // Titiper: active orders (in progress)
@@ -253,11 +264,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void validateCheckoutRequest(CheckoutRequest request) {
-        if (request.getBuyerId() == null) throw new IllegalArgumentException("Buyer ID is required");
-        if (request.getProductId() == null) throw new IllegalArgumentException("Product ID is required");
-        if (request.getQuantity() == null || request.getQuantity() < 1) throw new IllegalArgumentException("Invalid quantity");
-        if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException("Address required");
+        if (request.getBuyerId() == null) {
+            throw new IllegalArgumentException("Buyer ID is required");
+        }
+        if (request.getProductId() == null) {
+            throw new IllegalArgumentException("Product ID is required");
+        }
+        if (request.getQuantity() == null || request.getQuantity() < 1) {
+            throw new IllegalArgumentException("Invalid quantity");
+        }
+        if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) {
+            throw new IllegalArgumentException("Address required");
+        }
     }
-
-
 }
