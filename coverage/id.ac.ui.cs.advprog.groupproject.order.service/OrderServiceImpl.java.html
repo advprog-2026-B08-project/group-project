@@ -55,227 +55,223 @@ public class OrderServiceImpl implements OrderService {
     public Order checkout(CheckoutRequest request) {
 <span class="fc" id="L56">        validateCheckoutRequest(request);</span>
 
-<span class="fc" id="L58">        LOGGER.info(&quot;order_checkout_started buyerId={} productId={} quantity={}&quot;,</span>
-<span class="fc" id="L59">                request.getBuyerId(), request.getProductId(), request.getQuantity());</span>
+<span class="fc" id="L58">        LOGGER.info(&quot;order_checkout_started quantity={}&quot;, request.getQuantity());</span>
 
-<span class="fc" id="L61">        ProductSnapshot productInfo = stockPort.reserveStock(request.getProductId(), request.getQuantity());</span>
+<span class="fc" id="L60">        ProductSnapshot productInfo = stockPort.reserveStock(request.getProductId(), request.getQuantity());</span>
 
-<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (request.getBuyerId().equals(productInfo.jastiperId())) {</span>
-<span class="fc" id="L64">            stockPort.releaseStock(request.getProductId(), request.getQuantity());</span>
-<span class="fc" id="L65">            LOGGER.warn(&quot;order_checkout_rejected buyerId={} productId={} reason=self_purchase&quot;,</span>
-<span class="fc" id="L66">                    request.getBuyerId(), request.getProductId());</span>
-<span class="fc" id="L67">            throw new IllegalArgumentException(&quot;Jastiper tidak boleh memesan dari jasanya sendiri!&quot;);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (request.getBuyerId().equals(productInfo.jastiperId())) {</span>
+<span class="fc" id="L63">            stockPort.releaseStock(request.getProductId(), request.getQuantity());</span>
+<span class="fc" id="L64">            LOGGER.warn(&quot;order_checkout_rejected reason=self_purchase&quot;);</span>
+<span class="fc" id="L65">            throw new IllegalArgumentException(&quot;Jastiper tidak boleh memesan dari jasanya sendiri!&quot;);</span>
         }
 
-<span class="fc" id="L70">        BigDecimal totalPrice = productInfo.pricePerItem().multiply(BigDecimal.valueOf(request.getQuantity()));</span>
+<span class="fc" id="L68">        BigDecimal totalPrice = productInfo.pricePerItem().multiply(BigDecimal.valueOf(request.getQuantity()));</span>
 
         try {
-<span class="fc" id="L73">            paymentPort.pay(request.getBuyerId(), totalPrice, &quot;Payment for &quot; + productInfo.productName());</span>
-<span class="fc" id="L74">        } catch (Exception e) {</span>
-<span class="fc" id="L75">            stockPort.releaseStock(request.getProductId(), request.getQuantity());</span>
-<span class="fc" id="L76">            LOGGER.warn(&quot;order_checkout_payment_failed buyerId={} productId={} totalPrice={} reason={}&quot;,</span>
-<span class="fc" id="L77">                    request.getBuyerId(), request.getProductId(), totalPrice, e.getMessage());</span>
-<span class="fc" id="L78">            throw new IllegalArgumentException(&quot;Payment failed: &quot; + e.getMessage());</span>
-<span class="fc" id="L79">        }</span>
+<span class="fc" id="L71">            paymentPort.pay(request.getBuyerId(), totalPrice, &quot;Payment for &quot; + productInfo.productName());</span>
+<span class="fc" id="L72">        } catch (Exception e) {</span>
+<span class="fc" id="L73">            stockPort.releaseStock(request.getProductId(), request.getQuantity());</span>
+<span class="fc" id="L74">            LOGGER.warn(&quot;order_checkout_payment_failed reason={}&quot;, e.getMessage());</span>
+<span class="fc" id="L75">            throw new IllegalArgumentException(&quot;Payment failed: &quot; + e.getMessage());</span>
+<span class="fc" id="L76">        }</span>
 
-<span class="fc" id="L81">        Order order = new Order();</span>
-<span class="fc" id="L82">        order.setBuyerId(request.getBuyerId());</span>
-<span class="fc" id="L83">        order.setJastiperId(productInfo.jastiperId());</span>
-<span class="fc" id="L84">        order.setProductId(request.getProductId());</span>
-<span class="fc" id="L85">        order.setQuantity(request.getQuantity());</span>
-<span class="fc" id="L86">        order.setShippingAddress(request.getShippingAddress());</span>
-<span class="fc" id="L87">        order.setTotalPrice(totalPrice);</span>
-<span class="fc" id="L88">        order.setStatus(OrderStatus.PAID);</span>
+<span class="fc" id="L78">        Order order = new Order();</span>
+<span class="fc" id="L79">        order.setBuyerId(request.getBuyerId());</span>
+<span class="fc" id="L80">        order.setJastiperId(productInfo.jastiperId());</span>
+<span class="fc" id="L81">        order.setProductId(request.getProductId());</span>
+<span class="fc" id="L82">        order.setQuantity(request.getQuantity());</span>
+<span class="fc" id="L83">        order.setShippingAddress(request.getShippingAddress());</span>
+<span class="fc" id="L84">        order.setTotalPrice(totalPrice);</span>
+<span class="fc" id="L85">        order.setStatus(OrderStatus.PAID);</span>
 
-<span class="fc" id="L90">        Order savedOrder = orderRepository.save(order);</span>
+<span class="fc" id="L87">        Order savedOrder = orderRepository.save(order);</span>
 
-<span class="fc" id="L92">        StatusHistory history = new StatusHistory();</span>
-<span class="fc" id="L93">        history.setOrder(savedOrder);</span>
-<span class="fc" id="L94">        history.setStatus(OrderStatus.PAID);</span>
-<span class="fc" id="L95">        statusHistoryRepository.save(history);</span>
+<span class="fc" id="L89">        StatusHistory history = new StatusHistory();</span>
+<span class="fc" id="L90">        history.setOrder(savedOrder);</span>
+<span class="fc" id="L91">        history.setStatus(OrderStatus.PAID);</span>
+<span class="fc" id="L92">        statusHistoryRepository.save(history);</span>
 
         // Increment triedToSell for jastiper (new order = jastiper mencoba menjual)
-<span class="fc" id="L98">        jastiperMetricsPort.incrementTriedToSell(productInfo.jastiperId());</span>
+<span class="fc" id="L95">        jastiperMetricsPort.incrementTriedToSell(productInfo.jastiperId());</span>
 
-<span class="fc" id="L100">        LOGGER.info(&quot;order_checkout_completed orderId={} buyerId={} jastiperId={} totalPrice={}&quot;,</span>
-<span class="fc" id="L101">                savedOrder.getId(), savedOrder.getBuyerId(), savedOrder.getJastiperId(), totalPrice);</span>
+<span class="fc" id="L97">        LOGGER.info(&quot;order_checkout_completed orderId={} totalPrice={}&quot;,</span>
+<span class="fc" id="L98">                savedOrder.getId(), totalPrice);</span>
 
-<span class="fc" id="L103">        return savedOrder;</span>
+<span class="fc" id="L100">        return savedOrder;</span>
     }
 
     @Override
     public List&lt;Order&gt; findAll() {
-<span class="fc" id="L108">        return orderRepository.findAll();</span>
+<span class="fc" id="L105">        return orderRepository.findAll();</span>
     }
 
     @Override
     public Optional&lt;Order&gt; findById(UUID id) {
-<span class="fc" id="L113">        return orderRepository.findById(id);</span>
+<span class="fc" id="L110">        return orderRepository.findById(id);</span>
     }
 
     @Override
     public List&lt;Order&gt; findByBuyerId(UUID buyerId) {
-<span class="fc" id="L118">        return orderRepository.findByBuyerId(buyerId);</span>
+<span class="fc" id="L115">        return orderRepository.findByBuyerId(buyerId);</span>
     }
 
     @Override
     public List&lt;Order&gt; findByJastiperId(UUID jastiperId) {
-<span class="fc" id="L123">        return orderRepository.findByJastiperId(jastiperId);</span>
+<span class="fc" id="L120">        return orderRepository.findByJastiperId(jastiperId);</span>
     }
 
     @Override
     @Transactional
     public Order updateStatus(UUID orderId, OrderStatus newStatus) {
-<span class="fc" id="L129">        return updateStatusInternal(orderId, newStatus);</span>
+<span class="fc" id="L126">        return updateStatusInternal(orderId, newStatus);</span>
     }
-    
-    private Order updateStatusInternal(UUID orderId, OrderStatus newStatus) {
-<span class="fc" id="L133">        Order order = orderRepository.findById(orderId)</span>
-<span class="fc" id="L134">                .orElseThrow(() -&gt; new IllegalArgumentException(ORDER_NOT_FOUND_PREFIX + orderId));</span>
 
-<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (!order.getStatus().canTransitionTo(newStatus)) {</span>
-<span class="fc" id="L137">            LOGGER.warn(&quot;order_status_transition_rejected orderId={} from={} to={} reason=invalid_transition&quot;,</span>
-<span class="fc" id="L138">                    orderId, order.getStatus(), newStatus);</span>
-<span class="fc" id="L139">            throw new IllegalStateException(&quot;Cannot transition from &quot; + order.getStatus() + &quot; to &quot; + newStatus);</span>
+    private Order updateStatusInternal(UUID orderId, OrderStatus newStatus) {
+<span class="fc" id="L130">        Order order = orderRepository.findById(orderId)</span>
+<span class="fc" id="L131">                .orElseThrow(() -&gt; new IllegalArgumentException(ORDER_NOT_FOUND_PREFIX + orderId));</span>
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (!order.getStatus().canTransitionTo(newStatus)) {</span>
+<span class="fc" id="L134">            LOGGER.warn(&quot;order_status_transition_rejected orderId={} from={} to={} reason=invalid_transition&quot;,</span>
+<span class="fc" id="L135">                    orderId, order.getStatus(), newStatus);</span>
+<span class="fc" id="L136">            throw new IllegalStateException(&quot;Cannot transition from &quot; + order.getStatus() + &quot; to &quot; + newStatus);</span>
         }
 
-<span class="fc" id="L142">        OrderStatus previousStatus = order.getStatus();</span>
-<span class="fc" id="L143">        order.setStatus(newStatus);</span>
-<span class="fc" id="L144">        Order savedOrder = orderRepository.save(order);</span>
+<span class="fc" id="L139">        OrderStatus previousStatus = order.getStatus();</span>
+<span class="fc" id="L140">        order.setStatus(newStatus);</span>
+<span class="fc" id="L141">        Order savedOrder = orderRepository.save(order);</span>
 
-<span class="fc" id="L146">        StatusHistory history = new StatusHistory();</span>
-<span class="fc" id="L147">        history.setOrder(savedOrder);</span>
-<span class="fc" id="L148">        history.setStatus(newStatus);</span>
-<span class="fc" id="L149">        statusHistoryRepository.save(history);</span>
+<span class="fc" id="L143">        StatusHistory history = new StatusHistory();</span>
+<span class="fc" id="L144">        history.setOrder(savedOrder);</span>
+<span class="fc" id="L145">        history.setStatus(newStatus);</span>
+<span class="fc" id="L146">        statusHistoryRepository.save(history);</span>
 
-<span class="fc" id="L151">        LOGGER.info(&quot;order_status_updated orderId={} from={} to={}&quot;,</span>
+<span class="fc" id="L148">        LOGGER.info(&quot;order_status_updated orderId={} from={} to={}&quot;,</span>
                 orderId, previousStatus, newStatus);
 
         // Increment successfullySold and credit Jastiper's wallet when order is completed
-<span class="fc bfc" id="L155" title="All 2 branches covered.">        if (newStatus == OrderStatus.COMPLETED) {</span>
-<span class="fc" id="L156">            jastiperMetricsPort.incrementSuccessfullySold(savedOrder.getJastiperId());</span>
-<span class="fc" id="L157">            paymentPort.creditSeller(</span>
-<span class="fc" id="L158">                    savedOrder.getJastiperId(),</span>
-<span class="fc" id="L159">                    savedOrder.getTotalPrice(),</span>
-<span class="fc" id="L160">                    &quot;Pendapatan dari pesanan: &quot; + savedOrder.getId()</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (newStatus == OrderStatus.COMPLETED) {</span>
+<span class="fc" id="L153">            jastiperMetricsPort.incrementSuccessfullySold(savedOrder.getJastiperId());</span>
+<span class="fc" id="L154">            paymentPort.creditSeller(</span>
+<span class="fc" id="L155">                    savedOrder.getJastiperId(),</span>
+<span class="fc" id="L156">                    savedOrder.getTotalPrice(),</span>
+<span class="fc" id="L157">                    &quot;Pendapatan dari pesanan: &quot; + savedOrder.getId()</span>
             );
-<span class="fc" id="L162">            LOGGER.info(&quot;order_completed orderId={} jastiperId={} amountCredited={}&quot;,</span>
-<span class="fc" id="L163">                    savedOrder.getId(), savedOrder.getJastiperId(), savedOrder.getTotalPrice());</span>
+<span class="fc" id="L159">            LOGGER.info(&quot;order_completed orderId={} jastiperId={} amountCredited={}&quot;,</span>
+<span class="fc" id="L160">                    savedOrder.getId(), savedOrder.getJastiperId(), savedOrder.getTotalPrice());</span>
         }
 
-<span class="fc" id="L166">        return savedOrder;</span>
+<span class="fc" id="L163">        return savedOrder;</span>
     }
 
     @Override
     @Transactional
     public Order cancelOrder(UUID orderId) {
-<span class="fc" id="L172">        Order cancelled = updateStatusInternal(orderId, OrderStatus.CANCELLED);</span>
-<span class="fc" id="L173">        stockPort.releaseStock(cancelled.getProductId(), cancelled.getQuantity());</span>
-<span class="fc" id="L174">        paymentPort.refund(</span>
-<span class="fc" id="L175">                cancelled.getBuyerId(),</span>
-<span class="fc" id="L176">                cancelled.getTotalPrice(),</span>
-<span class="fc" id="L177">                &quot;Refund for cancelled order: &quot; + cancelled.getId(),</span>
-<span class="fc" id="L178">                cancelled.getId()</span>
+<span class="fc" id="L169">        Order cancelled = updateStatusInternal(orderId, OrderStatus.CANCELLED);</span>
+<span class="fc" id="L170">        stockPort.releaseStock(cancelled.getProductId(), cancelled.getQuantity());</span>
+<span class="fc" id="L171">        paymentPort.refund(</span>
+<span class="fc" id="L172">                cancelled.getBuyerId(),</span>
+<span class="fc" id="L173">                cancelled.getTotalPrice(),</span>
+<span class="fc" id="L174">                &quot;Refund for cancelled order: &quot; + cancelled.getId(),</span>
+<span class="fc" id="L175">                cancelled.getId()</span>
         );
-<span class="fc" id="L180">        LOGGER.info(&quot;order_cancelled orderId={} buyerId={} refundAmount={}&quot;,</span>
-<span class="fc" id="L181">                cancelled.getId(), cancelled.getBuyerId(), cancelled.getTotalPrice());</span>
-<span class="fc" id="L182">        return cancelled;</span>
+<span class="fc" id="L177">        LOGGER.info(&quot;order_cancelled orderId={} refundAmount={}&quot;,</span>
+<span class="fc" id="L178">                cancelled.getId(), cancelled.getTotalPrice());</span>
+<span class="fc" id="L179">        return cancelled;</span>
     }
 
     @Override
     @Transactional
     public Order submitRating(UUID orderId, Integer ratingProduk, Integer ratingJastiper) {
-<span class="fc" id="L188">        Order order = orderRepository.findById(orderId)</span>
-<span class="fc" id="L189">                .orElseThrow(() -&gt; new IllegalArgumentException(ORDER_NOT_FOUND_PREFIX + orderId));</span>
+<span class="fc" id="L185">        Order order = orderRepository.findById(orderId)</span>
+<span class="fc" id="L186">                .orElseThrow(() -&gt; new IllegalArgumentException(ORDER_NOT_FOUND_PREFIX + orderId));</span>
 
-<span class="fc bfc" id="L191" title="All 2 branches covered.">        if (order.getStatus() != OrderStatus.COMPLETED) {</span>
-<span class="fc" id="L192">            throw new IllegalStateException(&quot;Rating hanya bisa diberikan untuk order yang sudah COMPLETED&quot;);</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">        if (order.getStatus() != OrderStatus.COMPLETED) {</span>
+<span class="fc" id="L189">            throw new IllegalStateException(&quot;Rating hanya bisa diberikan untuk order yang sudah COMPLETED&quot;);</span>
         }
 
-<span class="fc bfc" id="L195" title="All 4 branches covered.">        if (ratingProduk == null &amp;&amp; ratingJastiper == null) {</span>
-<span class="fc" id="L196">            throw new IllegalArgumentException(&quot;Minimal satu rating (produk atau jastiper) harus diisi&quot;);</span>
+<span class="fc bfc" id="L192" title="All 4 branches covered.">        if (ratingProduk == null &amp;&amp; ratingJastiper == null) {</span>
+<span class="fc" id="L193">            throw new IllegalArgumentException(&quot;Minimal satu rating (produk atau jastiper) harus diisi&quot;);</span>
         }
 
-<span class="fc" id="L199">        applyProductRating(order, ratingProduk);</span>
-<span class="fc" id="L200">        applyJastiperRating(order, ratingJastiper);</span>
+<span class="fc" id="L196">        applyProductRating(order, ratingProduk);</span>
+<span class="fc" id="L197">        applyJastiperRating(order, ratingJastiper);</span>
 
-<span class="fc" id="L202">        Order savedOrder = orderRepository.save(order);</span>
+<span class="fc" id="L199">        Order savedOrder = orderRepository.save(order);</span>
 
-        // Propagate product rating to catalog aggregate
-<span class="fc bfc" id="L205" title="All 2 branches covered.">        if (ratingProduk != null) {</span>
-<span class="fc" id="L206">            productRatingPort.propagateProductRating(savedOrder, ratingProduk);</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        if (ratingProduk != null) {</span>
+<span class="fc" id="L202">            productRatingPort.propagateProductRating(savedOrder, ratingProduk);</span>
         }
 
-<span class="fc" id="L209">        return savedOrder;</span>
+<span class="fc" id="L205">        return savedOrder;</span>
     }
 
     private void applyProductRating(Order order, Integer ratingProduk) {
-<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (ratingProduk == null) {</span>
-<span class="fc" id="L214">            return;</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">        if (ratingProduk == null) {</span>
+<span class="fc" id="L210">            return;</span>
         }
-<span class="fc bfc" id="L216" title="All 2 branches covered.">        if (order.getRatingProduk() != null) {</span>
-<span class="fc" id="L217">            throw new IllegalStateException(&quot;Order ini sudah diberi rating produk&quot;);</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        if (order.getRatingProduk() != null) {</span>
+<span class="fc" id="L213">            throw new IllegalStateException(&quot;Order ini sudah diberi rating produk&quot;);</span>
         }
-<span class="fc bfc" id="L219" title="All 4 branches covered.">        if (ratingProduk &lt; 1 || ratingProduk &gt; 5) {</span>
-<span class="fc" id="L220">            throw new IllegalArgumentException(&quot;Rating produk harus antara 1 sampai 5&quot;);</span>
+<span class="fc bfc" id="L215" title="All 4 branches covered.">        if (ratingProduk &lt; 1 || ratingProduk &gt; 5) {</span>
+<span class="fc" id="L216">            throw new IllegalArgumentException(&quot;Rating produk harus antara 1 sampai 5&quot;);</span>
         }
-<span class="fc" id="L222">        order.setRatingProduk(ratingProduk);</span>
-<span class="fc" id="L223">    }</span>
+<span class="fc" id="L218">        order.setRatingProduk(ratingProduk);</span>
+<span class="fc" id="L219">    }</span>
 
     private void applyJastiperRating(Order order, Integer ratingJastiper) {
-<span class="fc bfc" id="L226" title="All 2 branches covered.">        if (ratingJastiper == null) {</span>
-<span class="fc" id="L227">            return;</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        if (ratingJastiper == null) {</span>
+<span class="fc" id="L223">            return;</span>
         }
-<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (order.getRatingJastiper() != null) {</span>
-<span class="fc" id="L230">            throw new IllegalStateException(&quot;Order ini sudah diberi rating jastiper&quot;);</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (order.getRatingJastiper() != null) {</span>
+<span class="fc" id="L226">            throw new IllegalStateException(&quot;Order ini sudah diberi rating jastiper&quot;);</span>
         }
-<span class="fc bfc" id="L232" title="All 4 branches covered.">        if (ratingJastiper &lt; 1 || ratingJastiper &gt; 5) {</span>
-<span class="fc" id="L233">            throw new IllegalArgumentException(&quot;Rating jastiper harus antara 1 sampai 5&quot;);</span>
+<span class="fc bfc" id="L228" title="All 4 branches covered.">        if (ratingJastiper &lt; 1 || ratingJastiper &gt; 5) {</span>
+<span class="fc" id="L229">            throw new IllegalArgumentException(&quot;Rating jastiper harus antara 1 sampai 5&quot;);</span>
         }
-<span class="fc" id="L235">        order.setRatingJastiper(ratingJastiper);</span>
-<span class="fc" id="L236">    }</span>
+<span class="fc" id="L231">        order.setRatingJastiper(ratingJastiper);</span>
+<span class="fc" id="L232">    }</span>
 
     // Titiper: active orders (in progress)
     @Override
     public List&lt;Order&gt; findBuyerActiveOrders(UUID buyerId) {
-<span class="fc" id="L241">        return orderRepository.findByBuyerIdAndStatusIn(buyerId,</span>
-<span class="fc" id="L242">                List.of(OrderStatus.PAID, OrderStatus.PURCHASED, OrderStatus.SHIPPED));</span>
+<span class="fc" id="L237">        return orderRepository.findByBuyerIdAndStatusIn(buyerId,</span>
+<span class="fc" id="L238">                List.of(OrderStatus.PAID, OrderStatus.PURCHASED, OrderStatus.SHIPPED));</span>
     }
 
     // Titiper: completed/cancelled orders
     @Override
     public List&lt;Order&gt; findBuyerCompletedOrders(UUID buyerId) {
-<span class="fc" id="L248">        return orderRepository.findByBuyerIdAndStatusIn(buyerId,</span>
-<span class="fc" id="L249">                List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));</span>
+<span class="fc" id="L244">        return orderRepository.findByBuyerIdAndStatusIn(buyerId,</span>
+<span class="fc" id="L245">                List.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED));</span>
     }
 
     // Jastiper: to-do list (orders that need action)
     @Override
     public List&lt;Order&gt; findJastiperTodoOrders(UUID jastiperId) {
-<span class="fc" id="L255">        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,</span>
-<span class="fc" id="L256">                List.of(OrderStatus.PAID, OrderStatus.PURCHASED));</span>
+<span class="fc" id="L251">        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,</span>
+<span class="fc" id="L252">                List.of(OrderStatus.PAID, OrderStatus.PURCHASED));</span>
     }
 
     // Jastiper: completed/shipped/cancelled orders
     @Override
     public List&lt;Order&gt; findJastiperCompletedOrders(UUID jastiperId) {
-<span class="fc" id="L262">        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,</span>
-<span class="fc" id="L263">                List.of(OrderStatus.SHIPPED, OrderStatus.COMPLETED, OrderStatus.CANCELLED));</span>
+<span class="fc" id="L258">        return orderRepository.findByJastiperIdAndStatusIn(jastiperId,</span>
+<span class="fc" id="L259">                List.of(OrderStatus.SHIPPED, OrderStatus.COMPLETED, OrderStatus.CANCELLED));</span>
     }
 
     private void validateCheckoutRequest(CheckoutRequest request) {
-<span class="fc bfc" id="L267" title="All 2 branches covered.">        if (request.getBuyerId() == null) {</span>
-<span class="fc" id="L268">            throw new IllegalArgumentException(&quot;Buyer ID is required&quot;);</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        if (request.getBuyerId() == null) {</span>
+<span class="fc" id="L264">            throw new IllegalArgumentException(&quot;Buyer ID is required&quot;);</span>
         }
-<span class="fc bfc" id="L270" title="All 2 branches covered.">        if (request.getProductId() == null) {</span>
-<span class="fc" id="L271">            throw new IllegalArgumentException(&quot;Product ID is required&quot;);</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        if (request.getProductId() == null) {</span>
+<span class="fc" id="L267">            throw new IllegalArgumentException(&quot;Product ID is required&quot;);</span>
         }
-<span class="fc bfc" id="L273" title="All 4 branches covered.">        if (request.getQuantity() == null || request.getQuantity() &lt; 1) {</span>
-<span class="fc" id="L274">            throw new IllegalArgumentException(&quot;Invalid quantity&quot;);</span>
+<span class="fc bfc" id="L269" title="All 4 branches covered.">        if (request.getQuantity() == null || request.getQuantity() &lt; 1) {</span>
+<span class="fc" id="L270">            throw new IllegalArgumentException(&quot;Invalid quantity&quot;);</span>
         }
-<span class="fc bfc" id="L276" title="All 4 branches covered.">        if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) {</span>
-<span class="fc" id="L277">            throw new IllegalArgumentException(&quot;Address required&quot;);</span>
+<span class="fc bfc" id="L272" title="All 4 branches covered.">        if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) {</span>
+<span class="fc" id="L273">            throw new IllegalArgumentException(&quot;Address required&quot;);</span>
         }
-<span class="fc" id="L279">    }</span>
+<span class="fc" id="L275">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

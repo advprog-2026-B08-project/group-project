@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.328s</div>
+<div class="counter">0.311s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,7 +79,7 @@
 </thead>
 <tr>
 <td class="success">cancelOrder_orderNotFound_throws()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -89,7 +89,7 @@
 </tr>
 <tr>
 <td class="success">checkout_blankAddress_throws()</td>
-<td class="success">0.259s</td>
+<td class="success">0.239s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -104,7 +104,7 @@
 </tr>
 <tr>
 <td class="success">checkout_nullBuyerId_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -124,17 +124,17 @@
 </tr>
 <tr>
 <td class="success">checkout_selfPurchase_releasesStockAndThrows()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_success_incrementsTriedToSell()</td>
-<td class="success">0.004s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_success_returnsOrderWithStatusPaid()</td>
-<td class="success">0.002s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -154,7 +154,7 @@
 </tr>
 <tr>
 <td class="success">findBuyerCompletedOrders_returnsCorrectOrders()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -169,12 +169,12 @@
 </tr>
 <tr>
 <td class="success">findById_notFound_returnsEmpty()</td>
-<td class="success">0.003s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findByJastiperId_returnsJastiperOrders()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -184,7 +184,7 @@
 </tr>
 <tr>
 <td class="success">findJastiperTodoOrders_returnsCorrectOrders()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -194,12 +194,12 @@
 </tr>
 <tr>
 <td class="success">submitRating_bothRatings_success()</td>
-<td class="success">0.004s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_invalidJastiperRating_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -209,12 +209,12 @@
 </tr>
 <tr>
 <td class="success">submitRating_jastiperAlreadyRated_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_jastiperOnly_success()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -224,7 +224,7 @@
 </tr>
 <tr>
 <td class="success">submitRating_orderNotFound_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -254,7 +254,7 @@
 </tr>
 <tr>
 <td class="success">updateStatus_toNonCompleted_doesNotIncrementSuccessfullySold()</td>
-<td class="success">0.002s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -267,22 +267,22 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-22T10:47:23.127Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=335eead7-f7c4-47ed-9463-cbcdfdb25751 from=PAID to=CANCELLED
-2026-05-22T10:47:23.128Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_cancelled orderId=335eead7-f7c4-47ed-9463-cbcdfdb25751 buyerId=89a34f2d-c2c3-42b6-9b44-577bddf31373 refundAmount=300000
-2026-05-22T10:47:23.137Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=6b1f92e1-e7c5-492c-ba5b-86cda8bae35a productId=72420406-9e31-4065-99fa-0d5f18c9027f quantity=1
-2026-05-22T10:47:23.138Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=55da1bc7-e210-48d6-a5a8-07216eeedebc buyerId=null jastiperId=a9cd521f-e894-4f17-ad9e-e73feb6118ed totalPrice=100000
-2026-05-22T10:47:23.142Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=fb42a412-7f54-4da2-b658-46c2ff264357 from=SHIPPED to=COMPLETED
-2026-05-22T10:47:23.142Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_completed orderId=fb42a412-7f54-4da2-b658-46c2ff264357 jastiperId=9328d19d-0747-4dd8-8f7b-c27d05f0c8f8 amountCredited=150000
-2026-05-22T10:47:23.145Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=2a03dc75-f87c-45ed-b3f2-acef95a8c030 from=PAID to=PURCHASED
-2026-05-22T10:47:23.152Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=abf21970-271b-449a-8aa9-a6f7ddca69b8 productId=f364eef1-1442-40af-bb42-8335829a0e8c quantity=2
-2026-05-22T10:47:23.152Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=fbcb7acd-f98d-428d-b3fd-142ecf7ba9bc buyerId=null jastiperId=80a56de3-f150-46ca-9164-633c1ede6cac totalPrice=200000
-2026-05-22T10:47:23.154Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=9554e3e7-d0c1-44cb-b602-183263a90043 productId=200d5c6d-fbd3-48d1-8d49-4d1d514ba1d5 quantity=1
-2026-05-22T10:47:23.155Z  WARN 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_rejected buyerId=9554e3e7-d0c1-44cb-b602-183263a90043 productId=200d5c6d-fbd3-48d1-8d49-4d1d514ba1d5 reason=self_purchase
-2026-05-22T10:47:23.157Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=370a0749-f30d-46ce-990e-83b70451129e productId=1d5c0b50-89ff-4d8c-ab52-9695486233c3 quantity=5
-2026-05-22T10:47:23.164Z  WARN 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_transition_rejected orderId=e897c99d-c585-41e6-8ea0-2e919be52e7b from=PAID to=COMPLETED reason=invalid_transition
-2026-05-22T10:47:23.175Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=cbe97ca3-ab45-4031-a554-d4408eac490f from=PURCHASED to=SHIPPED
-2026-05-22T10:47:23.181Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=2bb23e9f-9522-46ae-8b0e-1c036ea78cfa productId=dcb7e4cd-2cfe-4ddf-9da0-38c010caa119 quantity=1
-2026-05-22T10:47:23.181Z  WARN 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_payment_failed buyerId=2bb23e9f-9522-46ae-8b0e-1c036ea78cfa productId=dcb7e4cd-2cfe-4ddf-9da0-38c010caa119 totalPrice=100000 reason=Saldo tidak cukup
+<pre>2026-05-22T11:09:48.313Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=bca39c68-c3f1-4c25-b08d-9b1d850933ac from=PAID to=CANCELLED
+2026-05-22T11:09:48.313Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_cancelled orderId=bca39c68-c3f1-4c25-b08d-9b1d850933ac refundAmount=300000
+2026-05-22T11:09:48.324Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
+2026-05-22T11:09:48.325Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=9f8c90ea-2a64-4902-ac9d-bbc13a631cc9 totalPrice=100000
+2026-05-22T11:09:48.327Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=c4024595-7729-45f1-bb7f-735cdab3a33e from=SHIPPED to=COMPLETED
+2026-05-22T11:09:48.328Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_completed orderId=c4024595-7729-45f1-bb7f-735cdab3a33e jastiperId=6d1d8e1f-c1a4-4c70-b27b-de0a68188b30 amountCredited=150000
+2026-05-22T11:09:48.331Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=6e3fca84-a695-4a9d-ba1a-cdf462162436 from=PAID to=PURCHASED
+2026-05-22T11:09:48.343Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=2
+2026-05-22T11:09:48.344Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=d86acf47-1d25-4f01-9855-b77ae8efa0a5 totalPrice=200000
+2026-05-22T11:09:48.346Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
+2026-05-22T11:09:48.347Z  WARN 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_rejected reason=self_purchase
+2026-05-22T11:09:48.349Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=5
+2026-05-22T11:09:48.358Z  WARN 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_transition_rejected orderId=1cbfc409-f0cc-49ef-9232-d021101d9173 from=PAID to=COMPLETED reason=invalid_transition
+2026-05-22T11:09:48.369Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=b54da081-828d-487d-a7a2-ff0f5b328793 from=PURCHASED to=SHIPPED
+2026-05-22T11:09:48.373Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
+2026-05-22T11:09:48.374Z  WARN 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_payment_failed reason=Saldo tidak cukup
 </pre>
 </span>
 </div>
@@ -294,7 +294,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 10:47:25 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 11:09:50 AM</p>
 </div>
 </div>
 </body>
