@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.213s</div>
+<div class="counter">0.247s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,12 +79,12 @@
 </thead>
 <tr>
 <td class="success">createWallet_AlreadyExists_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">createWallet_Success()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -104,7 +104,7 @@
 </tr>
 <tr>
 <td class="success">creditBalance_Success()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -114,7 +114,7 @@
 </tr>
 <tr>
 <td class="success">creditBalance_ZeroAmount_ThrowsException()</td>
-<td class="success">0s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -129,7 +129,7 @@
 </tr>
 <tr>
 <td class="success">deductBalance_NullAmount_ThrowsException()</td>
-<td class="success">0s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -154,7 +154,7 @@
 </tr>
 <tr>
 <td class="success">getAllTransactions_MissingWallet_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -164,7 +164,7 @@
 </tr>
 <tr>
 <td class="success">getBalance_Success()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -189,12 +189,12 @@
 </tr>
 <tr>
 <td class="success">refundBalance_NullAmount_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">refundBalance_NullDescription_UsesDefaultDescription()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -209,17 +209,17 @@
 </tr>
 <tr>
 <td class="success">refundBalance_WalletNotFound_CreatesWalletAndProceeds()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">refundBalance_ZeroAmount_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">topUp_NegativeAmount_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -229,7 +229,7 @@
 </tr>
 <tr>
 <td class="success">topUp_Success()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -244,7 +244,7 @@
 </tr>
 <tr>
 <td class="success">verifyTransaction_AlreadyProcessed_ThrowsException()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -264,12 +264,12 @@
 </tr>
 <tr>
 <td class="success">verifyTransaction_PendingStatus_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">verifyTransaction_TopUpSuccess_AddsBalance()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -279,7 +279,7 @@
 </tr>
 <tr>
 <td class="success">verifyTransaction_WalletNotFound_ThrowsException()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -289,17 +289,17 @@
 </tr>
 <tr>
 <td class="success">verifyTransaction_WithdrawalSuccess_SubtractsBalance()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">withdrawBalance_InsufficientBalance_ThrowsException()</td>
-<td class="success">0.160s</td>
+<td class="success">0.181s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">withdrawBalance_InvalidDestination_ThrowsException()</td>
-<td class="success">0s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -322,36 +322,36 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-22T13:47:50.590Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deducted walletId=19a6d151-6461-4532-8866-d866b3d0ecc5 txId=74734449-6e08-4da6-be45-e42becc4ef3b newBalance=125000
-2026-05-22T13:47:50.592Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected reason=invalid_amount
-2026-05-22T13:47:50.593Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verified txId=b04cd0af-1e62-4ae4-b7f2-653b8b93a76e type=TOP_UP status=FAILED
-2026-05-22T13:47:50.595Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_create_rejected reason=already_exists
-2026-05-22T13:47:50.598Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_duplicate referenceId=c5f57644-6ea8-4d54-86f6-c763017160c2
-2026-05-22T13:47:50.600Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_rejected reason=invalid_amount
-2026-05-22T13:47:50.602Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected walletId=null reason=insufficient_balance
-2026-05-22T13:47:50.604Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_pending walletId=null txId=bbaaa60b-e99a-4f05-96c6-678be3956687
-2026-05-22T13:47:50.606Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_failed txId=ad946641-4215-4d48-b5f0-10960f9cc191 reason=insufficient_balance walletId=711824dd-e8e6-4883-a8b6-e56f89678a04
-2026-05-22T13:47:50.607Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_rejected reason=invalid_amount
-2026-05-22T13:47:50.613Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=a953f5ee-e52e-488e-af8b-6a5ef437abb4 reason=not_found
-2026-05-22T13:47:50.616Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_rejected reason=missing_reference_id
-2026-05-22T13:47:50.618Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=32b32c3c-1e81-426f-b7e7-6ed6ba1b88fd txId=4ad95786-5332-4cd6-91de-42f5be220fef
-2026-05-22T13:47:50.619Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_rejected reason=invalid_amount
-2026-05-22T13:47:50.624Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_pending walletId=ded2721d-140a-4562-a980-642f22bfce57 txId=c8687e80-2807-436d-9a75-3f939c581d87
-2026-05-22T13:47:50.626Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected reason=invalid_amount
-2026-05-22T13:47:50.627Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verified txId=bd445072-4d06-4e83-92d5-3228daaacebb type=WITHDRAWAL status=SUCCESS
-2026-05-22T13:47:50.629Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verified txId=027a4595-a61a-4678-a28f-2a407ec5f631 type=TOP_UP status=SUCCESS
-2026-05-22T13:47:50.631Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=null txId=c9b2632f-166f-4092-b422-df253fab449b
-2026-05-22T13:47:50.632Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_rejected reason=invalid_amount
-2026-05-22T13:47:50.633Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=05d8f625-f08b-4c8d-8912-21c3278abe07 reason=unsupported_type type=DEBIT
-2026-05-22T13:47:50.635Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=98fcb28f-2471-4b24-abed-3da7c48fc57c
-2026-05-22T13:47:50.640Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_rejected reason=invalid_amount
-2026-05-22T13:47:50.643Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=6e86e403-f10f-41a3-80f2-37a42b50f004 txId=e43e3a18-c692-413e-acbc-c6897758d182
-2026-05-22T13:47:50.645Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected reason=invalid_amount
-2026-05-22T13:47:50.646Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=98a2969c-0929-44ed-9372-95628fdf87e5 reason=invalid_status
-2026-05-22T13:47:50.648Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=95d759b8-e7ae-4110-bd57-5d642166b452 reason=invalid_status
-2026-05-22T13:47:50.651Z  INFO 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deducted walletId=6afa1031-e0d9-4d62-83e2-006025ba077a txId=cb901e35-77de-4323-95cc-e0b9592e5be8 newBalance=125000
-2026-05-22T13:47:50.653Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=c7f9ab6e-f524-440a-b182-fc78b4699982 reason=already_processed currentStatus=SUCCESS
-2026-05-22T13:47:50.654Z  WARN 2507 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected walletId=e27e49aa-c1c4-4757-93ae-f00c0893e7c7 reason=insufficient_balance
+<pre>2026-05-22T14:29:53.118Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deducted walletId=52442008-0f51-4717-9287-ff096d1827f1 txId=809f41b9-67f1-4dfb-8751-de6fad88d588 newBalance=125000
+2026-05-22T14:29:53.120Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected reason=invalid_amount
+2026-05-22T14:29:53.122Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verified txId=642f9c10-3e61-4340-9609-604838812681 type=TOP_UP status=FAILED
+2026-05-22T14:29:53.123Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_create_rejected reason=already_exists
+2026-05-22T14:29:53.127Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_duplicate referenceId=ce5ad5bc-4043-4a13-8113-baa97eedac20
+2026-05-22T14:29:53.129Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_rejected reason=invalid_amount
+2026-05-22T14:29:53.130Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected walletId=null reason=insufficient_balance
+2026-05-22T14:29:53.133Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_pending walletId=null txId=ae108af1-696e-4c94-bf55-a97b5efeb69a
+2026-05-22T14:29:53.134Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_failed txId=7bc571a1-4b8d-4f30-87c6-2811c82ee1fc reason=insufficient_balance walletId=79c273a9-8165-433c-b9cb-5b08885122b8
+2026-05-22T14:29:53.136Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_rejected reason=invalid_amount
+2026-05-22T14:29:53.144Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=28156466-506f-41d5-8a6e-90bbce798f40 reason=not_found
+2026-05-22T14:29:53.147Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_rejected reason=missing_reference_id
+2026-05-22T14:29:53.149Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=294ef0e6-d2d0-4c92-b285-f8d073896b66 txId=9cd25922-1538-44b0-bbde-a7b03a31c3aa
+2026-05-22T14:29:53.151Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_rejected reason=invalid_amount
+2026-05-22T14:29:53.156Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_pending walletId=3a602b38-fe0f-4910-be0c-3be2d7d36d5d txId=6ddd6fc1-e57c-4239-a903-e4d64124f343
+2026-05-22T14:29:53.158Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected reason=invalid_amount
+2026-05-22T14:29:53.160Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verified txId=6b3844d6-87ba-4d95-83df-0eb4618edd4c type=WITHDRAWAL status=SUCCESS
+2026-05-22T14:29:53.162Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verified txId=0e328d1d-db46-4875-b524-91a74e83dd32 type=TOP_UP status=SUCCESS
+2026-05-22T14:29:53.164Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=null txId=be8ea998-7d89-40a9-b08f-e7a3fc58c7b5
+2026-05-22T14:29:53.166Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_rejected reason=invalid_amount
+2026-05-22T14:29:53.167Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=10aa65c5-3f59-42d5-96d0-72a5228bda10 reason=unsupported_type type=DEBIT
+2026-05-22T14:29:53.168Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=ec928bf3-823f-4311-bc7e-89f0a88ca8a2
+2026-05-22T14:29:53.173Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_topup_rejected reason=invalid_amount
+2026-05-22T14:29:53.176Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=5f49e4f9-6eda-4a1f-a2de-af007a18d498 txId=5b3583bf-a841-4d3d-aa1a-2a72406768c2
+2026-05-22T14:29:53.179Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected reason=invalid_amount
+2026-05-22T14:29:53.180Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=564b7975-0ae4-43ff-b8d4-8499ff20d2dc reason=invalid_status
+2026-05-22T14:29:53.183Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=0c934178-445a-45d1-b4a9-dada647728bb reason=invalid_status
+2026-05-22T14:29:53.187Z  INFO 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deducted walletId=ce97e084-2998-427c-913a-30e2241a1402 txId=b6c06049-dbeb-493c-b86d-53f80b6bff2a newBalance=125000
+2026-05-22T14:29:53.189Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_verify_rejected txId=272281c8-1fb9-447f-a3d7-dc9d64e38cfc reason=already_processed currentStatus=SUCCESS
+2026-05-22T14:29:53.190Z  WARN 2492 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_deduct_rejected walletId=9f4262f9-fa0c-4b40-a920-78b3dfa6ffdb reason=insufficient_balance
 </pre>
 </span>
 </div>
@@ -363,7 +363,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 1:47:51 PM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 2:29:53 PM</p>
 </div>
 </div>
 </body>
