@@ -57,12 +57,57 @@ tasks.named<Test>("test") {
     finalizedBy(tasks.jacocoTestReport) 
 }
 
+val coverageExclusions = listOf(
+    "**/config/**",
+    "**/event/**",
+    "**/GroupProjectApplication*",
+    "**/*Config*",
+    "**/*Application*",
+    "**/enums/**"
+)
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     reports {
         xml.required.set(true)
         html.required.set(true)
     }
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(coverageExclusions)
+            }
+        })
+    )
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(coverageExclusions)
+            }
+        })
+    )
+    violationRules {
+        rule {
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.80".toBigDecimal()
+            }
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 sonar {

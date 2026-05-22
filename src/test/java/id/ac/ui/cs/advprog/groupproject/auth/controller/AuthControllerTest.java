@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthControllerTest {
+class AuthControllerTest {
     @Mock
     private CustomUserDetailService userDetailService;
 
@@ -40,7 +40,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void testRegisterSuccess() {
+    void testRegisterSuccess() {
         when(userDetailService.emailExists("test@gmail.com")).thenReturn(false);
         when(userDetailService.confirmPassword("a", "a")).thenReturn(true);
 

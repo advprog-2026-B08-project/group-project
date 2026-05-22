@@ -14,7 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class KycControllerTest {
+class KycControllerTest {
     @Mock
     private KycRequestService kycRequestService;
 
@@ -22,7 +22,7 @@ public class KycControllerTest {
     private KycController kycController;
 
     @Test
-    public void testCreateRequestJastiper() {
+    void testCreateRequestJastiper() {
         User user = new User();
         String email = "test@gmail.com";
         String fullName = "a a ron";

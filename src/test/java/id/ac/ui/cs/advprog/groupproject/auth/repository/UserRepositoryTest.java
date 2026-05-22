@@ -16,12 +16,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class UserRepositoryTest {
+class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
     @Test
-    public void testFindByEmail() {
+    void testFindByEmail() {
         User user1= new User();
         user1.setEmail("a@gmail.com");
         user1.setPassword("a");
@@ -37,7 +37,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testFindByUsername() {
+    void testFindByUsername() {
         User user1= new User();
         user1.setEmail("1@gmail.com");
         user1.setUsername("a");

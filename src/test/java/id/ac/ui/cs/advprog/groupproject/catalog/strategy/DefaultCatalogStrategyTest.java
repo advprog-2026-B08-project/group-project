@@ -49,8 +49,9 @@ class DefaultCatalogStrategyTest {
 
     @Test
     void requireCanCreateCatalog_titiper_throws403() {
+        User titiper = userWithRole("ROLE_TITIPER");
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> strategy.requireCanCreateCatalog(userWithRole("ROLE_TITIPER")));
+                () -> strategy.requireCanCreateCatalog(titiper));
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
     }
 
@@ -77,8 +78,9 @@ class DefaultCatalogStrategyTest {
     @Test
     void requireCanSubmitRating_buyerMismatch_throws403() {
         User user = userWithRole("ROLE_TITIPER");
+        UUID otherBuyerId = UUID.randomUUID();
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> strategy.requireCanSubmitRating(user, UUID.randomUUID()));
+                () -> strategy.requireCanSubmitRating(user, otherBuyerId));
         assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
     }
 

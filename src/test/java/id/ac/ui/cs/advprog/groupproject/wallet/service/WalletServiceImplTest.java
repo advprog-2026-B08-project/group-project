@@ -96,10 +96,7 @@ class WalletServiceImplTest {
     @Test
     void getBalance_WalletNotFound_CreatesWallet() {
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
-            Object arg = invocation.getArgument(0);
-            return arg;
-        });
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         WalletResponse response = walletService.getBalance(userId);
 
@@ -161,10 +158,7 @@ class WalletServiceImplTest {
         request.setAmount(new BigDecimal("100000"));
 
         when(walletRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
-            Object arg = invocation.getArgument(0);
-            return arg;
-        });
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
@@ -246,10 +240,7 @@ class WalletServiceImplTest {
     @Test
     void deductBalance_WalletNotFound_ThrowsException() {
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.empty());
-        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
-            Object arg = invocation.getArgument(0);
-            return arg;
-        });
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         BigDecimal amount = new BigDecimal("1000");
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
@@ -474,10 +465,7 @@ class WalletServiceImplTest {
     @Test
     void refundBalance_WalletNotFound_CreatesWalletAndProceeds() {
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.empty());
-        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> {
-            Object arg = invocation.getArgument(0);
-            return arg;
-        });
+        when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(walletTransactionRepository.saveAndFlush(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);

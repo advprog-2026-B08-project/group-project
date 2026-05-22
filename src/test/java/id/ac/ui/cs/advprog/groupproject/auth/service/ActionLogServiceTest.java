@@ -10,9 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ActionLogServiceTest {
+class ActionLogServiceTest {
     @Mock
     ActionLogRepository logRepository;
 
@@ -28,7 +26,7 @@ public class ActionLogServiceTest {
     ActionLogService logService;
 
     @Test
-    public void testGetAllLogs() {
+    void testGetAllLogs() {
         List<ActionLog> list = List.of(
                 new ActionLog(),
                 new ActionLog()
@@ -43,7 +41,7 @@ public class ActionLogServiceTest {
     }
 
     @Test
-    public void testLog() {
+    void testLog() {
         ActionLog log = new ActionLog();
         log.setLogType(LogType.INFO);
         log.setAction("placeholder");
