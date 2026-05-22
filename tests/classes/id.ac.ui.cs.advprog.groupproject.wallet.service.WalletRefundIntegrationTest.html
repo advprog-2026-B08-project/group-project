@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.102s</div>
+<div class="counter">0.103s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,12 +79,12 @@
 </thead>
 <tr>
 <td class="success">refundBalance_DuplicateReference_ThrowsException()</td>
-<td class="success">0.029s</td>
+<td class="success">0.031s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">refundBalance_PersistsTransaction()</td>
-<td class="success">0.073s</td>
+<td class="success">0.072s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -92,16 +92,16 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-22T16:14:06.544Z  INFO 2472 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest]: WalletRefundIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-05-22T16:14:06.547Z  INFO 2472 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest
-2026-05-22T16:14:06.563Z  INFO 2472 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=f026d96f-1fb7-4b8b-b0b7-451bee85c157
-2026-05-22T16:14:06.573Z  INFO 2472 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=f026d96f-1fb7-4b8b-b0b7-451bee85c157 txId=85fb42c0-79de-49c3-8840-db2d753374de
-2026-05-22T16:14:06.631Z  INFO 2472 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=c54cc945-4f9a-42c2-85e5-f02f34ba60b1
-2026-05-22T16:14:06.633Z  INFO 2472 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=c54cc945-4f9a-42c2-85e5-f02f34ba60b1 txId=8bc1b466-d7f2-463b-b1c0-7027e1536c69
-2026-05-22T16:14:06.638Z  WARN 2472 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23505, SQLState: 23505
-2026-05-22T16:14:06.638Z ERROR 2472 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : Unique index or primary key violation: &quot;PUBLIC.UQ_WALLET_TRANSACTIONS_REFERENCE_INDEX_8 ON PUBLIC.WALLET_TRANSACTIONS(WALLET_ID NULLS FIRST, REFERENCE_ID NULLS FIRST, TYPE NULLS FIRST) VALUES ( /* key:25721 */ UUID 'c54cc945-4f9a-42c2-85e5-f02f34ba60b1', UUID '0e1a3153-760b-4aee-8ef6-e8f905441a45', CAST('REFUND' AS ENUM('CREDIT', 'DEBIT', 'REFUND', 'TOP_UP', 'WITHDRAWAL')))&quot;; SQL statement:
+<pre>2026-05-22T16:25:08.850Z  INFO 2468 --- [group-project] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest]: WalletRefundIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-05-22T16:25:08.853Z  INFO 2468 --- [group-project] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration id.ac.ui.cs.advprog.groupproject.GroupProjectApplication for test class id.ac.ui.cs.advprog.groupproject.wallet.service.WalletRefundIntegrationTest
+2026-05-22T16:25:08.868Z  INFO 2468 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=dfdf4321-7224-4bc6-8f1f-3e4bbaa57adf
+2026-05-22T16:25:08.879Z  INFO 2468 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=dfdf4321-7224-4bc6-8f1f-3e4bbaa57adf txId=66156383-60c6-4455-b6eb-7b6ef06811b3
+2026-05-22T16:25:08.937Z  INFO 2468 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_created walletId=3f8196ef-dabb-4dd3-b058-445b7f30f560
+2026-05-22T16:25:08.939Z  INFO 2468 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refunded walletId=3f8196ef-dabb-4dd3-b058-445b7f30f560 txId=6e5eb88d-fb7b-4338-be86-93d232d67504
+2026-05-22T16:25:08.944Z  WARN 2468 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23505, SQLState: 23505
+2026-05-22T16:25:08.944Z ERROR 2468 --- [group-project] [    Test worker] o.h.engine.jdbc.spi.SqlExceptionHelper   : Unique index or primary key violation: &quot;PUBLIC.UQ_WALLET_TRANSACTIONS_REFERENCE_INDEX_8 ON PUBLIC.WALLET_TRANSACTIONS(WALLET_ID NULLS FIRST, REFERENCE_ID NULLS FIRST, TYPE NULLS FIRST) VALUES ( /* key:31364 */ UUID '3f8196ef-dabb-4dd3-b058-445b7f30f560', UUID '756c9d4e-5396-4e55-b9c2-c40e8f19a750', CAST('REFUND' AS ENUM('CREDIT', 'DEBIT', 'REFUND', 'TOP_UP', 'WITHDRAWAL')))&quot;; SQL statement:
 insert into wallet_transactions (amount,created_at,description,reference_id,status,type,wallet_id,id) values (?,?,?,?,?,?,?,?) [23505-232]
-2026-05-22T16:14:06.647Z  WARN 2472 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_duplicate referenceId=0e1a3153-760b-4aee-8ef6-e8f905441a45
+2026-05-22T16:25:08.953Z  WARN 2468 --- [group-project] [    Test worker] i.a.u.c.a.g.w.service.WalletServiceImpl  : wallet_refund_duplicate referenceId=756c9d4e-5396-4e55-b9c2-c40e8f19a750
 </pre>
 </span>
 </div>
@@ -113,7 +113,7 @@ insert into wallet_transactions (amount,created_at,description,reference_id,stat
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 4:14:07 PM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 4:25:09 PM</p>
 </div>
 </div>
 </body>
