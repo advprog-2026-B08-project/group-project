@@ -100,9 +100,14 @@ Untuk memverifikasi kesesuaian kode dengan standar gaya penulisan Java:
 
 ---
 
-## 📊 Setup Monitoring Lokal (Observability Stack)
+## 📊 Observability & Monitoring (Grafana Cloud & Lokal)
 
-Proyek ini telah dilengkapi dengan metrik observabilitas (Spring Actuator + Micrometer Prometheus) yang divisualisasikan melalui Prometheus dan Grafana.
+### ☁️ Monitoring Publik (Grafana Cloud - Staging/Production)
+**Grafana Cloud**:
+* **Grafana Cloud Link:** [Dashboard Observability Staging]https://benedictzir.grafana.net/public-dashboards/d219f2ecee9d487588de389d29819d02
+
+### 🏠 Setup Monitoring Lokal (Prometheus + Grafana)
+Proyek ini juga dilengkapi dengan metrik observabilitas lokal (Spring Actuator + Micrometer Prometheus) jika ingin dijalankan di mesin lokal:
 
 1. **Jalankan Container Monitoring:**
    Pastikan Docker Desktop aktif, lalu jalankan:
@@ -111,9 +116,8 @@ Proyek ini telah dilengkapi dengan metrik observabilitas (Spring Actuator + Micr
    ```
    Ini akan mengaktifkan container **Prometheus** dan **Grafana**.
 
-2. **Akses Dashboard Grafana:**
-   * Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
-   * Masuk menggunakan kredensial default: **Username:** `admin`, **Password:** `admin`.
+    * Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
+    * Akses Grafana di http://localhost:3000 dengan kredensial default: **Username:** `admin`, **Password:** `admin`.
    * Dashboard pemantauan JVM, Database HikariCP, dan HTTP Request sudah otomatis terkonfigurasi (*provisioned*).
 
 ---
