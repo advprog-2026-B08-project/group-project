@@ -87,6 +87,8 @@ class OrderServiceImplTest {
     when(statusHistoryRepository.save(any(StatusHistory.class)))
         .thenReturn(new StatusHistory());
 
+    CheckoutRequest request = new CheckoutRequest(buyerId, productId, 2, "Jl. Merdeka No. 1");
+
     Order result = orderService.checkout(request);
 
     assertEquals(OrderStatus.PAID, result.getStatus());
