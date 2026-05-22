@@ -17,10 +17,8 @@ import id.ac.ui.cs.advprog.groupproject.order.port.PaymentPort;
 import id.ac.ui.cs.advprog.groupproject.order.port.StockPort;
 import id.ac.ui.cs.advprog.groupproject.order.repository.OrderRepository;
 import id.ac.ui.cs.advprog.groupproject.order.repository.StatusHistoryRepository;
-import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
-import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
-import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
+import id.ac.ui.cs.advprog.groupproject.order.port.JastiperMetricsPort;
+import id.ac.ui.cs.advprog.groupproject.order.port.ProductRatingPort;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -29,21 +27,21 @@ public class OrderServiceImpl implements OrderService {
     private final StatusHistoryRepository statusHistoryRepository;
     private final StockPort stockPort;
     private final PaymentPort paymentPort;
-    private final CatalogService catalogService;
-    private final UserRepository userRepository;
+    private final JastiperMetricsPort jastiperMetricsPort;
+    private final ProductRatingPort productRatingPort;
 
     public OrderServiceImpl(OrderRepository orderRepository,
                             StatusHistoryRepository statusHistoryRepository,
                             StockPort stockPort,
                             PaymentPort paymentPort,
-                            CatalogService catalogService,
-                            UserRepository userRepository) {
+                            JastiperMetricsPort jastiperMetricsPort,
+                            ProductRatingPort productRatingPort) {
         this.orderRepository = orderRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.stockPort = stockPort;
         this.paymentPort = paymentPort;
-        this.catalogService = catalogService;
-        this.userRepository = userRepository;
+        this.jastiperMetricsPort = jastiperMetricsPort;
+        this.productRatingPort = productRatingPort;
     }
 
     @Override
@@ -84,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
         statusHistoryRepository.save(history);
 
         // Increment triedToSell for jastiper (new order = jastiper mencoba menjual)
-        incrementTriedToSell(productInfo.jastiperId());
+        jastiperMetricsPort.incrementTriedToSell(productInfo.jastiperId());
 
         return savedOrder;
     }
@@ -129,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Increment successfullySold and credit Jastiper's wallet when order is completed
         if (newStatus == OrderStatus.COMPLETED) {
-            incrementSuccessfullySold(savedOrder.getJastiperId());
+            jastiperMetricsPort.incrementSuccessfullySold(savedOrder.getJastiperId());
             paymentPort.creditSeller(
                     savedOrder.getJastiperId(),
                     savedOrder.getTotalPrice(),
@@ -196,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Propagate product rating to catalog aggregate
         if (ratingProduk != null) {
-            propagateProductRating(savedOrder, ratingProduk);
+            productRatingPort.propagateProductRating(savedOrder, ratingProduk);
         }
 
         return savedOrder;
@@ -237,53 +235,5 @@ public class OrderServiceImpl implements OrderService {
         if (request.getShippingAddress() == null || request.getShippingAddress().isBlank()) throw new IllegalArgumentException("Address required");
     }
 
-    /**
-     * Increment triedToSell counter for jastiper when a new order is placed.
-     * This affects the jastiper's success rate (successfullySold / triedToSell).
-     */
-    private void incrementTriedToSell(UUID jastiperId) {
-        try {
-            userRepository.findById(jastiperId).ifPresent(jastiper -> {
-                jastiper.setTriedToSell(jastiper.getTriedToSell() + 1);
-                userRepository.save(jastiper);
-            });
-        } catch (Exception e) {
-            // Log but don't fail the checkout if success rate update fails
-        }
-    }
 
-    /**
-     * Increment successfullySold counter for jastiper when an order is completed.
-     * This affects the jastiper's success rate (successfullySold / triedToSell).
-     */
-    private void incrementSuccessfullySold(UUID jastiperId) {
-        try {
-            userRepository.findById(jastiperId).ifPresent(jastiper -> {
-                jastiper.setSuccessfullySold(jastiper.getSuccessfullySold() + 1);
-                userRepository.save(jastiper);
-            });
-        } catch (Exception e) {
-            // Log but don't fail the status update if success rate update fails
-        }
-    }
-
-    /**
-     * Propagate product rating to catalog aggregate.
-     */
-    private void propagateProductRating(Order order, int ratingProduk) {
-        try {
-            User buyer = userRepository.findById(order.getBuyerId())
-                    .orElse(null);
-            if (buyer != null) {
-                ProductRatingUpdateRequest ratingRequest = new ProductRatingUpdateRequest();
-                ratingRequest.setOrderId(order.getId());
-                ratingRequest.setBuyerId(order.getBuyerId());
-                ratingRequest.setProductRating(ratingProduk);
-                catalogService.applyProductRating(order.getProductId(), ratingRequest, buyer);
-            }
-        } catch (Exception e) {
-            // Log but don't fail the order rating if catalog update fails
-            // The order rating is already saved
-        }
-    }
 }
