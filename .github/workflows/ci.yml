@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       run_e2e:
-        description: "Run E2E (Selenium) tests for wallet and catalog modules"
+        description: "Force-run E2E (Selenium) tests for all modules"
         required: false
-        default: "false"
+        default: "true"
 
 jobs:
   build:
@@ -45,7 +45,7 @@ jobs:
           SPRING_PROFILES_ACTIVE: test
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew build jacocoTestReport sonar --info
+        run: ./gradlew build jacocoTestReport jacocoTestCoverageVerification sonar --info
 
       - name: Prepare Reports for Deployment
         run: |
@@ -61,28 +61,14 @@ jobs:
           publish_dir: ./public-reports
           publish_branch: gh-pages
 
-  deploy-staging:
-    needs: build
-    environment: staging
-    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Deploy to Heroku Staging
-        run: echo "Deploying to Heroku Staging..."
-
-  deploy-production:
-    needs: build
-    environment: production
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Deploy to Heroku Production
-        run: echo "Deploying to Heroku Production..."
-
   e2e:
     name: E2E Tests (${{ matrix.module }})
+    needs: build
     runs-on: ubuntu-22.04
-    if: github.event_name == 'workflow_dispatch' && inputs.run_e2e == 'true'
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_dispatch' && inputs.run_e2e == 'true')
     concurrency:
       group: e2e-gh-pages-publish
       cancel-in-progress: false
@@ -91,10 +77,14 @@ jobs:
       max-parallel: 1
       matrix:
         include:
+          - module: auth
+            test_class: id.ac.ui.cs.advprog.groupproject.auth.e2e.AuthE2eTest
           - module: wallet
             test_class: id.ac.ui.cs.advprog.groupproject.wallet.e2e.WalletE2eTest
           - module: catalog
             test_class: id.ac.ui.cs.advprog.groupproject.catalog.e2e.CatalogE2eTest
+          - module: order
+            test_class: id.ac.ui.cs.advprog.groupproject.order.e2e.OrderE2eTest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -134,7 +124,7 @@ jobs:
           fi
 
       - name: Publish ${{ matrix.module }} E2E Report to GitHub Pages
-        if: always()
+        if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: peaceiris/actions-gh-pages@47f197a2200bb9de68ba5f48fad1c088eb1c4a32 # v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -151,3 +141,21 @@ jobs:
           name: ${{ matrix.module }}-e2e-report
           path: build/reports/tests/test
           if-no-files-found: warn
+
+  deploy-staging:
+    needs: [ build, e2e ]
+    environment: staging
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Deploy to Heroku Staging
+        run: echo "Deploying to Heroku Staging..."
+
+  deploy-production:
+    needs: [ build, e2e ]
+    environment: production
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Deploy to Heroku Production
+        run: echo "Deploying to Heroku Production..."
