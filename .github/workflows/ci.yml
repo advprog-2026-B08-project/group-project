@@ -59,29 +59,6 @@ jobs:
           if [ -d build/reports/dependency-check ]; then
             cp -r build/reports/dependency-check public-reports/security
           fi
-          cat > public-reports/index.html <<'EOF'
-          <!doctype html>
-          <html lang="en">
-            <head>
-              <meta charset="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>JSON Quality Reports</title>
-              <style>
-                body { font-family: Arial, sans-serif; margin: 2rem; }
-                ul { line-height: 1.8; }
-              </style>
-            </head>
-            <body>
-              <h1>JSON Quality Reports</h1>
-              <ul>
-                <li><a href="tests/index.html">Test Report</a></li>
-                <li><a href="coverage/index.html">Coverage (JaCoCo)</a></li>
-                <li><a href="linter/checkstyleMain.html">Linter (Checkstyle)</a></li>
-                <li><a href="security/dependency-check-report.html">Security Scan (OWASP)</a></li>
-              </ul>
-            </body>
-          </html>
-          EOF
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@47f197a2200bb9de68ba5f48fad1c088eb1c4a32 # v4.0.0
