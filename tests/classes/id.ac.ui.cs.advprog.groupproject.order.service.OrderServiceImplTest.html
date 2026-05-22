@@ -23,7 +23,7 @@
 <tr>
 <td>
 <div class="infoBox" id="tests">
-<div class="counter">41</div>
+<div class="counter">37</div>
 <p>tests</p>
 </div>
 </td>
@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.175s</div>
+<div class="counter">0.297s</div>
 <p>duration</p>
 </div>
 </td>
@@ -76,17 +76,17 @@
 </thead>
 <tr>
 <td class="success">cancelOrder_orderNotFound_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">cancelOrder_releasesStockAndSetsStatusCancelled()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_blankAddress_throws()</td>
-<td class="success">0.115s</td>
+<td class="success">0.238s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -96,7 +96,7 @@
 </tr>
 <tr>
 <td class="success">checkout_nullAddress_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -106,7 +106,7 @@
 </tr>
 <tr>
 <td class="success">checkout_nullProductId_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -126,7 +126,7 @@
 </tr>
 <tr>
 <td class="success">checkout_success_incrementsTriedToSell()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -135,13 +135,8 @@
 <td class="success">passed</td>
 </tr>
 <tr>
-<td class="success">checkout_triedToSellUpdateFails_doesNotThrow()</td>
-<td class="success">0.004s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
 <td class="success">checkout_zeroQuantity_throws()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -151,22 +146,22 @@
 </tr>
 <tr>
 <td class="success">findBuyerActiveOrders_returnsCorrectOrders()</td>
-<td class="success">0.003s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findBuyerCompletedOrders_returnsCorrectOrders()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findByBuyerId_returnsBuyerOrders()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findById_found_returnsOrder()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -191,22 +186,12 @@
 </tr>
 <tr>
 <td class="success">submitRating_bothNull_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_bothRatings_success()</td>
 <td class="success">0.002s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">submitRating_buyerNotFound_skipsCatalogPropagation()</td>
-<td class="success">0.001s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">submitRating_catalogPropagationFails_stillSavesRating()</td>
-<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -221,12 +206,12 @@
 </tr>
 <tr>
 <td class="success">submitRating_jastiperAlreadyRated_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_jastiperOnly_success()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -236,47 +221,42 @@
 </tr>
 <tr>
 <td class="success">submitRating_orderNotFound_throws()</td>
-<td class="success">0.001s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">submitRating_produkAlreadyRated_throws()</td>
-<td class="success">0s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">submitRating_produkOnly_success()</td>
-<td class="success">0.001s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">updateStatus_invalidTransition_throws()</td>
-<td class="success">0.001s</td>
-<td class="success">passed</td>
-</tr>
-<tr>
-<td class="success">updateStatus_orderNotFound_throws()</td>
 <td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
-<td class="success">updateStatus_successRateUpdateFails_doesNotThrow()</td>
+<td class="success">submitRating_produkAlreadyRated_throws()</td>
+<td class="success">0.002s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">submitRating_produkOnly_success()</td>
+<td class="success">0.002s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">updateStatus_invalidTransition_throws()</td>
+<td class="success">0.002s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">updateStatus_orderNotFound_throws()</td>
 <td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_toCompleted_incrementsSuccessfullySoldAndCreditsJastiper()</td>
-<td class="success">0.001s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_toNonCompleted_doesNotIncrementSuccessfullySold()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_validTransition_paidToPurchased()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -289,7 +269,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 7:20:47 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 7:55:38 AM</p>
 </div>
 </div>
 </body>
