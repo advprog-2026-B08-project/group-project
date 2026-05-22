@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.313s</div>
+<div class="counter">0.328s</div>
 <p>duration</p>
 </div>
 </td>
@@ -63,6 +63,9 @@
 <li>
 <a href="#">Tests</a>
 </li>
+<li>
+<a href="#">Standard output</a>
+</li>
 </ul>
 <div class="tab">
 <h2>Tests</h2>
@@ -76,32 +79,32 @@
 </thead>
 <tr>
 <td class="success">cancelOrder_orderNotFound_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">cancelOrder_releasesStockAndSetsStatusCancelled()</td>
-<td class="success">0.002s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_blankAddress_throws()</td>
-<td class="success">0.260s</td>
+<td class="success">0.259s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_insufficientStock_throwsAndDoesNotPay()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_nullAddress_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_nullBuyerId_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -116,7 +119,7 @@
 </tr>
 <tr>
 <td class="success">checkout_paymentFails_releasesStockAndThrows()</td>
-<td class="success">0.001s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -126,7 +129,7 @@
 </tr>
 <tr>
 <td class="success">checkout_success_incrementsTriedToSell()</td>
-<td class="success">0.002s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -146,7 +149,7 @@
 </tr>
 <tr>
 <td class="success">findBuyerActiveOrders_returnsCorrectOrders()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -166,7 +169,7 @@
 </tr>
 <tr>
 <td class="success">findById_notFound_returnsEmpty()</td>
-<td class="success">0.001s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -176,12 +179,12 @@
 </tr>
 <tr>
 <td class="success">findJastiperCompletedOrders_returnsCorrectOrders()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findJastiperTodoOrders_returnsCorrectOrders()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -191,7 +194,7 @@
 </tr>
 <tr>
 <td class="success">submitRating_bothRatings_success()</td>
-<td class="success">0.002s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -211,22 +214,22 @@
 </tr>
 <tr>
 <td class="success">submitRating_jastiperOnly_success()</td>
-<td class="success">0.001s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_notCompleted_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_orderNotFound_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_produkAlreadyRated_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -246,20 +249,42 @@
 </tr>
 <tr>
 <td class="success">updateStatus_toCompleted_incrementsSuccessfullySoldAndCreditsJastiper()</td>
-<td class="success">0.001s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_toNonCompleted_doesNotIncrementSuccessfullySold()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_validTransition_paidToPurchased()</td>
-<td class="success">0.001s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 </table>
+</div>
+<div class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>2026-05-22T10:47:23.127Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=335eead7-f7c4-47ed-9463-cbcdfdb25751 from=PAID to=CANCELLED
+2026-05-22T10:47:23.128Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_cancelled orderId=335eead7-f7c4-47ed-9463-cbcdfdb25751 buyerId=89a34f2d-c2c3-42b6-9b44-577bddf31373 refundAmount=300000
+2026-05-22T10:47:23.137Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=6b1f92e1-e7c5-492c-ba5b-86cda8bae35a productId=72420406-9e31-4065-99fa-0d5f18c9027f quantity=1
+2026-05-22T10:47:23.138Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=55da1bc7-e210-48d6-a5a8-07216eeedebc buyerId=null jastiperId=a9cd521f-e894-4f17-ad9e-e73feb6118ed totalPrice=100000
+2026-05-22T10:47:23.142Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=fb42a412-7f54-4da2-b658-46c2ff264357 from=SHIPPED to=COMPLETED
+2026-05-22T10:47:23.142Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_completed orderId=fb42a412-7f54-4da2-b658-46c2ff264357 jastiperId=9328d19d-0747-4dd8-8f7b-c27d05f0c8f8 amountCredited=150000
+2026-05-22T10:47:23.145Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=2a03dc75-f87c-45ed-b3f2-acef95a8c030 from=PAID to=PURCHASED
+2026-05-22T10:47:23.152Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=abf21970-271b-449a-8aa9-a6f7ddca69b8 productId=f364eef1-1442-40af-bb42-8335829a0e8c quantity=2
+2026-05-22T10:47:23.152Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=fbcb7acd-f98d-428d-b3fd-142ecf7ba9bc buyerId=null jastiperId=80a56de3-f150-46ca-9164-633c1ede6cac totalPrice=200000
+2026-05-22T10:47:23.154Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=9554e3e7-d0c1-44cb-b602-183263a90043 productId=200d5c6d-fbd3-48d1-8d49-4d1d514ba1d5 quantity=1
+2026-05-22T10:47:23.155Z  WARN 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_rejected buyerId=9554e3e7-d0c1-44cb-b602-183263a90043 productId=200d5c6d-fbd3-48d1-8d49-4d1d514ba1d5 reason=self_purchase
+2026-05-22T10:47:23.157Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=370a0749-f30d-46ce-990e-83b70451129e productId=1d5c0b50-89ff-4d8c-ab52-9695486233c3 quantity=5
+2026-05-22T10:47:23.164Z  WARN 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_transition_rejected orderId=e897c99d-c585-41e6-8ea0-2e919be52e7b from=PAID to=COMPLETED reason=invalid_transition
+2026-05-22T10:47:23.175Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=cbe97ca3-ab45-4031-a554-d4408eac490f from=PURCHASED to=SHIPPED
+2026-05-22T10:47:23.181Z  INFO 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started buyerId=2bb23e9f-9522-46ae-8b0e-1c036ea78cfa productId=dcb7e4cd-2cfe-4ddf-9da0-38c010caa119 quantity=1
+2026-05-22T10:47:23.181Z  WARN 2559 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_payment_failed buyerId=2bb23e9f-9522-46ae-8b0e-1c036ea78cfa productId=dcb7e4cd-2cfe-4ddf-9da0-38c010caa119 totalPrice=100000 reason=Saldo tidak cukup
+</pre>
+</span>
 </div>
 </div>
 <div id="footer">
@@ -269,7 +294,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 10:43:22 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 10:47:25 AM</p>
 </div>
 </div>
 </body>
