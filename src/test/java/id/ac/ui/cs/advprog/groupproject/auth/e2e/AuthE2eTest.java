@@ -126,7 +126,7 @@ class AuthE2eTest {
             driver.findElement(By.id("confirmPasswordInput")).sendKeys("password2");
             driver.findElement(By.id("registerButton")).click();
 
-            wait.until(ExpectedConditions.urlContains("/register"));
+            wait.until(ExpectedConditions.urlContains("error"));
             assertTrue(driver.getCurrentUrl().contains("error"),
                     "Mismatched passwords must redirect back with ?error");
             assertTrue(userRepository.findByEmail(email).isEmpty(),
@@ -148,7 +148,7 @@ class AuthE2eTest {
             driver.findElement(By.id("confirmPasswordInput")).sendKeys("anotherpass");
             driver.findElement(By.id("registerButton")).click();
 
-            wait.until(ExpectedConditions.urlContains("/register"));
+            wait.until(ExpectedConditions.urlContains("userExists"));
             assertTrue(driver.getCurrentUrl().contains("userExists"),
                     "Duplicate email must redirect with ?userExists flag");
         } finally {
@@ -183,7 +183,7 @@ class AuthE2eTest {
             driver.findElement(By.name("password")).sendKeys("wrongpassword");
             driver.findElement(By.id("loginButton")).click();
 
-            wait.until(ExpectedConditions.urlContains("/login"));
+            wait.until(ExpectedConditions.urlContains("error"));
             assertTrue(driver.getCurrentUrl().contains("error"),
                     "Failed login must redirect with ?error flag");
         } finally {
@@ -200,7 +200,7 @@ class AuthE2eTest {
 
             driver.findElement(By.id("logoutButton")).click();
 
-            wait.until(ExpectedConditions.urlContains("/login"));
+            wait.until(ExpectedConditions.urlContains("logout"));
             assertTrue(driver.getCurrentUrl().contains("logout"),
                     "Logout must redirect with ?logout flag");
         } finally {

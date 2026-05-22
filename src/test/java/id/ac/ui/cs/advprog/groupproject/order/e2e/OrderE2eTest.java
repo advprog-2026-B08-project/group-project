@@ -134,27 +134,39 @@ class OrderE2eTest {
 
             driver.get(baseUrl("/order/checkout/" + product.getId()));
 
-            WebElement quantity = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(By.id("quantity")));
-            quantity.clear();
-            quantity.sendKeys("2");
+            // Wait for page to fully load
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("quantity")));
 
+            // Use JavaScript to set quantity and trigger the input event
+            // (Selenium sendKeys on number inputs doesn't always fire the 'input' event)
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            js.executeScript(
+                "document.getElementById('quantity').value = '2';" +
+                "document.getElementById('quantity').dispatchEvent(new Event('input'));"
+            );
+
+            // Type address and trigger input event
             WebElement address = driver.findElement(By.id("shippingAddress"));
             address.sendKeys("Jl. Salemba Raya No. 4, Jakarta");
+            js.executeScript(
+                "document.getElementById('shippingAddress').dispatchEvent(new Event('input'));"
+            );
 
-            // Wait for JS validation to enable the submit button
+            // Wait for submit button to become enabled
             wait.until(ExpectedConditions.elementToBeClickable(By.id("checkout-submit")));
             driver.findElement(By.id("checkout-submit")).click();
 
-            wait.until(ExpectedConditions.urlContains("/order/"));
-            assertTrue(driver.getCurrentUrl().matches(".*/order/[0-9a-fA-F-]+$"),
+            // Wait for redirect to order DETAIL page (UUID at end, not /checkout/)
+            wait.until(driver2 ->
+                driver2.getCurrentUrl().matches(".*/order/[0-9a-fA-F-]{36}$")
+            );
+            assertTrue(driver.getCurrentUrl().matches(".*/order/[0-9a-fA-F-]{36}$"),
                     "Should redirect to order detail page");
 
             List<Order> orders = orderRepository.findByBuyerId(titiper.getId());
             assertEquals(1, orders.size(), "Exactly one order must be persisted");
             Order order = orders.get(0);
             assertEquals(OrderStatus.PAID, order.getStatus());
-            // Use compareTo to avoid BigDecimal scale mismatch
             assertEquals(0, new BigDecimal("200000").compareTo(order.getTotalPrice()),
                     "Total price must be 200000");
 
