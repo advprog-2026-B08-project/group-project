@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.groupproject.auth.controller;
 import id.ac.ui.cs.advprog.groupproject.auth.model.KycRequest;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
+import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,10 +14,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
-import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
 
 @Controller
 public class AdminController {
+
+    private static final String REDIRECT_USER_LIST = "redirect:/admin/userList";
+    private static final String REDIRECT_KYC_REQUEST_LIST = "redirect:/admin/kycRequestList";
+
     private final CustomUserDetailService userDetailService;
     private final KycRequestService requestService;
     private final ActionLogService logService;
@@ -41,10 +45,8 @@ public class AdminController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) String role,
             Model model,
-            User user
-
+            @AuthenticationPrincipal User user
     ) {
-
         Page<User> userPage = userDetailService.getFilteredUsers(user, role, page, 30);
 
         model.addAttribute("userPage", userPage);
@@ -78,34 +80,34 @@ public class AdminController {
     public String demote(@AuthenticationPrincipal User admin,
                          @RequestParam UUID userId) {
         userDetailService.demote(admin, userId);
-        return "redirect:/admin/userList";
+        return REDIRECT_USER_LIST;
     }
 
     @PostMapping("/admin/ban")
     public String ban(@AuthenticationPrincipal User admin,
                       @RequestParam UUID userId) {
         userDetailService.ban(admin, userId);
-        return "redirect:/admin/userList";
+        return REDIRECT_USER_LIST;
     }
 
     @PostMapping("/admin/liftBan")
     public String liftBan(@AuthenticationPrincipal User admin,
                       @RequestParam UUID userId) {
         userDetailService.liftBan(admin, userId);
-        return "redirect:/admin/userList";
+        return REDIRECT_USER_LIST;
     }
 
     @PostMapping("/admin/kyc/accept")
     public String acceptRequest(@AuthenticationPrincipal User admin,
                                 @RequestParam UUID requestId) {
         requestService.closeAcceptedRequest(admin, requestId);
-        return "redirect:/admin/kycRequestList";
+        return REDIRECT_KYC_REQUEST_LIST;
     }
 
     @PostMapping("/admin/kyc/reject")
     public String rejectRequest(@AuthenticationPrincipal User admin,
                                 @RequestParam UUID requestId) {
         requestService.closeRejectedRequest(admin, requestId);
-        return "redirect:/admin/kycRequestList";
+        return REDIRECT_KYC_REQUEST_LIST;
     }
 }
