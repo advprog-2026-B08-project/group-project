@@ -175,7 +175,6 @@ public class WalletServiceImpl implements WalletService {
         }
 
         wallet.setBalance(wallet.getBalance().subtract(amount));
-        walletRepository.save(wallet);
 
         WalletTransaction transaction = WalletTransaction.builder()
                 .walletId(wallet.getId())
@@ -202,7 +201,6 @@ public class WalletServiceImpl implements WalletService {
         Wallet wallet = getOrCreateWalletForUpdate(userId);
 
         wallet.setBalance(wallet.getBalance().add(amount));
-        walletRepository.save(wallet);
 
         WalletTransaction transaction = WalletTransaction.builder()
                 .walletId(wallet.getId())
