@@ -55,15 +55,13 @@ public class OrderServiceImpl implements OrderService {
     public Order checkout(CheckoutRequest request) {
         validateCheckoutRequest(request);
 
-        LOGGER.info("order_checkout_started buyerId={} productId={} quantity={}",
-                request.getBuyerId(), request.getProductId(), request.getQuantity());
+        LOGGER.info("order_checkout_started quantity={}", request.getQuantity());
 
         ProductSnapshot productInfo = stockPort.reserveStock(request.getProductId(), request.getQuantity());
 
         if (request.getBuyerId().equals(productInfo.jastiperId())) {
             stockPort.releaseStock(request.getProductId(), request.getQuantity());
-            LOGGER.warn("order_checkout_rejected buyerId={} productId={} reason=self_purchase",
-                    request.getBuyerId(), request.getProductId());
+            LOGGER.warn("order_checkout_rejected reason=self_purchase");
             throw new IllegalArgumentException("Jastiper tidak boleh memesan dari jasanya sendiri!");
         }
 
@@ -73,8 +71,7 @@ public class OrderServiceImpl implements OrderService {
             paymentPort.pay(request.getBuyerId(), totalPrice, "Payment for " + productInfo.productName());
         } catch (Exception e) {
             stockPort.releaseStock(request.getProductId(), request.getQuantity());
-            LOGGER.warn("order_checkout_payment_failed buyerId={} productId={} totalPrice={} reason={}",
-                    request.getBuyerId(), request.getProductId(), totalPrice, e.getMessage());
+            LOGGER.warn("order_checkout_payment_failed reason={}", e.getMessage());
             throw new IllegalArgumentException("Payment failed: " + e.getMessage());
         }
 
@@ -97,8 +94,8 @@ public class OrderServiceImpl implements OrderService {
         // Increment triedToSell for jastiper (new order = jastiper mencoba menjual)
         jastiperMetricsPort.incrementTriedToSell(productInfo.jastiperId());
 
-        LOGGER.info("order_checkout_completed orderId={} buyerId={} jastiperId={} totalPrice={}",
-                savedOrder.getId(), savedOrder.getBuyerId(), savedOrder.getJastiperId(), totalPrice);
+        LOGGER.info("order_checkout_completed orderId={} totalPrice={}",
+                savedOrder.getId(), totalPrice);
 
         return savedOrder;
     }
@@ -128,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
     public Order updateStatus(UUID orderId, OrderStatus newStatus) {
         return updateStatusInternal(orderId, newStatus);
     }
-    
+
     private Order updateStatusInternal(UUID orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException(ORDER_NOT_FOUND_PREFIX + orderId));
@@ -177,8 +174,8 @@ public class OrderServiceImpl implements OrderService {
                 "Refund for cancelled order: " + cancelled.getId(),
                 cancelled.getId()
         );
-        LOGGER.info("order_cancelled orderId={} buyerId={} refundAmount={}",
-                cancelled.getId(), cancelled.getBuyerId(), cancelled.getTotalPrice());
+        LOGGER.info("order_cancelled orderId={} refundAmount={}",
+                cancelled.getId(), cancelled.getTotalPrice());
         return cancelled;
     }
 
@@ -201,7 +198,6 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        // Propagate product rating to catalog aggregate
         if (ratingProduk != null) {
             productRatingPort.propagateProductRating(savedOrder, ratingProduk);
         }

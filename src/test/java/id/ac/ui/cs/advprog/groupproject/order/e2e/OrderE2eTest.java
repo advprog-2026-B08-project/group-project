@@ -43,6 +43,8 @@ import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.repository.WalletTransactionRepository;
 import id.ac.ui.cs.advprog.groupproject.wallet.service.WalletService;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -57,6 +59,8 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 @ActiveProfiles("test")
 @EnabledIfEnvironmentVariable(named = "E2E", matches = "true")
 class OrderE2eTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderE2eTest.class);
 
     @LocalServerPort
     private int port;
@@ -138,7 +142,9 @@ class OrderE2eTest {
             WebElement address = driver.findElement(By.id("shippingAddress"));
             address.sendKeys("Jl. Salemba Raya No. 4, Jakarta");
 
-            wait.until(ExpectedConditions.elementToBeClickable(By.id("checkout-submit"))).click();
+            // Wait for JS validation to enable the submit button
+            wait.until(ExpectedConditions.elementToBeClickable(By.id("checkout-submit")));
+            driver.findElement(By.id("checkout-submit")).click();
 
             wait.until(ExpectedConditions.urlContains("/order/"));
             assertTrue(driver.getCurrentUrl().matches(".*/order/[0-9a-fA-F-]+$"),
@@ -148,11 +154,13 @@ class OrderE2eTest {
             assertEquals(1, orders.size(), "Exactly one order must be persisted");
             Order order = orders.get(0);
             assertEquals(OrderStatus.PAID, order.getStatus());
-            assertEquals(new BigDecimal("200000"), order.getTotalPrice());
+            // Use compareTo to avoid BigDecimal scale mismatch
+            assertEquals(0, new BigDecimal("200000").compareTo(order.getTotalPrice()),
+                    "Total price must be 200000");
 
             BigDecimal remainingBalance = walletRepository
                     .findByUserId(titiper.getId()).orElseThrow().getBalance();
-            assertEquals(new BigDecimal("300000"), remainingBalance,
+            assertEquals(0, new BigDecimal("300000").compareTo(remainingBalance),
                     "Wallet should be debited by total price");
         } finally {
             driver.quit();
@@ -171,9 +179,9 @@ class OrderE2eTest {
 
             WebElement panel = wait.until(ExpectedConditions.visibilityOfElementLocated(
                     By.cssSelector("[data-panel='active']")));
-            assertTrue(panel.findElements(
+            assertEquals(1, panel.findElements(
                     By.cssSelector(".order-card[data-order-id='" + existingOrder.getId() + "']"))
-                    .size() == 1, "Active tab must show the seeded order");
+                    .size(), "Active tab must show the seeded order");
         } finally {
             driver.quit();
         }
@@ -278,7 +286,9 @@ class OrderE2eTest {
             wait.until(ExpectedConditions.alertIsPresent());
             Alert alert = driver.switchTo().alert();
             alert.accept();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            // No alert appeared in time — best-effort handling, continue test.
+            LOGGER.debug("acceptAlert: no alert present, continuing. reason={}", e.getMessage());
         }
     }
 

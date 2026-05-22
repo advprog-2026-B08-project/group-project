@@ -73,7 +73,7 @@ public class WalletServiceImpl implements WalletService {
     public Wallet createWallet(UUID userId) {
         // Cek apakah wallet sudah ada untuk user ini
         if (walletRepository.findByUserId(userId).isPresent()) {
-            LOGGER.warn("wallet_create_rejected userId={} reason=already_exists", userId);
+            LOGGER.warn("wallet_create_rejected reason=already_exists");
             throw new IllegalStateException("Wallet already exists for user: " + userId);
         }
 
@@ -82,10 +82,10 @@ public class WalletServiceImpl implements WalletService {
             wallet.setUserId(userId);
             wallet.setBalance(BigDecimal.ZERO);
             Wallet saved = walletRepository.saveAndFlush(wallet);
-            LOGGER.info("wallet_created userId={} walletId={}", userId, saved.getId());
+            LOGGER.info("wallet_created walletId={}", saved.getId());
             return saved;
         } catch (DataIntegrityViolationException e) {
-            LOGGER.warn("wallet_create_rejected userId={} reason=race_collision", userId);
+            LOGGER.warn("wallet_create_rejected reason=race_collision");
             throw new IllegalStateException("Wallet already exists for user: " + userId, e);
         }
     }
@@ -106,7 +106,7 @@ public class WalletServiceImpl implements WalletService {
     public TransactionResponse topUp(UUID userId, TopUpRequest request) {
         // 1. Validasi amount
         if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            LOGGER.warn("wallet_topup_rejected userId={} reason=invalid_amount", userId);
+            LOGGER.warn("wallet_topup_rejected reason=invalid_amount");
             throw new IllegalArgumentException("Top-up amount must be greater than zero");
         }
 
@@ -123,8 +123,8 @@ public class WalletServiceImpl implements WalletService {
                 .build();
         walletTransactionRepository.save(transaction);
 
-        LOGGER.info("wallet_topup_pending userId={} walletId={} txId={} amount={}",
-                userId, wallet.getId(), transaction.getId(), request.getAmount());
+        LOGGER.info("wallet_topup_pending walletId={} txId={}",
+                wallet.getId(), transaction.getId());
 
         // 4. Return response
         return toResponse(transaction);
@@ -162,15 +162,15 @@ public class WalletServiceImpl implements WalletService {
     @Transactional
     public TransactionResponse deductBalance(UUID userId, BigDecimal amount, String description) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            LOGGER.warn("wallet_deduct_rejected userId={} reason=invalid_amount", userId);
+            LOGGER.warn("wallet_deduct_rejected reason=invalid_amount");
             throw new IllegalArgumentException("Deduct amount must be greater than zero");
         }
 
         Wallet wallet = getOrCreateWalletForUpdate(userId);
 
         if (wallet.getBalance().compareTo(amount) < 0) {
-            LOGGER.warn("wallet_deduct_rejected userId={} walletId={} reason=insufficient_balance balance={} amount={}",
-                    userId, wallet.getId(), wallet.getBalance(), amount);
+            LOGGER.warn("wallet_deduct_rejected walletId={} reason=insufficient_balance",
+                    wallet.getId());
             throw new IllegalArgumentException("Insufficient balance for user: " + userId);
         }
 
@@ -186,8 +186,8 @@ public class WalletServiceImpl implements WalletService {
                 .build();
         walletTransactionRepository.save(transaction);
 
-        LOGGER.info("wallet_deducted userId={} walletId={} txId={} amount={} newBalance={}",
-                userId, wallet.getId(), transaction.getId(), amount, wallet.getBalance());
+        LOGGER.info("wallet_deducted walletId={} txId={} newBalance={}",
+                wallet.getId(), transaction.getId(), wallet.getBalance());
 
         return toResponse(transaction);
     }
@@ -220,11 +220,11 @@ public class WalletServiceImpl implements WalletService {
     @Transactional
     public TransactionResponse refundBalance(UUID userId, BigDecimal amount, String description, UUID referenceId) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            LOGGER.warn("wallet_refund_rejected userId={} reason=invalid_amount", userId);
+            LOGGER.warn("wallet_refund_rejected reason=invalid_amount");
             throw new IllegalArgumentException("Refund amount must be greater than zero");
         }
         if (referenceId == null) {
-            LOGGER.warn("wallet_refund_rejected userId={} reason=missing_reference_id", userId);
+            LOGGER.warn("wallet_refund_rejected reason=missing_reference_id");
             throw new IllegalArgumentException("Reference ID is required for refund");
         }
 
@@ -244,10 +244,10 @@ public class WalletServiceImpl implements WalletService {
 
         try {
             walletTransactionRepository.saveAndFlush(transaction);
-            LOGGER.info("wallet_refunded userId={} walletId={} txId={} amount={} referenceId={}",
-                    userId, wallet.getId(), transaction.getId(), amount, referenceId);
+            LOGGER.info("wallet_refunded walletId={} txId={}",
+                    wallet.getId(), transaction.getId());
         } catch (DataIntegrityViolationException ex) {
-            LOGGER.warn("wallet_refund_duplicate userId={} referenceId={}", userId, referenceId);
+            LOGGER.warn("wallet_refund_duplicate referenceId={}", referenceId);
             throw new IllegalStateException("Refund already processed for reference: " + referenceId, ex);
         }
 
@@ -289,8 +289,8 @@ public class WalletServiceImpl implements WalletService {
                 wallet.setBalance(wallet.getBalance().add(transaction.getAmount()));
             } else {
                 if (wallet.getBalance().compareTo(transaction.getAmount()) < 0) {
-                    LOGGER.warn("wallet_verify_failed txId={} reason=insufficient_balance walletId={} balance={} amount={}",
-                            transactionId, wallet.getId(), wallet.getBalance(), transaction.getAmount());
+                    LOGGER.warn("wallet_verify_failed txId={} reason=insufficient_balance walletId={}",
+                            transactionId, wallet.getId());
                     throw new IllegalStateException("Insufficient balance for withdrawal: " + wallet.getUserId());
                 }
                 wallet.setBalance(wallet.getBalance().subtract(transaction.getAmount()));
@@ -301,8 +301,8 @@ public class WalletServiceImpl implements WalletService {
 
         transaction.setStatus(status);
         walletTransactionRepository.save(transaction);
-        LOGGER.info("wallet_verified txId={} type={} status={} amount={}",
-                transactionId, transaction.getType(), status, transaction.getAmount());
+        LOGGER.info("wallet_verified txId={} type={} status={}",
+                transactionId, transaction.getType(), status);
         return toResponse(transaction);
     }
 
