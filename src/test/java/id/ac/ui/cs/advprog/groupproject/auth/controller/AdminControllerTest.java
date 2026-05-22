@@ -6,7 +6,6 @@ import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
 import id.ac.ui.cs.advprog.groupproject.auth.service.CustomUserDetailService;
 import id.ac.ui.cs.advprog.groupproject.auth.service.KycRequestService;
-import id.ac.ui.cs.advprog.groupproject.config.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,7 +40,7 @@ class AdminControllerTest {
     private AdminController adminController;
 
     @Test
-    public void testAdmin() {
+    void testAdmin() {
         Model model = new ExtendedModelMap();
 
         when(userDetailService.getUserCountByRole()).thenReturn(Map.of());
@@ -58,7 +57,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testUserList() {
+    void testUserList() {
         Model model = new ExtendedModelMap();
         User user = new User();
         user.setRole(Role.ROLE_ADMIN.toString());
@@ -80,7 +79,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testKycRequestListNoUUID() {
+    void testKycRequestListNoUUID() {
         Model model = new ExtendedModelMap();
 
         when(requestService.getRequestList()).thenReturn(List.of());
@@ -99,7 +98,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testKycRequestListWithUUID() {
+    void testKycRequestListWithUUID() {
         Model model = new ExtendedModelMap();
         UUID uuid = UUID.randomUUID();
 
@@ -120,7 +119,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testAdminLogs() {
+    void testAdminLogs() {
         Model model = new ExtendedModelMap();
         when(logService.getAllLogs()).thenReturn(List.of());
 
@@ -133,7 +132,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testDemote() {
+    void testDemote() {
         User admin = new User();
         UUID id = UUID.randomUUID();
 
@@ -146,7 +145,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testBan() {
+    void testBan() {
         User admin = new User();
         UUID id = UUID.randomUUID();
 
@@ -159,7 +158,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testLiftBan() {
+    void testLiftBan() {
         User admin = new User();
         UUID id = UUID.randomUUID();
 
@@ -172,7 +171,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testAcceptKycRequest() {
+    void testAcceptKycRequest() {
         User admin = new User();
         UUID id = UUID.randomUUID();
 
@@ -185,7 +184,7 @@ class AdminControllerTest {
     }
 
     @Test
-    public void testRejectKycRequest() {
+    void testRejectKycRequest() {
         User admin = new User();
         UUID id = UUID.randomUUID();
 

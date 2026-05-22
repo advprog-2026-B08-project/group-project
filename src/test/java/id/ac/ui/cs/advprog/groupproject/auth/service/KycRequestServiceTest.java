@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class KycRequestServiceTest {
+class KycRequestServiceTest {
     @Mock
     private KycRequestRepository kycRequestRepository;
 
@@ -33,7 +33,7 @@ public class KycRequestServiceTest {
     private KycRequestService kycRequestService;
 
     @Test
-    public void testCreateRequestForJastiper() {
+    void testCreateRequestForJastiper() {
         User user = new User();
         user.setUsername("a");
         user.setRole("ROLE_TITIPER");
@@ -62,7 +62,7 @@ public class KycRequestServiceTest {
     }
 
     @Test
-    public void testGetRequestCountByStatus() {
+    void testGetRequestCountByStatus() {
         List<Object[]> rows = List.of(
                 new Object[]{"ACTIVE", 2L},
                 new Object[]{"INACTIVE", 1L}

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ProfileControllerTest {
+class ProfileControllerTest {
     @Mock
     private CustomUserDetailService userDetailService;
 
@@ -23,7 +23,7 @@ public class ProfileControllerTest {
     private ProfileController profileController;
 
     @Test
-    public void testProfile() {
+    void testProfile() {
         User user = new User();
         Model model = new ExtendedModelMap();
 
@@ -34,7 +34,7 @@ public class ProfileControllerTest {
     }
 
     @Test
-    public void testProfileEdit() {
+    void testProfileEdit() {
         User user = new User();
         Model model = new ExtendedModelMap();
 
@@ -45,7 +45,7 @@ public class ProfileControllerTest {
     }
 
     @Test
-    public void testProfileUpdate() {
+    void testProfileUpdate() {
         User user = new User();
         String username = "a";
         String socials = "https://smth-smth";

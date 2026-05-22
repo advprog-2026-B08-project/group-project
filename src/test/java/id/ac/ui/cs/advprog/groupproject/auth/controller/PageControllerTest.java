@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PageControllerTest {
+class PageControllerTest {
     @Mock
     private KycRequestService kycRequestService;
 
@@ -25,7 +25,7 @@ public class PageControllerTest {
     private PageController pageController;
 
     @Test
-    public void testLogin() {
+    void testLogin() {
         String view = pageController.login();
         assertEquals("auth/login", view);
     }
@@ -43,7 +43,7 @@ public class PageControllerTest {
     }
 
     @Test
-    public void testHomepageAuthorized() {
+    void testHomepageAuthorized() {
         Model model = new ExtendedModelMap();
         when(session.getAttribute("unauthorized")).thenReturn(null);
 
@@ -55,19 +55,19 @@ public class PageControllerTest {
     }
 
     @Test
-    public void testRegister() {
+    void testRegister() {
         String view = pageController.register();
         assertEquals("auth/register", view);
     }
 
     @Test
-    public void testOrder() {
+    void testOrder() {
         String view = pageController.order();
         assertEquals("order/list", view);
     }
 
     @Test
-    public void kycRequestJastiper() {
+    void kycRequestJastiper() {
         String view = pageController.kycRequestJastiper();
         assertEquals("auth/kyc/kyc-jastiper", view);
     }

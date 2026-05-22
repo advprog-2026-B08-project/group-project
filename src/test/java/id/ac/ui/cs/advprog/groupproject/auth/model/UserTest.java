@@ -7,9 +7,9 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserTest {
+class UserTest {
     @Test
-    public void testIsJastiperTrue() {
+    void testIsJastiperTrue() {
         User user = new User();
         user.setRole(Role.ROLE_JASTIPER.toString());
 
@@ -17,7 +17,7 @@ public class UserTest {
     }
 
     @Test
-    public void testIsJastiperFalse() {
+    void testIsJastiperFalse() {
         User titiper = new User();
         titiper.setRole(Role.ROLE_TITIPER.toString());
 
@@ -29,7 +29,7 @@ public class UserTest {
     }
 
     @Test
-    public void testGetAuthorities() {
+    void testGetAuthorities() {
         User user = new User();
         user.setRole("ROLE_ADMIN");
 
@@ -41,7 +41,7 @@ public class UserTest {
     }
 
     @Test
-    public void testIsEnabledBanned() {
+    void testIsEnabledBanned() {
         User banned = new User();
         banned.setStatus(Status.BANNED.toString());
 
@@ -49,7 +49,7 @@ public class UserTest {
     }
 
     @Test
-    public void testIsEnabledNotBanned() {
+    void testIsEnabledNotBanned() {
         User active = new User();
         active.setStatus(Status.ACTIVE.toString());
 
@@ -65,7 +65,7 @@ public class UserTest {
     }
 
     @Test
-    public void testGetSuccessRate() {
+    void testGetSuccessRate() {
         User titiper = new User();
         titiper.setRole(Role.ROLE_TITIPER.toString());
 
