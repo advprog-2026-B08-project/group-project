@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.311s</div>
+<div class="counter">0.295s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,7 +79,7 @@
 </thead>
 <tr>
 <td class="success">cancelOrder_orderNotFound_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -89,7 +89,7 @@
 </tr>
 <tr>
 <td class="success">checkout_blankAddress_throws()</td>
-<td class="success">0.239s</td>
+<td class="success">0.236s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -104,12 +104,12 @@
 </tr>
 <tr>
 <td class="success">checkout_nullBuyerId_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_nullProductId_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -119,7 +119,7 @@
 </tr>
 <tr>
 <td class="success">checkout_paymentFails_releasesStockAndThrows()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -129,12 +129,12 @@
 </tr>
 <tr>
 <td class="success">checkout_success_incrementsTriedToSell()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">checkout_success_returnsOrderWithStatusPaid()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -144,22 +144,22 @@
 </tr>
 <tr>
 <td class="success">findAll_returnsAllOrdersFromRepository()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findBuyerActiveOrders_returnsCorrectOrders()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findBuyerCompletedOrders_returnsCorrectOrders()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">findByBuyerId_returnsBuyerOrders()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -184,7 +184,7 @@
 </tr>
 <tr>
 <td class="success">findJastiperTodoOrders_returnsCorrectOrders()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -199,7 +199,7 @@
 </tr>
 <tr>
 <td class="success">submitRating_invalidJastiperRating_throws()</td>
-<td class="success">0.004s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -214,12 +214,12 @@
 </tr>
 <tr>
 <td class="success">submitRating_jastiperOnly_success()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">submitRating_notCompleted_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -229,7 +229,7 @@
 </tr>
 <tr>
 <td class="success">submitRating_produkAlreadyRated_throws()</td>
-<td class="success">0.001s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -244,7 +244,7 @@
 </tr>
 <tr>
 <td class="success">updateStatus_orderNotFound_throws()</td>
-<td class="success">0.002s</td>
+<td class="success">0.001s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -254,12 +254,12 @@
 </tr>
 <tr>
 <td class="success">updateStatus_toNonCompleted_doesNotIncrementSuccessfullySold()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
 <td class="success">updateStatus_validTransition_paidToPurchased()</td>
-<td class="success">0.003s</td>
+<td class="success">0.002s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -267,22 +267,22 @@
 <div class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-05-22T11:09:48.313Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=bca39c68-c3f1-4c25-b08d-9b1d850933ac from=PAID to=CANCELLED
-2026-05-22T11:09:48.313Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_cancelled orderId=bca39c68-c3f1-4c25-b08d-9b1d850933ac refundAmount=300000
-2026-05-22T11:09:48.324Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
-2026-05-22T11:09:48.325Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=9f8c90ea-2a64-4902-ac9d-bbc13a631cc9 totalPrice=100000
-2026-05-22T11:09:48.327Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=c4024595-7729-45f1-bb7f-735cdab3a33e from=SHIPPED to=COMPLETED
-2026-05-22T11:09:48.328Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_completed orderId=c4024595-7729-45f1-bb7f-735cdab3a33e jastiperId=6d1d8e1f-c1a4-4c70-b27b-de0a68188b30 amountCredited=150000
-2026-05-22T11:09:48.331Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=6e3fca84-a695-4a9d-ba1a-cdf462162436 from=PAID to=PURCHASED
-2026-05-22T11:09:48.343Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=2
-2026-05-22T11:09:48.344Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=d86acf47-1d25-4f01-9855-b77ae8efa0a5 totalPrice=200000
-2026-05-22T11:09:48.346Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
-2026-05-22T11:09:48.347Z  WARN 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_rejected reason=self_purchase
-2026-05-22T11:09:48.349Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=5
-2026-05-22T11:09:48.358Z  WARN 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_transition_rejected orderId=1cbfc409-f0cc-49ef-9232-d021101d9173 from=PAID to=COMPLETED reason=invalid_transition
-2026-05-22T11:09:48.369Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=b54da081-828d-487d-a7a2-ff0f5b328793 from=PURCHASED to=SHIPPED
-2026-05-22T11:09:48.373Z  INFO 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
-2026-05-22T11:09:48.374Z  WARN 2627 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_payment_failed reason=Saldo tidak cukup
+<pre>2026-05-22T11:20:34.724Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=8c8356ae-0ed6-415c-9467-1e67582823be from=PAID to=CANCELLED
+2026-05-22T11:20:34.725Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_cancelled orderId=8c8356ae-0ed6-415c-9467-1e67582823be refundAmount=300000
+2026-05-22T11:20:34.735Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
+2026-05-22T11:20:34.735Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=11b0aed8-1b00-4e50-a2c5-5ff7958d61ce totalPrice=100000
+2026-05-22T11:20:34.737Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=d5a27054-a537-497f-932e-2e3ef6fe4d4d from=SHIPPED to=COMPLETED
+2026-05-22T11:20:34.738Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_completed orderId=d5a27054-a537-497f-932e-2e3ef6fe4d4d jastiperId=077d5420-05fe-4206-88a9-62916fcd1bde amountCredited=150000
+2026-05-22T11:20:34.740Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=74dc0aa4-b129-44eb-a212-174bc9113c64 from=PAID to=PURCHASED
+2026-05-22T11:20:34.746Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=2
+2026-05-22T11:20:34.746Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_completed orderId=c7a5fe85-e733-4e68-a85d-1e8a6fc5cd87 totalPrice=200000
+2026-05-22T11:20:34.748Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
+2026-05-22T11:20:34.748Z  WARN 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_rejected reason=self_purchase
+2026-05-22T11:20:34.751Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=5
+2026-05-22T11:20:34.757Z  WARN 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_transition_rejected orderId=1666669e-e757-4541-90d3-de99803a0726 from=PAID to=COMPLETED reason=invalid_transition
+2026-05-22T11:20:34.765Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_status_updated orderId=5f03e924-8903-4994-8645-da435d12a4d2 from=PURCHASED to=SHIPPED
+2026-05-22T11:20:34.768Z  INFO 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_started quantity=1
+2026-05-22T11:20:34.769Z  WARN 2689 --- [group-project] [    Test worker] i.a.u.c.a.g.o.service.OrderServiceImpl   : order_checkout_payment_failed reason=Saldo tidak cukup
 </pre>
 </span>
 </div>
@@ -294,7 +294,7 @@
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 11:09:50 AM</p>
+<a href="https://www.gradle.org">Gradle 8.14.4</a> at May 22, 2026, 11:20:37 AM</p>
 </div>
 </div>
 </body>
