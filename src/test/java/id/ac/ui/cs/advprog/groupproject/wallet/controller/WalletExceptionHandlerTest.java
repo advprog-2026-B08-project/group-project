@@ -2,11 +2,13 @@ package id.ac.ui.cs.advprog.groupproject.wallet.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -76,9 +78,13 @@ class WalletExceptionHandlerTest {
     @Test
     void handleNotReadable_returnsBadRequest() {
         MockHttpServletRequest request = request("/api/wallet/top-up/123");
+        HttpInputMessage inputMessage = mock(HttpInputMessage.class);
 
         WalletExceptionHandler.ApiError error = handler
-                .handleNotReadable(new org.springframework.http.converter.HttpMessageNotReadableException("bad json"), request)
+                .handleNotReadable(
+                        new org.springframework.http.converter.HttpMessageNotReadableException(
+                                "bad json", new RuntimeException("malformed"), inputMessage),
+                        request)
                 .getBody();
 
         assertNotNull(error);

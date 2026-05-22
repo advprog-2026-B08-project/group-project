@@ -484,10 +484,7 @@ class CatalogServiceTest {
         when(catalogRatingEventRepository.existsByOrderId(request.getOrderId())).thenReturn(false);
         when(catalogRepository.existsById(catalogId)).thenReturn(true);
         when(catalogRatingEventRepository.save(any(CatalogRatingEvent.class)))
-            .thenAnswer(invocation -> {
-                Object arg = invocation.getArgument(0);
-                return arg;
-            });
+            .thenAnswer(invocation -> invocation.getArgument(0));
         when(catalogRepository.applyProductRating(catalogId, 5)).thenReturn(1);
         testCatalog.setRatingAverage(5.0);
         testCatalog.setRatingCount(1);
