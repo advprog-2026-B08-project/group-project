@@ -9,6 +9,7 @@ import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.repository.UserRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.service.CatalogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.service.JastiperRatingEnricher;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +27,17 @@ public class CatalogApiController {
   private final CatalogService catalogService;
   private final CatalogMapper catalogMapper;
   private final UserRepository userRepository;
+  private final JastiperRatingEnricher jastiperRatingEnricher;
 
   public CatalogApiController(
-      CatalogService catalogService, CatalogMapper catalogMapper, UserRepository userRepository) {
+      CatalogService catalogService,
+      CatalogMapper catalogMapper,
+      UserRepository userRepository,
+      JastiperRatingEnricher jastiperRatingEnricher) {
     this.catalogService = catalogService;
     this.catalogMapper = catalogMapper;
     this.userRepository = userRepository;
+    this.jastiperRatingEnricher = jastiperRatingEnricher;
   }
 
   private User getCurrentUser(Principal principal) {
@@ -64,7 +70,9 @@ public class CatalogApiController {
       catalogs = catalogService.searchCatalogs(name, jastiper);
     }
 
-    return ResponseEntity.ok(catalogMapper.toDtoList(catalogs));
+    List<CatalogDto> dtos = catalogMapper.toDtoList(catalogs);
+    jastiperRatingEnricher.enrich(dtos);
+    return ResponseEntity.ok(dtos);
   }
 
   @PostMapping
@@ -77,7 +85,7 @@ public class CatalogApiController {
     }
 
     Catalog createdCatalog =
-        catalogService.createCatalog(catalogMapper.toCreateCommand(catalogDto), currentUser);
+        catalogService.createCatalog(catalogMapper.toCreateRequest(catalogDto), currentUser);
     return ResponseEntity.status(HttpStatus.CREATED).body(catalogMapper.toDto(createdCatalog));
   }
 
@@ -86,7 +94,7 @@ public class CatalogApiController {
       @PathVariable UUID id, @Valid @RequestBody CatalogDto catalogDto, Principal principal) {
     User currentUser = getCurrentUser(principal);
     Catalog updatedCatalog =
-        catalogService.updateCatalog(id, catalogMapper.toUpdateCommand(catalogDto), currentUser);
+        catalogService.updateCatalog(id, catalogMapper.toUpdateRequest(catalogDto), currentUser);
     return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));
   }
 
@@ -100,7 +108,8 @@ public class CatalogApiController {
   @PostMapping("/{id}/decrease-stock")
   public ResponseEntity<CatalogDto> decreaseStock(
       @PathVariable UUID id, @Valid @RequestBody DecreaseStockRequest request) {
-    Catalog updatedCatalog = catalogService.decreaseStock(id, request.getQuantity());
+    Catalog updatedCatalog =
+        catalogService.decreaseStock(id, request.getRequestId(), request.getQuantity());
     return ResponseEntity.ok(catalogMapper.toDto(updatedCatalog));
   }
 

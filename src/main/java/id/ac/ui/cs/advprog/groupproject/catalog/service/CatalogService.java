@@ -1,25 +1,29 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.service;
 
 import id.ac.ui.cs.advprog.groupproject.auth.model.LogType;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
+import id.ac.ui.cs.advprog.groupproject.auth.model.Role;
+import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import id.ac.ui.cs.advprog.groupproject.auth.service.ActionLogService;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.ProductRatingUpdateResponse;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.factory.CatalogFactory;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.CatalogRatingEvent;
+import id.ac.ui.cs.advprog.groupproject.catalog.model.StockDecreaseEvent;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRatingEventRepository;
 import id.ac.ui.cs.advprog.groupproject.catalog.repository.CatalogRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.repository.StockDecreaseEventRepository;
+import id.ac.ui.cs.advprog.groupproject.catalog.strategy.CatalogActionStrategy;
+import id.ac.ui.cs.advprog.groupproject.catalog.template.IdempotentTemplate;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.util.UUID;
-import java.util.List;
-import id.ac.ui.cs.advprog.groupproject.auth.model.User;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,37 +31,41 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CatalogService {
   private static final String ITEM_NOT_FOUND_MESSAGE = "Item not found";
-  private static final String AUTH_FAILED_MESSAGE = "Auth Failed!";
   private static final String CREATE_CATALOG_ACTION = "CREATE_CATALOG";
   private static final String UPDATE_CATALOG_ACTION = "UPDATE_CATALOG";
   private static final String DELETE_CATALOG_ACTION = "DELETE_CATALOG";
+  private static final String METRIC_TAG_REASON = "reason";
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogService.class);
 
   private final CatalogRepository catalogRepository;
   private final CatalogRatingEventRepository catalogRatingEventRepository;
+  private final StockDecreaseEventRepository stockDecreaseEventRepository;
   private final CatalogFactory catalogFactory;
+  private final CatalogActionStrategy catalogStrategy;
   private final MeterRegistry meterRegistry;
   private final ActionLogService actionLogService;
 
   public CatalogService(
       CatalogRepository catalogRepository,
       CatalogRatingEventRepository catalogRatingEventRepository,
+      StockDecreaseEventRepository stockDecreaseEventRepository,
       CatalogFactory catalogFactory,
+      CatalogActionStrategy catalogStrategy,
       MeterRegistry meterRegistry,
       ActionLogService actionLogService) {
     this.catalogRepository = catalogRepository;
     this.catalogRatingEventRepository = catalogRatingEventRepository;
+    this.stockDecreaseEventRepository = stockDecreaseEventRepository;
     this.catalogFactory = catalogFactory;
+    this.catalogStrategy = catalogStrategy;
     this.meterRegistry = meterRegistry;
     this.actionLogService = actionLogService;
   }
 
-  public Catalog createCatalog(CreateCatalogCommand command, User currentUser) {
-    if (!isJastiper(currentUser)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Jastiper can create catalog");
-    }
+  public Catalog createCatalog(CreateCatalogRequest request, User currentUser) {
+    catalogStrategy.requireCanCreateCatalog(currentUser);
 
-    Catalog catalog = catalogFactory.create(command, currentUser);
+    Catalog catalog = catalogFactory.create(request, currentUser);
     Catalog savedCatalog = catalogRepository.save(catalog);
     actionLogService.log(
         CREATE_CATALOG_ACTION,
@@ -91,38 +99,20 @@ public class CatalogService {
   }
 
   public Catalog getCatalogById(UUID catalogId, User currentUser) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-
-    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-    }
-
+    Catalog catalog = requireCatalog(catalogId);
+    catalogStrategy.requireCanManageCatalog(currentUser, catalog);
     return catalog;
   }
 
   public Catalog getCatalogByIdForAdmin(UUID catalogId) {
-    return catalogRepository
-        .findById(catalogId)
-        .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+    return requireCatalog(catalogId);
   }
 
-  public Catalog updateCatalog(UUID catalogId, UpdateCatalogCommand command, User currentUser) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+  public Catalog updateCatalog(UUID catalogId, UpdateCatalogRequest request, User currentUser) {
+    Catalog catalog = requireCatalog(catalogId);
+    catalogStrategy.requireCanManageCatalog(currentUser, catalog);
 
-    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-    }
-
-    catalogFactory.applyUpdate(catalog, command);
+    catalogFactory.applyUpdate(catalog, request);
     Catalog updatedCatalog = catalogRepository.save(catalog);
     actionLogService.log(
         UPDATE_CATALOG_ACTION,
@@ -134,14 +124,10 @@ public class CatalogService {
     return updatedCatalog;
   }
 
-  public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogCommand command) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+  public Catalog updateCatalogByAdmin(UUID catalogId, UpdateCatalogRequest request) {
+    Catalog catalog = requireCatalog(catalogId);
 
-    catalogFactory.applyUpdate(catalog, command);
+    catalogFactory.applyUpdate(catalog, request);
     Catalog updatedCatalog = catalogRepository.save(catalog);
     actionLogService.log(
         UPDATE_CATALOG_ACTION,
@@ -154,15 +140,8 @@ public class CatalogService {
   }
 
   public void deleteCatalog(UUID catalogId, User currentUser) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
-
-    if (!catalog.getJastiper().getId().equals(currentUser.getId())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, AUTH_FAILED_MESSAGE);
-    }
+    Catalog catalog = requireCatalog(catalogId);
+    catalogStrategy.requireCanManageCatalog(currentUser, catalog);
 
     catalogRepository.deleteById(catalogId);
     actionLogService.log(
@@ -175,11 +154,7 @@ public class CatalogService {
   }
 
   public void deleteCatalogByAdmin(UUID catalogId) {
-    Catalog catalog =
-        catalogRepository
-            .findById(catalogId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+    Catalog catalog = requireCatalog(catalogId);
     catalogRepository.deleteById(catalogId);
     actionLogService.log(
         DELETE_CATALOG_ACTION,
@@ -191,85 +166,119 @@ public class CatalogService {
   }
 
   @Transactional
-  public Catalog decreaseStock(UUID catalogId, int quantity) {
+  public Catalog decreaseStock(UUID catalogId, UUID requestId, int quantity) {
     if (quantity <= 0) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
     }
 
-    int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);
-    if (updatedRows == 0) {
-      if (!catalogRepository.existsById(catalogId)) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+    return new IdempotentTemplate<UUID, Catalog>() {
+      @Override
+      protected String operationName() {
+        return "stock_decrease";
       }
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
-    }
 
-    return catalogRepository
-        .findById(catalogId)
-        .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
+      @Override
+      protected boolean isAlreadyProcessed(UUID key) {
+        return stockDecreaseEventRepository.existsByRequestId(key);
+      }
+
+      @Override
+      protected void recordEvent(UUID key) {
+        StockDecreaseEvent event = new StockDecreaseEvent();
+        event.setRequestId(key);
+        event.setCatalogId(catalogId);
+        event.setQuantity(quantity);
+        event.setCreatedAt(Instant.now());
+        stockDecreaseEventRepository.saveAndFlush(event);
+      }
+
+      @Override
+      protected Catalog performAction(UUID key) {
+        int updatedRows = catalogRepository.decreaseStockIfAvailable(catalogId, quantity);
+        if (updatedRows == 0) {
+          if (!catalogRepository.existsById(catalogId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+          }
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient stock");
+        }
+        return requireCatalog(catalogId);
+      }
+
+      @Override
+      protected Catalog buildDuplicateResponse(UUID key) {
+        return requireCatalog(catalogId);
+      }
+    }.execute(requestId);
   }
 
   @Transactional
   public ProductRatingUpdateResponse applyProductRating(
       UUID catalogId, ProductRatingUpdateRequest request, User currentUser) {
-    if (!isTitiper(currentUser)) {
-      meterRegistry.counter("catalog.rating.rejected", "reason", "role_forbidden").increment();
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Only Titiper can submit product rating");
+    if (!catalogStrategy.canSubmitRating(currentUser, request.getBuyerId())) {
+      String reason =
+          (currentUser == null || !Role.ROLE_TITIPER.matches(currentUser.getRole()))
+              ? "role_forbidden"
+              : "buyer_mismatch";
+      meterRegistry.counter("catalog.rating.rejected", METRIC_TAG_REASON, reason).increment();
+      catalogStrategy.requireCanSubmitRating(currentUser, request.getBuyerId());
     }
 
-    if (!currentUser.getId().equals(request.getBuyerId())) {
-      meterRegistry.counter("catalog.rating.rejected", "reason", "buyer_mismatch").increment();
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Buyer mismatch");
-    }
+    return new IdempotentTemplate<UUID, ProductRatingUpdateResponse>() {
+      @Override
+      protected String operationName() {
+        return "catalog_rating";
+      }
 
-    if (catalogRatingEventRepository.existsByOrderId(request.getOrderId())) {
-      meterRegistry.counter("catalog.rating.duplicate").increment();
-      LOGGER.info("catalog_rating_duplicate orderId={} catalogId={}", request.getOrderId(), catalogId);
-      Catalog catalog = getCatalogByIdForAdmin(catalogId);
-      return new ProductRatingUpdateResponse(false, catalog.getRatingAverage(), catalog.getRatingCount());
-    }
+      @Override
+      protected boolean isAlreadyProcessed(UUID orderId) {
+        return catalogRatingEventRepository.existsByOrderId(orderId);
+      }
 
-    if (!catalogRepository.existsById(catalogId)) {
-      meterRegistry.counter("catalog.rating.rejected", "reason", "catalog_not_found").increment();
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
-    }
+      @Override
+      protected void recordEvent(UUID orderId) {
+        if (!catalogRepository.existsById(catalogId)) {
+          meterRegistry.counter("catalog.rating.rejected", METRIC_TAG_REASON, "catalog_not_found").increment();
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+        }
+        CatalogRatingEvent event = new CatalogRatingEvent();
+        event.setOrderId(orderId);
+        event.setCatalogId(catalogId);
+        event.setBuyerId(request.getBuyerId());
+        event.setProductRating(request.getProductRating());
+        event.setCreatedAt(Instant.now());
+        catalogRatingEventRepository.save(event);
+      }
 
-    CatalogRatingEvent event = new CatalogRatingEvent();
-    event.setOrderId(request.getOrderId());
-    event.setCatalogId(catalogId);
-    event.setBuyerId(request.getBuyerId());
-    event.setProductRating(request.getProductRating());
-    event.setCreatedAt(Instant.now());
+      @Override
+      protected ProductRatingUpdateResponse performAction(UUID orderId) {
+        int updatedRows =
+            catalogRepository.applyProductRating(catalogId, request.getProductRating());
+        if (updatedRows == 0) {
+          meterRegistry.counter("catalog.rating.failed", METRIC_TAG_REASON, "aggregate_update").increment();
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
+        }
+        Catalog catalog = requireCatalog(catalogId);
+        meterRegistry.counter("catalog.rating.applied").increment();
+        LOGGER.info(
+            "catalog_rating_applied orderId={} catalogId={} rating={} ratingAverage={} ratingCount={}",
+            orderId, catalogId, request.getProductRating(),
+            catalog.getRatingAverage(), catalog.getRatingCount());
+        return new ProductRatingUpdateResponse(
+            true, catalog.getRatingAverage(), catalog.getRatingCount());
+      }
 
-    try {
-      catalogRatingEventRepository.save(event);
-    } catch (DataIntegrityViolationException ex) {
-      meterRegistry.counter("catalog.rating.duplicate").increment();
-      LOGGER.info(
-          "catalog_rating_duplicate_race orderId={} catalogId={}", request.getOrderId(), catalogId);
-      Catalog catalog = getCatalogByIdForAdmin(catalogId);
-      return new ProductRatingUpdateResponse(false, catalog.getRatingAverage(), catalog.getRatingCount());
-    }
+      @Override
+      protected ProductRatingUpdateResponse buildDuplicateResponse(UUID orderId) {
+        Catalog catalog = requireCatalog(catalogId);
+        return new ProductRatingUpdateResponse(
+            false, catalog.getRatingAverage(), catalog.getRatingCount());
+      }
 
-    int updatedRows = catalogRepository.applyProductRating(catalogId, request.getProductRating());
-    if (updatedRows == 0) {
-      meterRegistry.counter("catalog.rating.failed", "reason", "aggregate_update").increment();
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE);
-    }
-
-    Catalog catalog = getCatalogByIdForAdmin(catalogId);
-    meterRegistry.counter("catalog.rating.applied").increment();
-    LOGGER.info(
-        "catalog_rating_applied orderId={} catalogId={} rating={} ratingAverage={} ratingCount={}",
-        request.getOrderId(),
-        catalogId,
-        request.getProductRating(),
-        catalog.getRatingAverage(),
-        catalog.getRatingCount());
-
-    return new ProductRatingUpdateResponse(true, catalog.getRatingAverage(), catalog.getRatingCount());
+      @Override
+      protected void onDuplicate(UUID orderId) {
+        meterRegistry.counter("catalog.rating.duplicate").increment();
+      }
+    }.execute(request.getOrderId());
   }
 
   private String normalizeSearchTerm(String value) {
@@ -281,14 +290,11 @@ public class CatalogService {
     return trimmedValue.isEmpty() ? null : trimmedValue;
   }
 
-  private boolean isJastiper(User user) {
-    String role = user.getRole();
-    return "JASTIPER".equalsIgnoreCase(role) || "ROLE_JASTIPER".equalsIgnoreCase(role);
-  }
-
-  private boolean isTitiper(User user) {
-    String role = user.getRole();
-    return "TITIPER".equalsIgnoreCase(role) || "ROLE_TITIPER".equalsIgnoreCase(role);
+  private Catalog requireCatalog(UUID catalogId) {
+    return catalogRepository
+        .findById(catalogId)
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, ITEM_NOT_FOUND_MESSAGE));
   }
 
   private String getCatalogTarget(Catalog catalog) {

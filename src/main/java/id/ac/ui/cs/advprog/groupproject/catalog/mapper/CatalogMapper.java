@@ -1,8 +1,8 @@
 package id.ac.ui.cs.advprog.groupproject.catalog.mapper;
 
-import id.ac.ui.cs.advprog.groupproject.catalog.command.CreateCatalogCommand;
-import id.ac.ui.cs.advprog.groupproject.catalog.command.UpdateCatalogCommand;
 import id.ac.ui.cs.advprog.groupproject.catalog.dto.CatalogDto;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.CreateCatalogRequest;
+import id.ac.ui.cs.advprog.groupproject.catalog.dto.UpdateCatalogRequest;
 import id.ac.ui.cs.advprog.groupproject.catalog.model.Catalog;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -34,8 +34,8 @@ public class CatalogMapper {
     return catalogs.stream().map(this::toDto).toList();
   }
 
-  public CreateCatalogCommand toCreateCommand(CatalogDto dto) {
-    return new CreateCatalogCommand(
+  public CreateCatalogRequest toCreateRequest(CatalogDto dto) {
+    return new CreateCatalogRequest(
         dto.getName(),
         dto.getDescription(),
         dto.getImageUrl(),
@@ -45,8 +45,8 @@ public class CatalogMapper {
         dto.getTravelDate());
   }
 
-  public UpdateCatalogCommand toUpdateCommand(CatalogDto dto) {
-    return new UpdateCatalogCommand(
+  public UpdateCatalogRequest toUpdateRequest(CatalogDto dto) {
+    return new UpdateCatalogRequest(
         dto.getName(),
         dto.getDescription(),
         dto.getImageUrl(),
