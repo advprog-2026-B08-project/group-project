@@ -186,7 +186,6 @@ class WalletServiceImplTest {
         BigDecimal amount = new BigDecimal("75000");
 
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
-        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
@@ -210,7 +209,6 @@ class WalletServiceImplTest {
         BigDecimal amount = new BigDecimal("75000");
 
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
-        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
@@ -275,7 +273,6 @@ class WalletServiceImplTest {
         BigDecimal amount = new BigDecimal("50000");
 
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
-        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
@@ -299,7 +296,6 @@ class WalletServiceImplTest {
         BigDecimal amount = new BigDecimal("50000");
 
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.of(wallet));
-        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
@@ -336,7 +332,6 @@ class WalletServiceImplTest {
     void creditBalance_WalletNotFound_CreatesWallet() {
         when(walletRepository.findByUserIdForUpdate(userId)).thenReturn(Optional.empty());
         when(walletRepository.saveAndFlush(any(Wallet.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
         when(walletTransactionRepository.save(any(WalletTransaction.class)))
                 .thenAnswer(invocation -> {
                     WalletTransaction tx = invocation.getArgument(0);
